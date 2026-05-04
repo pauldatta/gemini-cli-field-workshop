@@ -1,0 +1,31 @@
+{
+  // Gemini CLI Field Workshop — Markdown Lint Rules
+  // Used by: markdownlint-cli2 (precommit + CI)
+  // Docs: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+  // Disable rules that conflict with Docsify's rendering expectations
+  "MD013": false,         // Line length — our tables are wide, Docsify handles wrapping
+  "MD033": false,         // Inline HTML — we use <p align="center"> for banners, <details> blocks
+  "MD041": false,         // First line heading — Docsify pages may start with frontmatter or HTML
+  "MD024": false,         // No duplicate headings — our workshop repeats "Example" and "Try it" headings
+  "MD046": false,         // Code block style — we mix fenced and indented in different contexts
+
+  // Keep these enabled — they catch real rendering bugs
+  "MD001": true,          // Heading increment — no jumping from # to ###
+  "MD009": true,          // No trailing tabs
+  "MD010": true,          // No hard tabs
+  "MD012": true,          // No multiple consecutive blank lines
+  "MD018": true,          // Space after hash in headings
+  "MD019": true,          // No multiple spaces after hash
+  "MD022": true,          // Headings surrounded by blank lines
+  "MD023": true,          // Headings must start at beginning of line
+  "MD025": true,          // Single h1 per document (important for Docsify sidebar)
+  "MD028": true,          // No blank line inside blockquote
+  "MD037": true,          // No spaces inside emphasis markers
+  "MD038": true,          // No spaces inside code spans
+  "MD039": true,          // No spaces inside link text
+  "MD042": true,          // No empty links
+  "MD047": true,          // Files should end with newline
+  "MD049": { "style": "asterisk" },  // Emphasis style consistency
+  "MD050": { "style": "asterisk" }   // Strong emphasis style consistency
+}

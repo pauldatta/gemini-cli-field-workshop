@@ -1,0 +1,52 @@
+name: '🔗 Link Check'
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'README.md'
+      - 'samples/**/*.yml'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+      - 'README.md'
+      - 'samples/**/*.yml'
+  schedule:
+    # Nightly at 2am UTC — catches upstream link rot
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false  # Don't need demo-app for link checking
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --accept 200,204,301,302
+            --exclude-mail
+            --exclude 'localhost'
+            --exclude '127\.0\.0\.1'
+            --exclude 'YOUR_KEY'
+            --exclude 'your-org'
+            --cache
+            --max-cache-age 1d
+            'docs/**/*.md'
+            'README.md'
+          fail: true

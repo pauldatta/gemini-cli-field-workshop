@@ -1,0 +1,126 @@
+name: '🏗️ Structural Tests'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  structure:
+    name: File Structure & Config Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Check required files exist
+        run: |
+          echo "📋 Checking required files..."
+          errors=0
+          for f in setup.sh README.md docs/index.html docs/_sidebar.md \
+                   samples/config/settings.json samples/config/policy.toml; do
+            if [ -f "$f" ]; then
+              echo "  ✅ $f"
+            else
+              echo "  ❌ Missing: $f"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then exit 1; fi
+
+      - name: Validate JSON configs
+        run: |
+          echo "📋 Validating JSON..."
+          jq . samples/config/settings.json > /dev/null
+          echo "  ✅ settings.json — valid"
+
+      - name: Validate TOML configs
+        run: |
+          echo "📋 Validating TOML..."
+          python3 -c "import tomllib; tomllib.load(open('samples/config/policy.toml','rb'))"
+          echo "  ✅ policy.toml — valid"
+
+      - name: Validate shell script syntax
+        run: |
+          echo "📋 Checking shell scripts..."
+          bash -n setup.sh && echo "  ✅ setup.sh"
+          for f in samples/hooks/*.sh; do
+            bash -n "$f" && echo "  ✅ $f"
+          done
+
+      - name: Validate agent frontmatter
+        run: |
+          echo "📋 Checking agent definitions..."
+          for f in samples/agents/*.md; do
+            if head -1 "$f" | grep -q '^---'; then
+              echo "  ✅ $f — frontmatter OK"
+            else
+              echo "  ❌ $f — missing YAML frontmatter"
+              exit 1
+            fi
+          done
+
+      - name: Validate sidebar ↔ doc files
+        run: |
+          echo "📋 Checking sidebar alignment..."
+          errors=0
+          grep -oE '\([a-zA-Z0-9_-]+\.md\)' docs/_sidebar.md | tr -d '()' | while read -r f; do
+            if [ -f "docs/$f" ]; then
+              echo "  ✅ docs/$f"
+            else
+              echo "  ❌ Sidebar references $f but docs/$f not found"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then exit 1; fi
+
+  code-blocks:
+    name: Code Block Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Python (for TOML/YAML validation)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate code blocks in docs
+        run: |
+          chmod +x scripts/validate-code-blocks.sh
+          ./scripts/validate-code-blocks.sh docs/
+
+  drift:
+    name: Drift Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Check local drift
+        run: |
+          chmod +x scripts/detect-drift.sh
+          ./scripts/detect-drift.sh
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Lint markdown
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            docs/**/*.md
+            README.md
