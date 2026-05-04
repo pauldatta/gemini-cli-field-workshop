@@ -1,0 +1,49 @@
+name: 'Workshop Feedback'
+description: 'Share feedback about the workshop content, exercises, or delivery experience'
+labels:
+  - 'type/feedback'
+  - 'status/triage'
+body:
+  - type: 'markdown'
+    attributes:
+      value: |-
+        > [!IMPORTANT]
+        > Thanks for your feedback! This helps us improve the workshop for future sessions.
+
+  - type: 'dropdown'
+    id: 'use-case'
+    attributes:
+      label: 'Which use case is this about?'
+      options:
+        - 'UC1: SDLC Productivity Enhancement'
+        - 'UC2: Legacy Code Modernization'
+        - 'UC3: Agentic DevOps Orchestration'
+        - 'Environment Setup'
+        - 'General / Multiple'
+    validations:
+      required: true
+
+  - type: 'textarea'
+    id: 'feedback'
+    attributes:
+      label: 'Your feedback'
+      description: 'What worked well? What could be improved?'
+    validations:
+      required: true
+
+  - type: 'dropdown'
+    id: 'difficulty'
+    attributes:
+      label: 'Difficulty level'
+      description: 'How did you find the workshop difficulty?'
+      options:
+        - Too easy
+        - Just right
+        - Slightly challenging
+        - Too difficult
+
+  - type: 'textarea'
+    id: 'suggestions'
+    attributes:
+      label: 'Suggestions for improvement'
+      description: 'Any specific changes you would recommend?'

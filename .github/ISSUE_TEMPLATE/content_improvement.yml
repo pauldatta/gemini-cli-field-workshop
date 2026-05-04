@@ -1,0 +1,48 @@
+name: 'Content Improvement'
+description: 'Suggest improvements to workshop content, new exercises, or additional use cases'
+labels:
+  - 'type/improvement'
+  - 'status/triage'
+body:
+  - type: 'markdown'
+    attributes:
+      value: |-
+        > [!IMPORTANT]
+        > Thanks for suggesting an improvement!
+        >
+        > Please search **[existing issues](https://github.com/pauldatta/gemini-cli-field-workshop/issues)** to see if a similar suggestion exists.
+
+  - type: 'textarea'
+    id: 'improvement'
+    attributes:
+      label: 'What would you like improved or added?'
+      description: 'A clear description of the content improvement.'
+    validations:
+      required: true
+
+  - type: 'textarea'
+    id: 'rationale'
+    attributes:
+      label: 'Why is this needed?'
+      description: 'How would this improve the workshop experience?'
+    validations:
+      required: true
+
+  - type: 'dropdown'
+    id: 'area'
+    attributes:
+      label: 'Which area does this relate to?'
+      options:
+        - UC1 SDLC Productivity
+        - UC2 Legacy Modernization
+        - UC3 DevOps Orchestration
+        - New use case
+        - Setup / tooling
+        - Facilitator guide
+        - Other
+
+  - type: 'textarea'
+    id: 'additional-context'
+    attributes:
+      label: 'Additional context'
+      description: 'Add any examples, references, or mockups here.'
