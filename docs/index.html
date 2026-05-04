@@ -54,5 +54,18 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-toml.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
+  <script>
+    // Language router — Docsify navbar strips # from links, so we intercept
+    // clicks on language routes (/xx/) and navigate via hash instead.
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a');
+      if (!link) return;
+      var href = link.getAttribute('href');
+      if (href && /^\/[a-z]{2}\/$/.test(href)) {
+        e.preventDefault();
+        window.location.hash = '#' + href;
+      }
+    });
+  </script>
 </body>
 </html>
