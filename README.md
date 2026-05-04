@@ -1,6 +1,10 @@
-# Gemini CLI Workshop
+<p align="center">
+  <img src="docs/assets/banner.png" alt="Gemini CLI Field Workshop" width="100%">
+</p>
 
-Hands-on enablement workshop for enterprise developers — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI.
+# Gemini CLI Field Workshop
+
+Hands-on enablement for enterprise developers — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI.
 
 ## Workshop Delivery Order
 
