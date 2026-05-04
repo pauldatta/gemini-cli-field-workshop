@@ -70,7 +70,7 @@ Gemini CLI reads `GEMINI.md` files at multiple levels, each adding more specific
 cat GEMINI.md
 ```
 
-This file (copied from `samples/gemini-md/project-gemini.md` during setup) defines:
+This file (copied from [`samples/gemini-md/project-gemini.md`](../samples/gemini-md/project-gemini.md) during setup) defines:
 - Architecture rules (routes → controllers → models)
 - Anti-patterns (no callbacks, no hardcoded credentials)
 - Testing standards

@@ -176,7 +176,7 @@ Create a security scanner for your migration:
 cat .gemini/agents/security-scanner.md
 ```
 
-The security scanner subagent (from `samples/agents/security-scanner.md`):
+The security scanner subagent (from [`samples/agents/security-scanner.md`](../samples/agents/security-scanner.md)):
 - Has a focused system prompt for security analysis
 - Can be restricted to specific tools
 - Uses a specific model (you can assign Flash for speed or Pro for depth)
