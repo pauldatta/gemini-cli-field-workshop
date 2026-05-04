@@ -293,10 +293,215 @@ A well-crafted `GEMINI.md` encodes your team's engineering standards so the agen
 
 ---
 
+## Skills-Based Development
+
+Skills are structured, reusable instruction files (`SKILL.md`) that encode senior-engineer workflows directly into the agent. Unlike raw prompts, each skill includes a step-by-step process, anti-rationalization tables (common excuses the agent might use to skip steps, with documented rebuttals), red flags, and verification gates.
+
+### Why Skills Beat Raw Prompts
+
+| Raw Prompt | Structured Skill |
+|---|---|
+| "Write tests for this" | Activates Red-Green-Refactor workflow with test pyramid targets (80/15/5) |
+| "Review this code" | Runs five-axis review with severity labels (Nit/Optional/FYI) and change-size norms |
+| "Make this secure" | Triggers OWASP Top 10 checklist with three-tier boundary system |
+| No stopping criteria | Built-in verification gates — the agent must produce evidence before moving on |
+
+### Installing Community Skills
+
+The [agent-skills](https://github.com/addyosmani/agent-skills) pack provides 20 production-grade skills covering the full SDLC. Install them with one command:
+
+```bash
+# Install from GitHub (auto-discovers all SKILL.md files)
+gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
+
+# Verify installation
+/skills list
+```
+
+Once installed, skills activate on-demand when the agent recognizes a matching task. Building UI? The `frontend-ui-engineering` skill activates automatically. Debugging a test failure? `debugging-and-error-recovery` kicks in.
+
+### SDLC Slash Commands
+
+The skill pack ships 7 slash commands under `.gemini/commands/` that map to the development lifecycle:
+
+| Command | Phase | What It Does |
+|---|---|---|
+| `/spec` | Define | Write a structured PRD before writing code |
+| `/planning` | Plan | Break work into small, verifiable tasks with acceptance criteria |
+| `/build` | Build | Implement the next task as a thin vertical slice |
+| `/test` | Verify | Run TDD workflow — red, green, refactor |
+| `/review` | Review | Five-axis code review with severity labels |
+| `/code-simplify` | Review | Reduce complexity without changing behavior (Chesterton's Fence) |
+| `/ship` | Ship | Pre-launch checklist via parallel persona fan-out |
+
+> **Note:** Use `/planning` instead of `/plan` — `/plan` conflicts with Gemini CLI's built-in Plan Mode command.
+
+### Skills vs GEMINI.md
+
+Both influence agent behavior, but serve different purposes:
+
+| | Skills | GEMINI.md |
+|---|---|---|
+| **Loaded** | On-demand, when task matches | Every prompt, always |
+| **Token cost** | Minimal until activated | Constant overhead |
+| **Best for** | Phase-specific workflows (TDD, security review, shipping) | Always-on project conventions (tech stack, coding standards) |
+
+**Rule of thumb:** If you'd want it active for *every* prompt, put it in GEMINI.md. If it's phase-specific, install it as a skill.
+
+### Exercise
+
+1. Install the agent-skills pack into your ProShop workspace
+2. Run `/spec` — write a spec for a "product comparison" feature
+3. Run `/build` — implement the first slice incrementally
+4. Run `/test` — watch TDD workflow enforce red-green-refactor
+5. Compare: How does the structured workflow differ from a raw "add a comparison feature" prompt?
+
+---
+
+## Google Managed MCP Servers
+
+Google provides **50+ managed MCP servers** that give your agent direct, governed access to Google Cloud services, Workspace apps, and developer tools — no local server installation required.
+
+### Why Managed MCP?
+
+| Concern | How Managed MCP Solves It |
+|---|---|
+| **Security** | IAM Deny policies for tool-level access control; Model Armor for prompt injection defense |
+| **Discovery** | Agent Registry — a unified directory for finding and managing MCP servers |
+| **Observability** | OTel Tracing + Cloud Audit Logs for full action forensics |
+| **Interoperability** | Works with Gemini CLI, Claude Code, Cursor, VS Code, LangChain, ADK, CrewAI |
+
+### Developer Knowledge MCP
+
+The [Developer Knowledge MCP server](https://developers.google.com/knowledge/mcp) grounds your agent in official Google documentation — Firebase, Cloud, Android, Maps, and more. Instead of hallucinating API signatures, the agent queries the live documentation corpus.
+
+**One-liner install (API key auth):**
+
+```bash
+gemini mcp add -t http \
+  -H "X-Goog-Api-Key: YOUR_API_KEY" \
+  google-developer-knowledge \
+  https://developerknowledge.googleapis.com/mcp --scope user
+```
+
+**Or via `settings.json` (ADC auth for enterprise):**
+
+```json
+{
+  "mcpServers": {
+    "google-developer-knowledge": {
+      "httpUrl": "https://developerknowledge.googleapis.com/mcp",
+      "authProviderType": "google_credentials",
+      "oauth": {
+        "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
+      },
+      "timeout": 30000,
+      "headers": {
+        "X-goog-user-project": "YOUR_PROJECT_ID"
+      }
+    }
+  }
+}
+```
+
+**Available tools:**
+
+| Tool | Purpose |
+|---|---|
+| `search_documents` | Find relevant documentation chunks for a query |
+| `get_documents` | Retrieve full page content for a specific document |
+| `answer_query` | Get a synthesized, grounded answer from the documentation corpus |
+
+### High-Value MCP Servers by Category
+
+| Category | Servers | Example Use Case |
+|---|---|---|
+| **Developer Docs** | Developer Knowledge API | "How do I configure Cloud Run autoscaling?" → source-cited answer |
+| **Data & Analytics** | BigQuery, Spanner, Firestore, AlloyDB | Query production data directly from agent context |
+| **Infrastructure** | Cloud Run, GKE, Compute Engine | Provision, scale, and manage infra via natural language |
+| **Productivity** | Gmail, Drive, Calendar, Chat | Summarize threads, draft docs, manage invites |
+| **Security** | Security Operations, Model Armor | Investigate threats, block prompt injection in real-time |
+
+> **Governance:** Use [IAM Deny policies](https://docs.cloud.google.com/mcp/control-mcp-use-iam#deny-all-mcp-tool-use) to restrict which MCP tools agents can invoke. Combine with [Model Armor](https://docs.cloud.google.com/model-armor/model-armor-mcp-google-cloud-integration) to defend against indirect prompt injection and data exfiltration.
+
+### Exercise
+
+1. Get a Developer Knowledge API key from your Google Cloud project
+2. Add the Developer Knowledge MCP server to your Gemini CLI config using the one-liner above
+3. Ask the agent: *"How do I deploy a Cloud Run service with a custom domain?"*
+4. Verify: Does the response cite official documentation? Compare to an answer without the MCP server connected
+
+---
+
+## Building Agents with agents-cli
+
+[`agents-cli`](https://github.com/google/agents-cli) is a CLI and skill pack that teaches your coding agent how to build, evaluate, and deploy agents on Google's [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform). It is not a replacement for Gemini CLI — it is a tool *for* coding agents.
+
+### Quick Setup
+
+```bash
+# Install CLI + skills into all detected coding agents
+uvx google-agents-cli setup
+
+# Or install just the skills (your coding agent handles the rest)
+npx skills add google/agents-cli
+```
+
+> **Prerequisites:** Python 3.11+, [uv](https://docs.astral.sh/uv/getting-started/installation/), and Node.js. See `setup.sh` for environment notes.
+
+### Core Workflow
+
+| Command | What It Does |
+|---|---|
+| `agents-cli scaffold <name>` | Create a new ADK agent project with best-practice structure |
+| `agents-cli scaffold enhance` | Add deployment, CI/CD, or RAG to an existing agent project |
+| `agents-cli eval run` | Run agent evaluations (LLM-as-judge, trajectory scoring) |
+| `agents-cli deploy` | Deploy to Google Cloud (Agent Runtime, Cloud Run, or GKE) |
+| `agents-cli publish gemini-enterprise` | Register agent with Gemini Enterprise |
+
+### Skills It Installs
+
+When you run `agents-cli setup`, it installs 7 skills into your coding agent:
+
+| Skill | What Your Coding Agent Learns |
+|---|---|
+| `google-agents-cli-workflow` | Development lifecycle, code preservation rules, model selection |
+| `google-agents-cli-adk-code` | ADK Python API — agents, tools, orchestration, callbacks, state |
+| `google-agents-cli-scaffold` | Project scaffolding — `create`, `enhance`, `upgrade` |
+| `google-agents-cli-eval` | Evaluation methodology — metrics, evalsets, LLM-as-judge |
+| `google-agents-cli-deploy` | Deployment — Agent Runtime, Cloud Run, GKE, CI/CD, secrets |
+| `google-agents-cli-publish` | Gemini Enterprise registration |
+| `google-agents-cli-observability` | Cloud Trace, logging, third-party integrations |
+
+### When to Use agents-cli vs Raw ADK
+
+| Scenario | Tool |
+|---|---|
+| Building an agent from scratch with best practices | `agents-cli scaffold` |
+| Adding RAG or deployment to an existing agent | `agents-cli scaffold enhance` |
+| Evaluating agent quality with structured metrics | `agents-cli eval run` |
+| Deploying manually with full control | `adk deploy` directly |
+| Writing ADK code without scaffolding | Raw ADK + your coding agent |
+
+### Exercise
+
+1. Install agents-cli: `uvx google-agents-cli setup`
+2. Scaffold a new agent: `agents-cli scaffold my-review-bot`
+3. Open the scaffolded project in Gemini CLI and ask: *"Enhance this agent with RAG capabilities using Cloud Storage"*
+4. Run evaluations: `agents-cli eval run`
+5. Observe how the installed skills guide Gemini CLI through ADK-specific patterns it wouldn't otherwise know
+
+---
+
 ## Further Reading
 
 | Resource | What |
 |---|---|
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 20 production-grade engineering skills for coding agents |
+| [google/agents-cli](https://github.com/google/agents-cli) | CLI + skills for building ADK agents on Google Cloud |
+| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | Ground agents in official Google developer documentation |
+| [Google Managed MCP Servers](https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone) | 50+ enterprise MCP servers (Cloud Blog) |
+| [Supported MCP Products](https://docs.cloud.google.com/mcp/supported-products) | Full catalog of Google-managed MCP servers |
 | [GoogleCloudPlatform/scion](https://github.com/GoogleCloudPlatform/scion) | Multi-agent orchestration for teams |
 | [pauldatta/gemini-cli-field-workshop](https://github.com/pauldatta/gemini-cli-field-workshop) | This workshop's source repository |
 | [Gemini CLI Docs](https://geminicli.com) | Official documentation |
