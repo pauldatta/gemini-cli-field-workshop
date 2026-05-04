@@ -29,17 +29,22 @@ body:
       required: true
 
   - type: 'dropdown'
-    id: 'area'
+    id: 'module'
     attributes:
-      label: 'Which area does this relate to?'
+      label: 'Which workshop module does this relate to?'
       options:
-        - UC1 SDLC Productivity
-        - UC2 Legacy Modernization
-        - UC3 DevOps Orchestration
-        - New use case
-        - Setup / tooling
-        - Facilitator guide
-        - Other
+        - '⚙️ Environment Setup'
+        - '1. SDLC Productivity'
+        - '2. Legacy Modernization'
+        - '3. DevOps Orchestration'
+        - '🚀 Advanced Patterns'
+        - '📋 Facilitator Guide'
+        - '📄 Cheatsheet'
+        - '🌐 Translations (i18n)'
+        - 'New module / use case'
+        - 'Other'
+    validations:
+      required: true
 
   - type: 'textarea'
     id: 'additional-context'

@@ -11,14 +11,15 @@ body:
         > Thanks for your feedback! This helps us improve the workshop for future sessions.
 
   - type: 'dropdown'
-    id: 'use-case'
+    id: 'module'
     attributes:
-      label: 'Which use case is this about?'
+      label: 'Which module is this about?'
       options:
-        - 'UC1: SDLC Productivity Enhancement'
-        - 'UC2: Legacy Code Modernization'
-        - 'UC3: Agentic DevOps Orchestration'
-        - 'Environment Setup'
+        - '⚙️ Environment Setup'
+        - '1. SDLC Productivity'
+        - '2. Legacy Modernization'
+        - '3. DevOps Orchestration'
+        - '🚀 Advanced Patterns'
         - 'General / Multiple'
     validations:
       required: true
@@ -41,6 +42,15 @@ body:
         - Just right
         - Slightly challenging
         - Too difficult
+
+  - type: 'dropdown'
+    id: 'language'
+    attributes:
+      label: 'Which language version did you use?'
+      options:
+        - English (default)
+        - 한국어 (Korean)
+        - Other / N/A
 
   - type: 'textarea'
     id: 'suggestions'
