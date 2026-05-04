@@ -17,6 +17,7 @@
     "MD022": false,         // Blanks around headings — compact workshop format is intentional
     "MD058": false,         // Blanks around tables — compact layout for facilitator guide
     "MD031": false,         // Blanks around fences — code blocks inside <details> are compact
+    "MD051": false,         // Link fragments — Docsify uses virtual routes (/ko/) not heading anchors
 
     // Keep these enabled — they catch real rendering bugs
     "MD001": true,          // Heading increment — no jumping from # to ###

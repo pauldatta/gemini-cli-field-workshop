@@ -33,7 +33,9 @@
       subMaxLevel: 3,
       fallbackLanguages: ['en'],
       alias: {
-        '/([a-z]{2})/(.*)': '/$1/$2'
+        '/([a-z]{2})/(.*)':        '/$1/$2',
+        '/([a-z]{2})/_sidebar.md':  '/$1/_sidebar.md',
+        '/([a-z]{2})/_navbar.md':   '/_navbar.md'
       },
       search: {
         placeholder: 'Search workshop...',
