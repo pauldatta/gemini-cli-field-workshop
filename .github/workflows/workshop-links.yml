@@ -45,6 +45,7 @@ jobs:
             --exclude 'YOUR_KEY'
             --exclude 'your-org'
             --exclude '^/[a-z]{2}/$'
+            --exclude '/[a-z]{2}$'
             --exclude '.*/[a-z]{2}/facilitator-guide\.md'
             --root-dir .
             --cache
