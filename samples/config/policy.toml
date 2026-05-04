@@ -1,0 +1,66 @@
+# Gemini CLI Policy Engine Configuration
+# Place at ~/.gemini/policy.toml
+# Policies cascade: admin > user > workspace > default
+
+# -------------------------------------------------------
+# DENY: Block access to secrets and sensitive files
+# -------------------------------------------------------
+
+[[rules]]
+agent = "*"
+tool = "read_file"
+action = "deny"
+when = { path_matches = ".*\\.env.*" }
+
+[[rules]]
+agent = "*"
+tool = "read_file"
+action = "deny"
+when = { path_matches = ".*\\.ssh.*" }
+
+[[rules]]
+agent = "*"
+tool = "read_file"
+action = "deny"
+when = { path_matches = ".*credentials.*\\.json" }
+
+# -------------------------------------------------------
+# DENY: Block destructive shell commands
+# -------------------------------------------------------
+
+[[rules]]
+agent = "*"
+tool = "run_shell_command"
+action = "deny"
+when = { command_starts_with = "rm -rf" }
+
+[[rules]]
+agent = "*"
+tool = "run_shell_command"
+action = "deny"
+when = { command_starts_with = "curl" }
+
+# -------------------------------------------------------
+# ALLOW: Let the implementer run tests
+# -------------------------------------------------------
+
+[[rules]]
+agent = "implementer"
+tool = "run_shell_command"
+action = "allow"
+when = { command_starts_with = "npm test" }
+
+[[rules]]
+agent = "implementer"
+tool = "run_shell_command"
+action = "allow"
+when = { command_starts_with = "npm run lint" }
+
+# -------------------------------------------------------
+# DEFAULT: Everything else requires human approval
+# -------------------------------------------------------
+
+[[rules]]
+agent = "*"
+tool = "*"
+action = "ask_user"

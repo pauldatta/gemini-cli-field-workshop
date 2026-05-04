@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "github-mcp-server"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
+      }
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "name": "session-context",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/session-context.sh",
+            "timeout": 3000,
+            "description": "Injects project state (branch, dirty files) at session start"
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "matcher": "write_file|replace_in_file",
+        "hooks": [
+          {
+            "name": "secret-scanner",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/secret-scanner.sh",
+            "timeout": 2000,
+            "description": "Blocks hardcoded credentials, steers toward env vars"
+          },
+          {
+            "name": "git-context",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/git-context-injector.sh",
+            "timeout": 3000,
+            "description": "Injects recent git history for the target file"
+          }
+        ]
+      }
+    ],
+    "AfterTool": [
+      {
+        "matcher": "write_file|replace_in_file",
+        "hooks": [
+          {
+            "name": "test-nudge",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/test-nudge.sh",
+            "timeout": 1000,
+            "description": "Reminds agent to consider running tests after source changes"
+          }
+        ]
+      }
+    ]
+  }
+}

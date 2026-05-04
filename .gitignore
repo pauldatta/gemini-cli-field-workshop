@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+demo-app/node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gemini CLI runtime artifacts
+.gemini/hook-cache.json
+.gemini/hook-debug.log
+.gemini/memory/
+
+# Build artifacts
+coverage/
+dist/
+build/
+*.log
