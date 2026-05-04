@@ -17,7 +17,8 @@
 # See: .gemini/AGENTS.md for documentation on this testing infrastructure.
 
 .PHONY: test test-structure test-blocks test-drift test-drift-full \
-        test-links test-docsify test-live lint-md test-ci help
+        test-links test-docsify test-live lint-md test-ci help \
+        translate translate-file translate-validate translate-drift translate-list
 
 # Default: run all offline tests
 test: test-structure test-blocks test-drift  ## Run all offline tests
@@ -169,4 +170,71 @@ test-ci:  ## Check GitHub Actions workflow status (needs gh CLI)
 	@echo ""
 	@echo "  Failed runs (if any):"
 	@gh run list --status failure --limit 3 2>/dev/null || true
+
+# ───────────────────────────────────────────────────────────
+# Translation Pipeline — multi-language support
+# ───────────────────────────────────────────────────────────
+# Usage: make translate L=ko
+#        make translate-file FILE=docs/setup.md L=ko
+#        make translate-validate L=ko
+#        make translate-drift L=ko
+#        make translate-list
+# See: tools/i18n/TRANSLATE.md for the full guide.
+
+# Auto-discover available languages from glossary files
+AVAILABLE_LANGS := $(sort $(patsubst tools/i18n/glossary-%.md,%,$(wildcard tools/i18n/glossary-*.md)))
+
+# Helper: check L is set and glossary exists
+define check_lang
+	@if [ -z "$(L)" ]; then \
+		echo "❌ Language not specified."; \
+		echo ""; \
+		echo "  Available: $(AVAILABLE_LANGS)"; \
+		echo "  Usage: make $@ L=ko"; \
+		exit 1; \
+	fi
+	@if [ ! -s "tools/i18n/glossary-$(L).md" ]; then \
+		echo "❌ No glossary for '$(L)'. Available: $(AVAILABLE_LANGS)"; \
+		echo "  Create tools/i18n/glossary-$(L).md first (see tools/i18n/TRANSLATE.md)"; \
+		exit 1; \
+	fi
+endef
+
+translate-list:  ## Show available languages and translation status
+	@echo "🌐 Translation Pipeline — Available Languages"
+	@echo ""
+	@if [ -z "$(AVAILABLE_LANGS)" ]; then \
+		echo "  No glossaries found in tools/i18n/"; \
+		echo "  Create one with: cp tools/i18n/glossary-ko.md tools/i18n/glossary-{lang}.md"; \
+	else \
+		for lang in $(AVAILABLE_LANGS); do \
+			count=$$(ls docs/$$lang/*.md 2>/dev/null | wc -l | tr -d ' '); \
+			if [ "$$count" -gt 0 ]; then \
+				echo "  ✅ $$lang — $$count translated files"; \
+			else \
+				echo "  ⬚  $$lang — glossary exists, no translations yet"; \
+			fi; \
+		done; \
+	fi
+	@echo ""
+	@echo "  Translate: make translate L=xx"
+	@echo "  Validate:  make translate-validate L=xx"
+	@echo "  Drift:     make translate-drift L=xx"
+
+translate:  ## Translate all workshop docs (requires L=xx)
+	$(check_lang)
+	@python3 tools/i18n/translate.py --all --lang $(L)
+
+translate-file:  ## Translate one file (requires L=xx FILE=path)
+	$(check_lang)
+	@test -n "$(FILE)" || (echo "❌ Specify FILE=docs/setup.md" && exit 1)
+	@python3 tools/i18n/translate.py $(FILE) --lang $(L)
+
+translate-validate:  ## Validate translations (requires L=xx)
+	$(check_lang)
+	@python3 tools/i18n/validate.py --all --lang $(L)
+
+translate-drift:  ## Show stale translations (requires L=xx)
+	$(check_lang)
+	@python3 tools/i18n/drift.py --lang $(L)
 

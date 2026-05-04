@@ -29,7 +29,12 @@
       name: '🤖 Gemini CLI Workshop',
       repo: 'pauldatta/gemini-cli-field-workshop',
       loadSidebar: true,
+      loadNavbar: true,
       subMaxLevel: 3,
+      fallbackLanguages: ['en'],
+      alias: {
+        '/([a-z]{2})/(.*)': '/$1/$2'
+      },
       search: {
         placeholder: 'Search workshop...',
         noData: 'No results.',
