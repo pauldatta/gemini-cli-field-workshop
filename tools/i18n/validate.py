@@ -84,7 +84,7 @@ def extract_headings(text: str) -> list[str]:
 
 def count_tables(text: str) -> int:
     """Count table separators (|---|) as proxy for table count."""
-    return len(re.findall(r"^\|[\s-:|]+\|$", text, re.MULTILINE))
+    return len(re.findall(r"^\|[\s:|.-]+\|$", text, re.MULTILINE))
 
 
 def extract_images(text: str) -> list[str]:

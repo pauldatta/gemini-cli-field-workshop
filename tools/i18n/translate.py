@@ -153,19 +153,54 @@ RULES — follow these exactly:
 7. Do not add any commentary, notes, or explanations — output only the translated markdown.
 8. Keep all markdown link paths exactly as they appear — only translate the link display text."""
 
+# Cached client singleton
+_client = None
+_auth_mode = None
+
+
+def get_client():
+    """Create a Gemini client, auto-detecting API key vs Vertex AI (GCP)."""
+    global _client, _auth_mode
+    if _client is not None:
+        return _client, _auth_mode
+
+    from google import genai
+
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+
+    if api_key:
+        _client = genai.Client(api_key=api_key)
+        _auth_mode = "API Key"
+    elif project:
+        _client = genai.Client(
+            vertexai=True,
+            project=project,
+            location=location,
+        )
+        _auth_mode = f"Vertex AI ({project}/{location})"
+    else:
+        print("❌ No credentials found. Set one of:")
+        print("   GEMINI_API_KEY or GOOGLE_API_KEY  (API key mode)")
+        print("   GOOGLE_CLOUD_PROJECT              (Vertex AI mode)")
+        sys.exit(1)
+
+    return _client, _auth_mode
+
 
 def translate_section(section: str, system_prompt: str, model_name: str) -> str:
     """Translate a single section using the Gemini API."""
     from google import genai
 
-    client = genai.Client()
+    client, _ = get_client()
     response = client.models.generate_content(
         model=model_name,
         contents=section,
         config=genai.types.GenerateContentConfig(
             system_instruction=system_prompt,
-            temperature=0.3,  # Balances accuracy with natural phrasing
-            top_p=0.9,        # Prevents low-probability token selection
+            temperature=0.3,
+            top_p=0.9,
         ),
     )
     return response.text
@@ -360,10 +395,13 @@ def main():
     else:
         parser.error("Specify files or use --all")
 
-    # Load glossary
+    # Load glossary and init client
     glossary = load_glossary(args.lang)
+    _, auth_mode = get_client()
 
-    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese"}
+    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese",
+                  "th": "Thai", "vi": "Vietnamese", "id": "Indonesian",
+                  "ms": "Malay", "tl": "Filipino", "my": "Burmese", "km": "Khmer"}
     lang_name = lang_names.get(args.lang, args.lang)
 
     print(f"{'═' * 56}")
@@ -371,6 +409,7 @@ def main():
     print(f"{'═' * 56}")
     print(f"  Target:   {lang_name} ({args.lang})")
     print(f"  Model:    {args.model}")
+    print(f"  Auth:     {auth_mode}")
     print(f"  Files:    {len(files)}")
     print(f"  Glossary: {len(glossary['never_translate'])} protected, "
           f"{len(glossary['terms'])} translated terms")
@@ -422,7 +461,7 @@ def main():
     if total_failures > 0:
         print(f"\n  ⚠️  {total_failures} section(s) failed — English preserved for those sections.")
 
-    print(f"\n  Next: make translate-validate LANG={args.lang}")
+    print(f"\n  Next: make translate-validate L={args.lang}")
 
 
 if __name__ == "__main__":
