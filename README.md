@@ -39,26 +39,33 @@ Or deploy to GitHub Pages (Settings → Pages → Source: `/docs` on `main` bran
 ## Repository Structure
 
 ```
-├── docs/                    # Docsify workshop site (GitHub Pages)
-│   ├── index.html           # Docsify SPA entry point
-│   ├── _sidebar.md          # Navigation
-│   ├── README.md            # Landing page
-│   ├── setup.md             # Environment setup guide
-│   ├── sdlc-productivity.md # Use Case 1
-│   ├── legacy-modernization.md # Use Case 2
-│   ├── devops-orchestration.md # Use Case 3
-│   ├── facilitator-guide.md # Trainer delivery guide
-│   └── cheatsheet.md        # Quick reference handout
-├── exercises/               # Workshop exercise PRDs
-├── samples/                 # Sample configurations
-│   ├── config/              # settings.json, policy.toml
-│   ├── hooks/               # 4 production-grade hook scripts
-│   ├── agents/              # Custom subagent definitions
-│   ├── gemini-md/           # GEMINI.md hierarchy examples
-│   └── cicd/                # GitHub Actions workflows
-├── demo-app/                # Git submodule (proshop-v2)
-├── setup.sh                 # One-command environment setup
-└── LICENSE                  # Apache 2.0
+├── docs/                        # Docsify workshop site (GitHub Pages)
+│   ├── index.html               # Docsify SPA entry point
+│   ├── _sidebar.md              # Navigation
+│   ├── README.md                # Landing page
+│   ├── setup.md                 # Environment setup guide
+│   ├── sdlc-productivity.md     # Use Case 1
+│   ├── legacy-modernization.md  # Use Case 2
+│   ├── devops-orchestration.md  # Use Case 3
+│   ├── advanced-patterns.md     # Power-user agentic patterns
+│   ├── facilitator-guide.md     # Trainer delivery guide
+│   ├── cheatsheet.md            # Quick reference handout
+│   └── assets/                  # Diagrams and images
+├── exercises/                   # Workshop exercise PRDs
+├── samples/                     # Sample configurations
+│   ├── config/                  # settings.json, policy.toml
+│   ├── hooks/                   # Production-grade hook scripts
+│   ├── agents/                  # Custom subagent definitions
+│   │   ├── pr-reviewer.md       #   Code review agent (pro)
+│   │   ├── doc-writer.md        #   Documentation agent (flash-lite)
+│   │   ├── compliance-checker.md#   Compliance audit agent (flash-lite)
+│   │   ├── release-notes-drafter.md # Release notes agent (flash-lite)
+│   │   └── security-scanner.md  #   Security scanning agent (pro)
+│   ├── gemini-md/               # GEMINI.md hierarchy examples
+│   └── cicd/                    # GitHub Actions workflows
+├── demo-app/                    # Git submodule (proshop-v2)
+├── setup.sh                     # One-command environment setup
+└── LICENSE                      # Apache 2.0
 ```
 
 ## For Trainers
