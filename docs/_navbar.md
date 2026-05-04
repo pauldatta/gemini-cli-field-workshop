@@ -1,3 +1,3 @@
 * 🌐 Language
   * [English](/)
-  * [한국어](/ko/)
+  * [한국어](#/ko/)
