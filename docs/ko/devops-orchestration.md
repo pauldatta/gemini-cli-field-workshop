@@ -2,7 +2,7 @@
 
 > **소요 시간:** 약 45분  
 > **목표:** 파이프라인 실패를 진단하고, 수정 사항을 생성하며, PR을 제출하고, 팀에 알림을 보내는 CI/CD 자동화를 구축합니다. 이 모든 작업은 헤드리스 모드, 훅 및 GitHub Actions를 통해 수행됩니다.  
-> **실습 PRD:** [CI/CD 파이프라인 상태 모니터](../../exercises/prd_cicd_monitor.md)
+> **실습 PRD:** [CI/CD 파이프라인 상태 모니터](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
 
 ---
 ## 3.1 — 헤드리스 모드: CLI 없는 CLI (15분)

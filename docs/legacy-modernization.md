@@ -2,7 +2,7 @@
 
 > **Duration:** ~60 minutes  
 > **Goal:** Migrate a legacy application using Plan Mode, custom subagents, skills, and checkpointing. Learn to decompose massive codebases safely.  
-> **Exercise PRDs:** [.NET Modernization](../exercises/prd_dotnet_modernization.md) · [Java Upgrade](../exercises/prd_java_upgrade.md)
+> **Exercise PRDs:** [.NET Modernization](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_dotnet_modernization.md) · [Java Upgrade](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_java_upgrade.md)
 
 ---
 

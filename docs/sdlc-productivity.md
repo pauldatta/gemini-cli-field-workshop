@@ -2,7 +2,7 @@
 
 > **Duration:** ~60 minutes  
 > **Goal:** Build an enterprise-grade developer workflow from first install through context engineering, spec-driven development with Conductor, and governance guardrails.  
-> **Exercise PRD:** [Product Wishlist Feature](../exercises/prd_sdlc_productivity.md)
+> **Exercise PRD:** [Product Wishlist Feature](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_sdlc_productivity.md)
 
 ---
 

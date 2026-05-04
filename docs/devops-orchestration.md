@@ -2,7 +2,7 @@
 
 > **Duration:** ~45 minutes  
 > **Goal:** Build CI/CD automation that diagnoses pipeline failures, creates fixes, submits PRs, and notifies teams — all from headless mode, hooks, and GitHub Actions.  
-> **Exercise PRD:** [CI/CD Pipeline Health Monitor](../exercises/prd_cicd_monitor.md)
+> **Exercise PRD:** [CI/CD Pipeline Health Monitor](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
 
 ---
 

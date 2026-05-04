@@ -2,7 +2,7 @@
 
 > **소요 시간:** 약 60분  
 > **목표:** 초기 설치부터 컨텍스트 엔지니어링, Conductor를 사용한 스펙 기반 개발, 그리고 거버넌스 가드레일에 이르기까지 엔터프라이즈급 개발자 워크플로우를 구축합니다.  
-> **실습 PRD:** [제품 위시리스트 기능](../../exercises/prd_sdlc_productivity.md)
+> **실습 PRD:** [제품 위시리스트 기능](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_sdlc_productivity.md)
 
 ---
 ## 1.1 — 첫 만남 (10분)

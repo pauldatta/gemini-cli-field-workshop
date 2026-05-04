@@ -2,7 +2,7 @@
 
 > **소요 시간:** 약 60분  
 > **목표:** 플랜 모드, 맞춤형 서브에이전트, 스킬 및 체크포인트를 사용하여 레거시 애플리케이션을 마이그레이션합니다. 방대한 코드베이스를 안전하게 분해하는 방법을 배웁니다.  
-> **실습 PRD:** [.NET 현대화](../../exercises/prd_dotnet_modernization.md) · [Java 업그레이드](../../exercises/prd_java_upgrade.md)
+> **실습 PRD:** [.NET 현대화](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_dotnet_modernization.md) · [Java 업그레이드](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_java_upgrade.md)
 
 ---
 ## 2.1 — 플랜 모드: 안전한 조사 (15분)
