@@ -95,14 +95,24 @@ jobs:
 
             You are an issue triage assistant for gemini-cli-field-workshop, a public workshop repository teaching enterprise developers to use Gemini CLI.
 
+            The workshop contains these modules:
+            - Environment Setup (setup.md, setup.sh)
+            - SDLC Productivity (sdlc-productivity.md)
+            - Legacy Modernization (legacy-modernization.md)
+            - DevOps Orchestration (devops-orchestration.md)
+            - Advanced Patterns (advanced-patterns.md)
+            - Facilitator Guide (facilitator-guide.md)
+            - Cheatsheet (cheatsheet.md)
+            - Korean translations (ko/ directory)
+
             ## Steps
             1. Review the issue title: ${{ env.ISSUE_TITLE }}
             2. Review the issue body: ${{ env.ISSUE_BODY }}
-            3. Select exactly ONE type label and exactly ONE area label based on the definitions below.
+            3. Select exactly ONE type label, exactly ONE area label, and exactly ONE priority label.
             4. Output your selection as JSON and nothing else.
 
             ## Output Format
-            {"type": "type/bug", "area": "area/content"}
+            {"type": "type/bug", "area": "area/content", "priority": "priority/medium"}
 
             ## Type Labels
             - type/bug: Something isn't working (broken links, setup errors, incorrect code samples)
@@ -112,20 +122,28 @@ jobs:
 
             ## Area Labels
             - area/setup: setup.sh, installation, authentication, environment issues
-            - area/content: Workshop docs, use case walkthroughs, exercise PRDs
+            - area/content: Workshop docs, use case walkthroughs, exercise instructions
             - area/hooks: Hook samples, settings.json, policy.toml configurations
             - area/facilitator: Facilitator guide, delivery timing, audience targeting
             - area/cicd: GitHub Actions workflows, headless mode examples
-            - area/docsify: Docsify site rendering, navigation, search
+            - area/docsify: Docsify site rendering, navigation, search, index.html
+            - area/i18n: Translations, Korean content in ko/ directory, language parity
             - area/unknown: Does not clearly fit any other area
+
+            ## Priority Labels
+            - priority/high: Blocks workshop delivery (setup fails, critical content wrong)
+            - priority/medium: Degrades experience but has workarounds
+            - priority/low: Nice-to-have improvements, cosmetic issues
 
             ## Guidelines
             - Output ONLY valid JSON. No explanation, no markdown, no extra text.
             - If unsure about area, use area/unknown.
             - If unsure about type, use type/question.
+            - If unsure about priority, use priority/medium.
 
       - name: 'Apply Labels'
         if: steps.check_labels.outputs.skip != 'true' && steps.gemini_analysis.outputs.summary != ''
+        id: 'apply_labels'
         uses: 'actions/github-script@v9'
         env:
           ISSUE_NUMBER: '${{ github.event.issue.number || github.event.inputs.issue_number }}'
@@ -155,16 +173,18 @@ jobs:
 
             if (!parsed || !parsed.type || !parsed.area) {
               core.warning(`Could not parse triage output. Applying fallback labels.`);
-              parsed = { type: 'type/question', area: 'area/unknown' };
+              parsed = { type: 'type/question', area: 'area/unknown', priority: 'priority/medium' };
             }
 
             const validTypes = ['type/bug', 'type/improvement', 'type/feedback', 'type/question'];
-            const validAreas = ['area/setup', 'area/content', 'area/hooks', 'area/facilitator', 'area/cicd', 'area/docsify', 'area/unknown'];
+            const validAreas = ['area/setup', 'area/content', 'area/hooks', 'area/facilitator', 'area/cicd', 'area/docsify', 'area/i18n', 'area/unknown'];
+            const validPriorities = ['priority/high', 'priority/medium', 'priority/low'];
 
             const typeLabel = validTypes.includes(parsed.type) ? parsed.type : 'type/question';
             const areaLabel = validAreas.includes(parsed.area) ? parsed.area : 'area/unknown';
+            const priorityLabel = validPriorities.includes(parsed.priority) ? parsed.priority : 'priority/medium';
 
-            const labels = [typeLabel, areaLabel];
+            const labels = [typeLabel, areaLabel, priorityLabel];
 
             // Remove status/triage once classified
             try {
@@ -185,3 +205,57 @@ jobs:
               labels: labels
             });
             core.info(`Applied labels: ${labels.join(', ')}`);
+
+            // Export for downstream steps
+            core.setOutput('type', typeLabel);
+            core.setOutput('area', areaLabel);
+            core.setOutput('priority', priorityLabel);
+
+      - name: 'Post triage acknowledgment'
+        if: steps.check_labels.outputs.skip != 'true' && steps.apply_labels.outputs.type != '' && github.event_name != 'issue_comment'
+        uses: 'actions/github-script@v9'
+        env:
+          ISSUE_NUMBER: '${{ github.event.issue.number || github.event.inputs.issue_number }}'
+          TYPE_LABEL: '${{ steps.apply_labels.outputs.type }}'
+          AREA_LABEL: '${{ steps.apply_labels.outputs.area }}'
+          PRIORITY_LABEL: '${{ steps.apply_labels.outputs.priority }}'
+        with:
+          script: |
+            const type = process.env.TYPE_LABEL;
+            const area = process.env.AREA_LABEL;
+            const priority = process.env.PRIORITY_LABEL;
+
+            const typeEmoji = {
+              'type/bug': '🐛',
+              'type/improvement': '💡',
+              'type/feedback': '📝',
+              'type/question': '❓'
+            };
+            const priorityEmoji = {
+              'priority/high': '🔴',
+              'priority/medium': '🟡',
+              'priority/low': '🟢'
+            };
+
+            const emoji = typeEmoji[type] || '📋';
+            const pEmoji = priorityEmoji[priority] || '🟡';
+
+            const body = [
+              `${emoji} **Auto-triaged** by Gemini CLI`,
+              '',
+              `| Field | Value |`,
+              `|:------|:------|`,
+              `| Type | \`${type}\` |`,
+              `| Area | \`${area}\` |`,
+              `| Priority | ${pEmoji} \`${priority}\` |`,
+              '',
+              '_This classification was performed automatically. A maintainer will review shortly._',
+              '_If this seems wrong, a maintainer can comment `/triage` to re-run._'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(process.env.ISSUE_NUMBER),
+              body: body
+            });

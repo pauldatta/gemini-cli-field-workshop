@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: '💬 Ask a Question'
-    url: 'https://github.com/pauldatta/gemini-cli-field-workshop/discussions'
-    about: 'Ask questions and share tips in GitHub Discussions'
   - name: '📖 Gemini CLI Documentation'
     url: 'https://googlegemini.wiki/gemini-cli'
     about: 'Official Gemini CLI documentation'
