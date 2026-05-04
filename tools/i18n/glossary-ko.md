@@ -50,3 +50,11 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | legacy modernization | 레거시 현대화 | |
 | DevOps orchestration | DevOps 오케스트레이션 | |
 | Facilitator Guide | 진행자 가이드 | |
+| Home | 홈 | Sidebar navigation |
+| Environment Setup | 환경 설정 | Sidebar navigation |
+| Use Cases | 사용 사례 | Sidebar navigation (capitalized) |
+| SDLC Productivity | SDLC 생산성 향상 | Sidebar navigation |
+| Legacy Modernization | 레거시 현대화 | Sidebar navigation (capitalized) |
+| DevOps Orchestration | DevOps 오케스트레이션 | Sidebar navigation (capitalized) |
+| Advanced Patterns | 고급 패턴 | Sidebar navigation (capitalized) |
+| Cheatsheet | 치트시트 | Sidebar navigation (capitalized) |

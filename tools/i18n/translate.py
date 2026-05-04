@@ -310,7 +310,9 @@ def generate_sidebar(lang: str, glossary: dict):
     """Generate a translated _sidebar.md for the language.
 
     Only translates the display text inside [...], never the link targets
-    inside (...). Excludes links to files not in the translation scope.
+    inside (...). Uses absolute paths so Docsify routes correctly:
+    - Translated files:   /{lang}/file.md
+    - Untranslated files: /file.md  (falls back to English)
     """
     source = REPO_ROOT / "docs" / "_sidebar.md"
     if not source.exists():
@@ -333,15 +335,23 @@ def generate_sidebar(lang: str, glossary: dict):
             if target not in translated_files and target != '/':
                 untranslated = True
 
-        # Only translate display text inside [...], preserve link targets
+        # Only translate display text inside [...], rewrite link targets
         def translate_display(m):
             display = m.group(1)
             target = m.group(2)
             for eng, translated in glossary["terms"].items():
                 display = display.replace(eng, translated)
-            # Point untranslated files to the English version
-            if untranslated and target.endswith('.md'):
-                target = f"../{target}"
+            # Rewrite link targets to absolute Docsify routes
+            if target == '/':
+                # Home link stays in the language context
+                target = f"/{lang}/"
+            elif target.endswith('.md'):
+                if untranslated:
+                    # Untranslated: link to English root
+                    target = f"/{target}"
+                else:
+                    # Translated: link within language directory
+                    target = f"/{lang}/{target}"
             return f"[{display}]({target})"
 
         line = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', translate_display, line)

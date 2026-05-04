@@ -33,9 +33,11 @@
       subMaxLevel: 3,
       fallbackLanguages: ['en'],
       alias: {
-        '/([a-z]{2})/(.*)':        '/$1/$2',
+        // Specific overrides MUST come before the catch-all
         '/([a-z]{2})/_sidebar.md':  '/$1/_sidebar.md',
-        '/([a-z]{2})/_navbar.md':   '/_navbar.md'
+        '/([a-z]{2})/_navbar.md':   '/_navbar.md',
+        // Fallback: paths without their own sidebar get the root one
+        '/.*/_sidebar.md':          '/_sidebar.md'
       },
       search: {
         placeholder: 'Search workshop...',
