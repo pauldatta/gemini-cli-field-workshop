@@ -476,6 +476,8 @@ Keep feedback constructive. Acknowledge good patterns when you see them.
 @pr-reviewer Review all files changed in the last commit
 ```
 
+> **Automate it in CI/CD:** For automated PR reviews on every pull request, use the official [`google-github-actions/run-gemini-cli`](https://github.com/google-github-actions/run-gemini-cli) GitHub Action. Install it from the CLI with `/setup-github` — it configures the workflow files, dispatch handler, and issue triage automatically. See [`samples/cicd/gemini-pr-review.yml`](../samples/cicd/gemini-pr-review.yml) for a working example.
+
 ---
 
 ### Agent 2: The Doc Writer
