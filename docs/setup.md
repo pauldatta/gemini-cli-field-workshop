@@ -6,14 +6,14 @@
 
 ## System Requirements
 
-| Component | Minimum | Recommended |
-|---|---|---|
-| **Node.js** | v18.0.0 | v20+ (LTS) |
-| **npm** | v9+ | v10+ |
-| **Git** | v2.30+ | v2.40+ |
-| **Terminal** | Any | iTerm2 (macOS), Windows Terminal, or VS Code integrated |
-| **Disk Space** | 500MB | 1GB (includes demo app + node_modules) |
-| **jq** | Optional | Required for hook examples |
+| Component      | Minimum  | Recommended                                             |
+| -------------- | -------- | ------------------------------------------------------- |
+| **Node.js**    | v18.0.0  | v20+ (LTS)                                              |
+| **npm**        | v9+      | v10+                                                    |
+| **Git**        | v2.30+   | v2.40+                                                  |
+| **Terminal**   | Any      | iTerm2 (macOS), Windows Terminal, or VS Code integrated |
+| **Disk Space** | 500MB    | 1GB (includes demo app + node_modules)                  |
+| **jq**         | Optional | Required for hook examples                              |
 
 ---
 
@@ -36,6 +36,7 @@ chmod +x setup.sh
 ```
 
 **What it does:**
+
 1. Verifies Node.js, npm, and Git are installed
 2. Installs/updates Gemini CLI globally (`npm install -g @google/gemini-cli`)
 3. Initializes the `demo-app/` submodule (ProShop v2) and runs `npm install`
@@ -105,16 +106,16 @@ ls demo-app/.gemini/policies/  # Should contain team-guardrails.toml
 
 ## Troubleshooting
 
-| Issue | Solution |
-|---|---|
-| `npm install -g` fails with `EACCES` | Use `sudo npm install -g @google/gemini-cli` or fix npm permissions: [npm docs](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) |
-| `gemini: command not found` after install | Restart your terminal or run `source ~/.bashrc` / `source ~/.zshrc` |
-| OAuth flow doesn't open browser | Copy the URL from the terminal and open it manually |
-| `git submodule update` fails | Run `git submodule init && git submodule update --recursive` |
-| Demo app `npm install` fails | Check Node.js version (`node --version`). ProShop v2 requires Node 18+. |
-| Rate limit errors during workshop | Switch to Vertex AI auth, or wait 60 seconds and retry |
-| Hooks not executing | Run `chmod +x demo-app/.gemini/hooks/*.sh` |
-| `jq: command not found` | Install jq: `brew install jq` (macOS) or `apt install jq` (Linux) |
+| Issue                                     | Solution                                                                                                                                                                      |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm install -g` fails with `EACCES`      | Use `sudo npm install -g @google/gemini-cli` or fix npm permissions: [npm docs](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) |
+| `gemini: command not found` after install | Restart your terminal or run `source ~/.bashrc` / `source ~/.zshrc`                                                                                                           |
+| OAuth flow doesn't open browser           | Copy the URL from the terminal and open it manually                                                                                                                           |
+| `git submodule update` fails              | Run `git submodule init && git submodule update --recursive`                                                                                                                  |
+| Demo app `npm install` fails              | Check Node.js version (`node --version`). ProShop v2 requires Node 18+.                                                                                                       |
+| Rate limit errors during workshop         | Switch to Vertex AI auth, or wait 60 seconds and retry                                                                                                                        |
+| Hooks not executing                       | Run `chmod +x demo-app/.gemini/hooks/*.sh`                                                                                                                                    |
+| `jq: command not found`                   | Install jq: `brew install jq` (macOS) or `apt install jq` (Linux)                                                                                                             |
 
 ---
 
@@ -127,7 +128,7 @@ If the setup script doesn't work on your system, run these steps manually:
 npm install -g @google/gemini-cli
 
 # 2. Initialize demo app
-git submodule update --init --recursive
+git submodule add https://github.com/bradtraversy/proshop-v2.git demo-app
 cd demo-app && npm install && cd ..
 
 # 3. Copy configs
