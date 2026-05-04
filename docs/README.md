@@ -8,25 +8,7 @@
 
 This workshop is structured as **3 progressive use cases**. Each is self-contained but builds on skills from the previous:
 
-```
-┌──────────────────────────────────────────────────────┐
-│  0. Environment Setup              (setup)    15 min │
-├──────────────────────────────────────────────────────┤
-│  1. SDLC Productivity Enhancement  (sdlc)     60 min │
-│     → Install · GEMINI.md · Memory · Conductor       │
-│     → MCP · Extensions · Governance · Policy         │
-├──────────────────────────────────────────────────────┤
-│  2. Legacy Code Modernization      (appmod)   60 min │
-│     → Plan Mode · Model Routing · Subagents          │
-│     → Skills · Checkpointing · Git Worktrees         │
-├──────────────────────────────────────────────────────┤
-│  3. Agentic DevOps Orchestration   (devops)   45 min │
-│     → Headless Mode · Hooks · GitHub Actions         │
-│     → MCP + Jira · Auto Memory · Batch Ops           │
-├──────────────────────────────────────────────────────┤
-│  📄 Cheatsheet (handout)                             │
-└──────────────────────────────────────────────────────┘
-```
+![Workshop Flow](assets/workshop-flow.png)
 
 **Why this order:** Use Case 1 builds foundational skills (install, context engineering, governance). Use Case 2 layers on planning and delegation. Use Case 3 brings automation and CI/CD as the capstone. Each builds on the previous.
 
@@ -84,7 +66,7 @@ This workshop uses **[ProShop v2](https://github.com/bradtraversy/proshop-v2)** 
 
 ## Bonus Tools
 
-> **[gemini-cli-scanner](https://github.com/pauldatta/gemini-cli-scanner)** — A TUI tool that scans your local Gemini CLI installation and generates a maturity report. Useful for trainers to audit participant environments before the workshop or as a fun closing activity.
+> **[gemini-cli-scanner](https://github.com/pauldatta/gemini-cli-scanner)** — A TUI tool that scans your local Gemini CLI installation and generates a maturity report. Run it after the workshop to audit participants' skill adoption, tool usage patterns, and configuration quality — a great closing activity that makes learning progress visible.
 
 ---
 

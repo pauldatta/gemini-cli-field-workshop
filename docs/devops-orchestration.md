@@ -100,19 +100,7 @@ done
 
 Hooks intercept the agent loop at specific lifecycle events:
 
-```
-SessionStart ──→ Agent processes prompt
-                      │
-                 BeforeModel ──→ Model generates response
-                      │
-                 AfterModel ──→ Model output received
-                      │
-                 BeforeTool ──→ Tool executes ──→ AfterTool
-                      │
-                 AfterAgent ──→ Turn complete
-                      │
-                 SessionEnd
-```
+![Hooks Architecture](assets/hooks-architecture.png)
 
 ### The Workshop Hooks
 

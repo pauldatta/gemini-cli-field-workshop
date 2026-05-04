@@ -60,12 +60,7 @@ This shows every tool the agent can use: file operations, shell commands, web se
 
 Gemini CLI reads `GEMINI.md` files at multiple levels, each adding more specific context:
 
-```
-~/.gemini/GEMINI.md          → Global preferences (all projects)
-./GEMINI.md                  → Project-level conventions
-./backend/GEMINI.md          → Backend-specific rules
-./frontend/GEMINI.md         → Frontend-specific rules
-```
+![GEMINI.md Context Hierarchy](assets/context-hierarchy.png)
 
 > **JIT context discovery:** The agent only loads the GEMINI.md files relevant to the files it's currently working on. If it's editing `backend/controllers/productController.js`, it loads the project GEMINI.md AND the backend GEMINI.md — but not the frontend one.
 
