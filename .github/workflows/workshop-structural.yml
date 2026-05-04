@@ -119,9 +119,5 @@ jobs:
           submodules: false
 
       - name: Lint markdown
-        uses: DavidAnson/markdownlint-cli2-action@v19
-        with:
-          config: '.markdownlint-cli2.jsonc'
-          globs: |
-            docs/**/*.md
-            README.md
+        run: |
+          npx -y markdownlint-cli2 --config .markdownlint-cli2.jsonc "docs/**/*.md" "README.md"
