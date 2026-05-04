@@ -279,6 +279,10 @@ def translate_file(
     # 6. Rewrite links for lang/ depth
     translated_text = rewrite_links_for_lang(translated_text)
 
+    # Ensure trailing newline for markdown lint (MD047)
+    if not translated_text.endswith("\n"):
+        translated_text += "\n"
+
     # 7. Write output
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(translated_text, encoding="utf-8")
@@ -303,21 +307,54 @@ def translate_file(
 # ---------------------------------------------------------------------------
 
 def generate_sidebar(lang: str, glossary: dict):
-    """Generate a translated _sidebar.md for the language."""
+    """Generate a translated _sidebar.md for the language.
+
+    Only translates the display text inside [...], never the link targets
+    inside (...). Excludes links to files not in the translation scope.
+    """
     source = REPO_ROOT / "docs" / "_sidebar.md"
     if not source.exists():
         print("  ⚠️  No _sidebar.md found, skipping sidebar generation")
         return
 
-    content = source.read_text(encoding="utf-8")
+    lines = source.read_text(encoding="utf-8").splitlines()
+    out_lines = []
 
-    # Translate the display text using glossary terms
-    for eng, translated in glossary["terms"].items():
-        content = content.replace(eng, translated)
+    # Files that exist in the translated directory
+    translated_dir = REPO_ROOT / "docs" / lang
+    translated_files = {f.name for f in translated_dir.glob("*.md")} if translated_dir.exists() else set()
 
-    # Add a link back to English
-    content += f"\n* [🇺🇸 English](/)\n"
+    for line in lines:
+        # Skip links to files that don't exist in the translated dir
+        link_match = re.search(r'\(([^)]+\.md)\)', line)
+        if link_match:
+            target = link_match.group(1)
+            if target not in translated_files and target != '/':
+                continue  # Skip this link entirely
 
+        # Only translate display text inside [...], preserve link targets
+        def translate_display(m):
+            display = m.group(1)
+            target = m.group(2)
+            for eng, translated in glossary["terms"].items():
+                display = display.replace(eng, translated)
+            return f"[{display}]({target})"
+
+        line = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', translate_display, line)
+
+        # Translate bold text like **Use Cases**
+        for eng, translated in glossary["terms"].items():
+            if f"**{eng}**" in line:
+                line = line.replace(f"**{eng}**", f"**{translated}**")
+
+        out_lines.append(line)
+
+    # Add language switch link
+    out_lines.append("")
+    out_lines.append("* [🇺🇸 English](/)")
+    out_lines.append("")
+
+    content = "\n".join(out_lines)
     output = REPO_ROOT / "docs" / lang / "_sidebar.md"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(content, encoding="utf-8")
