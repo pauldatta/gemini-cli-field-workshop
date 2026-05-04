@@ -310,3 +310,5 @@ Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a m
 ## Next Step
 
 → Continue to **[Use Case 3: Agentic DevOps Orchestration](devops-orchestration.md)**
+
+→ For power users: **[Advanced Patterns](advanced-patterns.md)** — prompting craft, verification loops, and parallel development

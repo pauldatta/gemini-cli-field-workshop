@@ -1,7 +1,7 @@
 ---
 name: security-scanner
 description: Scan code for security vulnerabilities. Use for PR reviews and pre-deployment checks.
-model: gemini-3-flash-preview
+model: gemini-3.1-pro-preview
 tools:
   - read_file
   - glob

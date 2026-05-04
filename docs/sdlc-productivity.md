@@ -386,6 +386,270 @@ Shows available custom commands. You can define your own in `.gemini/commands/`.
 
 ---
 
+## 1.7 — Custom Agents for the Full SDLC (20 min)
+
+> **For power users and returning participants.** This section goes beyond code generation to cover the **full software development lifecycle** — reviews, documentation, compliance, and release management. Each agent can be used independently. Jump in at any point.
+
+### Built-in Agents
+
+Gemini CLI ships with default agents you can use immediately. List them with:
+
+```
+/agents
+```
+
+| Agent | Purpose | When to Use |
+|---|---|---|
+| **`generalist`** | Full-tool-access general agent | High-volume or turn-intensive tasks |
+| **`codebase_investigator`** | Architecture mapping & dependency analysis | "Map how auth flows through this app" |
+| **`cli_help`** | Gemini CLI documentation expert | "How do I configure MCP tool isolation?" |
+
+Use the `@agent` syntax to delegate explicitly:
+
+```
+@codebase_investigator Map the complete data flow from the React 
+product page through Redux, to the Express API, to the MongoDB model.
+```
+
+> **Why this matters:** The investigator operates in read-only mode with focused context. It won't accidentally modify files while mapping your architecture. The main agent then uses that map to plan implementation.
+
+---
+
+### Building Custom Agents
+
+Custom agents are Markdown files with YAML frontmatter, dropped into `.gemini/agents/`. Each agent gets:
+
+- A **name** you invoke with `@agent-name`
+- A **description** the CLI uses for auto-routing
+- A **tool allowlist** that controls what the agent can access
+- A **system prompt** that defines its expertise and output format
+
+> **Key design principle:** Separate thinkers from doers. Read-only agents for research and review. Write-access agents for implementation. Never mix investigation and mutation in the same context.
+
+The examples below show that Gemini CLI isn't just a code generator — it's a **full SDLC platform** covering reviews, documentation, compliance, and release management.
+
+---
+
+### Agent 1: The PR Reviewer
+
+A read-only agent that reviews code changes for quality, bugs, and style violations.
+
+```bash
+cp samples/agents/pr-reviewer.md .gemini/agents/
+```
+
+```markdown
+<!-- .gemini/agents/pr-reviewer.md -->
+---
+name: pr-reviewer
+description: Review code changes for quality, bugs, and style violations.
+model: gemini-3.1-pro-preview
+tools:
+  - read_file
+  - glob
+  - grep_search
+  - run_shell_command
+---
+
+You are a senior engineer conducting a pull request review.
+
+## Review Checklist
+1. **Correctness**: Does the code do what it claims?
+2. **Edge Cases**: What happens with empty inputs, nulls, boundary values?
+3. **Style Consistency**: Does it match the project's existing patterns?
+4. **Test Coverage**: Are there tests for happy path AND error cases?
+5. **Security**: User input passed to DB queries unparameterized?
+
+## Output Format
+For each finding:
+- **File:Line** — exact location
+- **Severity** — Critical / Suggestion / Nit
+- **Issue** — one-sentence description
+- **Suggestion** — concrete code improvement
+
+Keep feedback constructive. Acknowledge good patterns when you see them.
+```
+
+**Try it:**
+
+```
+@pr-reviewer Review all files changed in the last commit
+```
+
+---
+
+### Agent 2: The Doc Writer
+
+Generates API documentation, READMEs, and code comments from source code. Read-only — it can never modify your files.
+
+```bash
+cp samples/agents/doc-writer.md .gemini/agents/
+```
+
+```markdown
+<!-- .gemini/agents/doc-writer.md -->
+---
+name: doc-writer
+description: Generate API documentation and README sections from source code.
+model: gemini-3.1-flash-lite-preview
+tools:
+  - read_file
+  - glob
+  - grep_search
+---
+
+You are a technical writer generating documentation from source code.
+- Read the actual source — never guess at API signatures
+- Document: endpoint, method, auth, request body, response format
+- Add usage examples with curl or fetch
+- Flag undocumented endpoints or missing error handling
+```
+
+**Try it:**
+
+```
+@doc-writer Generate API documentation for all endpoints in backend/routes/
+```
+
+> **Outer loop value:** This replaces hours of manual documentation work. Run it after each sprint to keep docs current.
+
+---
+
+### Agent 3: The Compliance Checker
+
+Audits code for license headers, PII exposure, hardcoded secrets, and policy violations.
+
+```bash
+cp samples/agents/compliance-checker.md .gemini/agents/
+```
+
+```markdown
+<!-- .gemini/agents/compliance-checker.md -->
+---
+name: compliance-checker
+description: Audit code for compliance, PII exposure, and policy violations.
+model: gemini-3.1-flash-lite-preview
+tools:
+  - read_file
+  - glob
+  - grep_search
+---
+
+You are a compliance auditor. Scan for:
+1. License headers — every source file needs one
+2. PII exposure — emails, phone numbers, SSNs in code or logs
+3. Hardcoded secrets — API keys, passwords, tokens
+4. Logging hygiene — no user data in log statements
+
+Report as: Category / Severity / File:Line / Finding / Remediation.
+If clean, state "✅ PASS: [category]".
+```
+
+**Try it:**
+
+```
+@compliance-checker Audit the entire backend/ directory
+```
+
+> **Enterprise value:** Samsung's evaluation specifically tests "content filtering and centralized audit." This agent demonstrates that capability directly.
+
+---
+
+### Agent 4: The Release Notes Drafter
+
+Reads git history and changed files to produce structured, stakeholder-friendly release notes.
+
+```bash
+cp samples/agents/release-notes-drafter.md .gemini/agents/
+```
+
+```markdown
+<!-- .gemini/agents/release-notes-drafter.md -->
+---
+name: release-notes-drafter
+description: Generate release notes from git history and source changes.
+model: gemini-3.1-flash-lite-preview
+tools:
+  - run_shell_command
+  - read_file
+  - glob
+  - grep_search
+---
+
+You are a release engineer. Process:
+1. Run `git log --oneline -20` for recent commits
+2. Group by: Features, Bug Fixes, Breaking Changes, Dependencies
+3. Read changed files to understand actual impact
+4. Write user-facing descriptions, not developer jargon
+```
+
+**Try it:**
+
+```
+@release-notes-drafter Write release notes for the last 10 commits
+```
+
+> **Outer loop value:** Release notes are one of the most dreaded SDLC tasks. This agent reads git history AND the actual code changes to produce notes that make sense to product managers.
+
+---
+
+### Combining Agents: The Full Pipeline
+
+The real power is combining agents into a workflow. Each agent gets **fresh, focused context** — no one agent accumulates the full conversation history:
+
+```
+# Step 1: Investigate (read-only, fresh context)
+@codebase_investigator Map the authentication flow in this application
+
+# Step 2: Implement (write access, fresh context)
+Add a "forgot password" endpoint following the patterns described above
+
+# Step 3: Review (read-only, fresh context)
+@pr-reviewer Review the forgot-password implementation
+
+# Step 4: Document (read-only, fresh context)
+@doc-writer Update the API docs with the new endpoint
+
+# Step 5: Audit (read-only, fresh context)
+@compliance-checker Check the new code for hardcoded secrets or PII
+```
+
+> **Why this works:** Each step starts with clean context focused on its specific job. The investigator doesn't carry implementation details. The reviewer doesn't carry investigation noise. This is the principle behind every high-performance AI workflow.
+
+---
+
+### Going Deeper
+
+For additional advanced techniques — prompting discipline, verification loops, context engineering, and parallel development — see the **[Advanced Patterns](advanced-patterns.md)** page:
+
+- [Prompting Craft: Goals vs. Instructions](advanced-patterns.md#prompting-craft-goals-vs-instructions)
+- [Context Discipline](advanced-patterns.md#context-discipline)
+- [Verification Loops](advanced-patterns.md#verification-loops)
+- [Parallel Development with Worktrees](advanced-patterns.md#parallel-development-with-worktrees)
+- [Multi-Agent Orchestration](advanced-patterns.md#multi-agent-orchestration)
+
+---
+
+## Summary: What You Learned
+
+| Feature | What It Does |
+|---|---|
+| **GEMINI.md hierarchy** | Encodes project conventions at every level — agent follows them automatically |
+| **JIT context discovery** | Only loads relevant context files for the current task |
+| **Memory** | Persists knowledge across sessions |
+| **Conductor** | Spec-driven development with persistent plans and progress tracking |
+| **Extensions** | Installable packages of skills, agents, hooks, and policies |
+| **MCP servers** | Connects to external tools (GitHub, BigQuery, Jira) |
+| **Policy engine** | Guardrails-as-code in TOML — deny, allow, or ask_user |
+| **Hooks** | Lightweight context injection and model steering at agent lifecycle events |
+| **Sandboxing** | Isolated execution for untrusted environments |
+| **Custom agents** | Specialized agents for reviews, docs, compliance, release notes — not just coding |
+| **Built-in agents** | `generalist`, `codebase_investigator`, `cli_help` — delegation without setup |
+
+---
+
 ## Next Step
 
 → Continue to **[Use Case 2: Legacy Code Modernization](legacy-modernization.md)**
+
+→ For power users: **[Advanced Patterns](advanced-patterns.md)** — prompting craft, verification loops, context engineering, and parallel development

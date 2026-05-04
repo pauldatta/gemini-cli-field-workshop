@@ -353,4 +353,6 @@ Open the **CI/CD Pipeline Health Monitor PRD** and build:
 
 You've completed all 3 use cases. Review the **[Cheatsheet](cheatsheet.md)** for a quick reference of everything covered.
 
+→ Ready for more? **[Advanced Patterns](advanced-patterns.md)** covers prompting craft, verification loops, context engineering, and parallel development.
+
 For trainers: see the **[Facilitator Guide](facilitator-guide.md)** for delivery tips and customization options.
