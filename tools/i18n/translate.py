@@ -325,12 +325,13 @@ def generate_sidebar(lang: str, glossary: dict):
     translated_files = {f.name for f in translated_dir.glob("*.md")} if translated_dir.exists() else set()
 
     for line in lines:
-        # Skip links to files that don't exist in the translated dir
+        # Check if line has a link to a .md file
         link_match = re.search(r'\(([^)]+\.md)\)', line)
+        untranslated = False
         if link_match:
             target = link_match.group(1)
             if target not in translated_files and target != '/':
-                continue  # Skip this link entirely
+                untranslated = True
 
         # Only translate display text inside [...], preserve link targets
         def translate_display(m):
@@ -338,6 +339,9 @@ def generate_sidebar(lang: str, glossary: dict):
             target = m.group(2)
             for eng, translated in glossary["terms"].items():
                 display = display.replace(eng, translated)
+            # Point untranslated files to the English version
+            if untranslated and target.endswith('.md'):
+                target = f"../{target}"
             return f"[{display}]({target})"
 
         line = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', translate_display, line)

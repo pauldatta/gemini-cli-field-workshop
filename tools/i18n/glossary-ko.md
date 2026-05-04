@@ -49,3 +49,4 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | advanced patterns | 고급 패턴 | |
 | legacy modernization | 레거시 현대화 | |
 | DevOps orchestration | DevOps 오케스트레이션 | |
+| Facilitator Guide | 진행자 가이드 | |

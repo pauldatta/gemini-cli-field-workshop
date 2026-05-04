@@ -5,6 +5,7 @@
   * [2. Legacy Modernization](legacy-modernization.md)
   * [3. DevOps Orchestration](devops-orchestration.md)
 * [🚀 Advanced Patterns](advanced-patterns.md)
+* [📋 진행자 가이드](../facilitator-guide.md)
 * [📄 Cheatsheet](cheatsheet.md)
 
 * [🇺🇸 English](/)
