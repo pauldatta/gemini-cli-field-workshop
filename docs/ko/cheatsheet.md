@@ -18,7 +18,7 @@ gemini --version           # Check version
 |---|---|
 | `Tab` | 제안된 편집 수락 |
 | `Shift+Tab` | 옵션 순환 |
-| `Ctrl+X` | 다중 줄 편집기 |
+| `Ctrl+X` | 여러 줄 편집기 |
 | `Ctrl+C` | 현재 작업 취소 |
 | `↑` / `↓` | 프롬프트 기록 탐색 |
 
@@ -30,7 +30,7 @@ gemini --version           # Check version
 | `/plan` | 플랜 모드 전환 (읽기 전용 조사) |
 | `/stats` | 토큰 사용량 및 모델 정보 표시 |
 | `/clear` | 컨텍스트 지우기 및 새로 시작 |
-| `/tools` | 사용 가능한 도구 목록 |
+| `/tools` | 사용 가능한 도구 목록 표시 |
 | `/resume` | 이전 세션 재개 |
 | `/rewind` | 이전 상태로 롤백 |
 | `/checkpoint` | 현재 상태 저장 |
@@ -38,10 +38,10 @@ gemini --version           # Check version
 | `/memory show` | 저장된 메모리 표시 |
 | `/memory add "..."` | 메모리 추가 |
 | `/hooks panel` | 훅 실행 상태 표시 |
-| `/skills list` | 사용 가능한 스킬 목록 |
-| `/extensions list` | 설치된 확장 프로그램 목록 |
+| `/skills list` | 사용 가능한 스킬 목록 표시 |
+| `/extensions list` | 설치된 확장 프로그램 목록 표시 |
 | `/sandbox status` | 샌드박스 모드 확인 |
-| `/commands` | 사용자 지정 명령어 목록 |
+| `/commands` | 사용자 지정 명령어 목록 표시 |
 
 ---
 ## 헤드리스 모드
@@ -70,7 +70,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ./frontend/GEMINI.md         # Subdirectory rules
 ```
 
-### 가져오기 구문
+### Import 구문
 ```markdown
 @import ./docs/coding-standards.md
 @import ./docs/architecture.md
@@ -143,7 +143,7 @@ action = "ask_user"
 ---
 ## 훅
 
-### settings.json 훅 설정
+### Settings.json 훅 설정
 ```json
 {
   "hooks": {
@@ -235,3 +235,52 @@ gemini -p "Generate JSDoc for all exports in backend/controllers/"
 # Batch processing
 for f in src/*.js; do gemini -p "Add TypeScript types" < "$f"; done
 ```
+
+---
+## 확장 프로그램
+
+```bash
+# Install from GitHub
+gemini extensions install https://github.com/owner/repo
+
+# Install a specific version
+gemini extensions install https://github.com/owner/repo --ref v1.2.0
+
+# List installed extensions
+gemini extensions list
+/extensions list   # from interactive mode
+
+# Update all extensions
+gemini extensions update --all
+
+# Create from a template
+gemini extensions new my-extension mcp-server
+
+# Develop locally (symlink — changes reflected immediately)
+gemini extensions link .
+
+# Disable for this workspace only
+gemini extensions disable my-extension --scope workspace
+```
+
+### 주목할 만한 커뮤니티 확장 프로그램
+
+```bash
+# Conductor (spec-driven development) — already in UC1
+gemini extensions install https://github.com/gemini-cli-extensions/conductor
+
+# Superpowers (TDD, code review, subagent-driven development)
+gemini extensions install https://github.com/obra/superpowers
+
+# Oh-My-Gemini-CLI (multi-agent orchestration framework)
+gemini extensions install https://github.com/Joonghyun-Lee-Frieren/oh-my-gemini-cli
+
+# Google Workspace CLI (optional — requires Workspace auth)
+gemini extensions install https://github.com/googleworkspace/cli
+```
+
+### 갤러리
+
+커뮤니티 확장 프로그램 찾아보기: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
+
+직접 게시하기: GitHub 저장소에 `gemini-cli-extension` 토픽을 추가하고 릴리스에 태그를 지정하세요.

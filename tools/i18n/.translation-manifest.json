@@ -2,27 +2,27 @@
   "ko": {
     "docs/setup.md": {
       "source_sha": "2ea9219803837eaa140ebac59d7c4d910ce2f041",
-      "translated_at": "2026-05-04T08:55:00.589222+00:00"
+      "translated_at": "2026-05-05T01:58:47.044721+00:00"
     },
     "docs/sdlc-productivity.md": {
-      "source_sha": "31c3bb90a15a3193fbffdf6b55799041a52339d5",
-      "translated_at": "2026-05-04T08:58:25.561296+00:00"
+      "source_sha": "4a9380a9bc8ecb9f48e9ce2d1a294715ada9bbb8",
+      "translated_at": "2026-05-05T01:59:53.199108+00:00"
     },
     "docs/legacy-modernization.md": {
-      "source_sha": "d40f4c334e8a50ec3db1701a04e5b43e06eefe08",
-      "translated_at": "2026-05-04T09:00:37.060273+00:00"
+      "source_sha": "0c394ba841d22c2d7dc5e510c01b752b4cbec3d8",
+      "translated_at": "2026-05-05T02:00:29.344314+00:00"
     },
     "docs/devops-orchestration.md": {
-      "source_sha": "4950d81e4fbb5a65a17d5d38317c3d5b0125f06e",
-      "translated_at": "2026-05-04T09:02:20.397782+00:00"
+      "source_sha": "cdf5efe89059954348992b12002ef2f86803f8f6",
+      "translated_at": "2026-05-05T02:00:56.979875+00:00"
     },
     "docs/advanced-patterns.md": {
       "source_sha": "3b203549f848b90b66f3b53e8bc71dd7f8fa69af",
-      "translated_at": "2026-05-04T09:05:56.060793+00:00"
+      "translated_at": "2026-05-05T02:01:55.847105+00:00"
     },
     "docs/cheatsheet.md": {
-      "source_sha": "02db87d37edefa853aa3b9cd2b7f3d947566e796",
-      "translated_at": "2026-05-04T09:07:23.234033+00:00"
+      "source_sha": "50752720d5f0e558537a2f2b9267a3f24ae52de8",
+      "translated_at": "2026-05-05T02:02:25.052228+00:00"
     }
   }
 }

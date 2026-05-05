@@ -632,6 +632,203 @@ For additional advanced techniques — prompting discipline, verification loops,
 
 ---
 
+## Part 2 — Outer Loop: Beyond Code Writing
+
+> **Duration:** ~20 minutes (self-paced)
+> **Prerequisites:** Complete Part 1 above. Familiarity with custom agents (§1.5) and Conductor (§1.4) is helpful.
+
+The exercises above focused on the **inner loop** — writing, testing, and reviewing code. But agents can also handle the **outer loop** — the workflows that surround code: architecture decisions, developer onboarding, dependency auditing, and CI pipeline automation.
+
+In Part 1, you already built the building blocks: subagents for specialized roles, Conductor for spec-driven development, and a compliance checker for policy enforcement. Part 2 shows how to promote these patterns into outer loop workflows.
+
+---
+
+### 2.1 — ADR Generator with Subagent-Driven Development
+
+Architecture Decision Records (ADRs) capture *why* a technical choice was made. Manually writing them is tedious enough that teams skip them entirely. With the subagent-driven development (SDD) methodology from the [superpowers extension](extensions-ecosystem.md#exercise-1-superpowers--methodology-as-extension), you can generate ADRs automatically from code changes.
+
+**Setup:**
+
+```bash
+# Install superpowers if you haven't already
+gemini extensions install https://github.com/obra/superpowers
+```
+
+**Create an ADR agent:**
+
+Create `.gemini/agents/adr-writer.md`:
+
+```markdown
+---
+model: gemini-2.5-flash
+tools:
+  - read_file
+  - list_directory
+  - run_shell_command
+---
+You are an Architecture Decision Record (ADR) writer. When given a set 
+of code changes:
+
+1. Run `git diff main...HEAD` to understand what changed
+2. Analyze the architectural significance — what decision was made?
+3. Generate an ADR in this format:
+
+## ADR-{number}: {title}
+
+**Status:** Proposed
+**Date:** {today}
+**Context:** What problem or requirement drove this decision?
+**Decision:** What was decided and why?
+**Consequences:** What are the tradeoffs? What becomes easier? Harder?
+**Alternatives Considered:** What other approaches were evaluated?
+
+Focus on the *why*, not the *what*. The code shows *what* changed — 
+the ADR explains *why* it was the right choice.
+```
+
+**Use it:**
+
+Make a code change (add a feature, change an architecture pattern), then:
+
+```
+@adr-writer Generate an ADR for the changes on this branch
+```
+
+**With SDD two-stage review:**
+
+```
+Use subagent-driven development to generate an ADR for my current branch 
+changes. The first subagent should draft the ADR. The second should review 
+it for completeness — does it explain the *why*, not just the *what*?
+```
+
+> **Why this matters:** ADRs are one of the most valuable artifacts a team can produce — and one of the most neglected. An agent that generates a draft ADR from every PR reduces the barrier from "write a document" to "review a document." Teams that adopt this pattern build an architectural history automatically.
+
+---
+
+### 2.2 — Developer Onboarding Agent
+
+New developers spend days mapping a codebase before they can contribute. An onboarding agent does this mapping in minutes.
+
+**Create the agent:**
+
+Create `.gemini/agents/onboarding-guide.md`:
+
+```markdown
+---
+model: gemini-2.5-flash
+tools:
+  - read_file
+  - list_directory
+  - search_in_files
+---
+You are a codebase onboarding guide. When a new developer asks about 
+this codebase, help them understand:
+
+1. **Architecture:** What frameworks and patterns are used? 
+   (Check package.json, project structure, GEMINI.md)
+2. **Data flow:** How do requests move through the system? 
+   (Trace from routes → controllers → models → database)
+3. **Authentication:** How does auth work? 
+   (Find auth middleware, token handling, session management)
+4. **Testing:** How are tests organized? What's the testing strategy?
+5. **Deployment:** How does the app get deployed? 
+   (Check CI/CD configs, Dockerfiles, deployment scripts)
+
+Always cite specific files and line numbers. Don't summarize — 
+show the actual code paths.
+```
+
+**Try it:**
+
+```
+@onboarding-guide How does authentication work in this application?
+```
+
+```
+@onboarding-guide What's the testing strategy? Show me an example test 
+and explain the patterns I should follow.
+```
+
+```
+@onboarding-guide I need to add a new API endpoint. Walk me through the 
+pattern — which files do I create and in what order?
+```
+
+> **Key insight:** Compare this to reading the README and hoping it's up-to-date. The agent traces actual code paths, not documentation that may have drifted. This is the `@codebase_investigator` pattern from Part 1 (§1.5) — but specialized for onboarding questions and persisted as a reusable agent.
+
+---
+
+### 2.3 — Dependency Auditing in CI Pipelines
+
+In Part 1, you built a `@compliance-checker` subagent that reviews code locally. The next step is promoting it into a CI pipeline — an agent that runs on every PR to audit dependencies for CVEs, problematic licenses, and unmaintained packages.
+
+#### The Pattern: Headless Gemini CLI in GitHub Actions
+
+```yaml
+# .github/workflows/dependency-audit.yml
+name: Dependency Audit
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements.txt'
+      - 'go.mod'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: google-github-actions/run-gemini-cli@v1
+        with:
+          prompt: |
+            Audit the dependency files in this repository:
+            1. Check for known CVEs in dependencies
+            2. Flag any GPL or AGPL licenses that conflict with our MIT license
+            3. Identify unmaintained packages (no updates in 2+ years)
+            4. Check for packages with known supply chain risks
+            
+            Output a structured report with severity levels:
+            - CRITICAL: Known CVEs with exploits
+            - HIGH: License conflicts or supply chain risks
+            - MEDIUM: Unmaintained packages
+            - LOW: Minor version pinning issues
+            
+            If no issues found, output: AUDIT_CLEAN
+```
+
+**Why agents beat static scanners:**
+
+| Static Scanner | Agent-Based Audit |
+|---|---|
+| Checks against a fixed CVE database | Reasons about *your specific usage* — is the vulnerable function actually called? |
+| Binary license match | Understands license interaction — MIT + Apache is fine, MIT + GPL is problematic |
+| Reports everything | Prioritizes by actual impact to *your* codebase |
+| Requires tool-specific config | Natural language prompt — adjust criteria by editing text |
+
+> **This is Slide 18 Pattern 2:** Using `google-github-actions/run-gemini-cli@v1` to run agents in CI/CD. The same subagent you built locally in §1.5 now runs automatically on every PR. No new code — just a deployment wrapper around the same prompt.
+
+---
+
+### Connecting the Dots
+
+Part 1 gave you the building blocks: subagents, Conductor, policy engine, hooks. Part 2 showed how to promote these patterns into the outer loop:
+
+| Building Block (Part 1) | Outer Loop Application (Part 2) |
+|---|---|
+| Custom subagent (§1.5) | ADR writer, onboarding guide |
+| Compliance checker (§1.5) | CI dependency auditor |
+| Conductor spec-to-code (§1.4) | PRD → ADR → implementation pipeline |
+| Headless mode (referenced in UC3) | GitHub Action automation |
+
+The pattern is always the same: **build locally → validate → promote to CI/CD → scale across the org.** The agent that helps one developer becomes the automation that helps the entire team.
+
+---
+
 ## Summary: What You Learned
 
 | Feature | What It Does |
@@ -647,11 +844,16 @@ For additional advanced techniques — prompting discipline, verification loops,
 | **Sandboxing** | Isolated execution for untrusted environments |
 | **Custom agents** | Specialized agents for reviews, docs, compliance, release notes — not just coding |
 | **Built-in agents** | `generalist`, `codebase_investigator`, `cli_help` — delegation without setup |
+| **ADR generation** | Subagent-driven architecture decision records from git diffs |
+| **Onboarding agent** | Codebase mapping for new developers — traces actual code paths |
+| **CI dependency audit** | Headless agents in GitHub Actions for automated compliance |
 
 ---
 
 ## Next Step
 
 → Continue to **[Use Case 2: Legacy Code Modernization](legacy-modernization.md)**
+
+→ Explore the extension ecosystem: **[Extensions Ecosystem](extensions-ecosystem.md)** — discovery, installation, building, and enterprise patterns
 
 → For power users: **[Advanced Patterns](advanced-patterns.md)** — prompting craft, verification loops, context engineering, and parallel development

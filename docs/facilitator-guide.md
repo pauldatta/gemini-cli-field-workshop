@@ -43,7 +43,8 @@
 |---|---|---|
 | Morning Session | 3.5 hrs | All 3 use cases with hands-on exercises |
 | Lunch | 1 hr | |
-| Afternoon Session | 3.5 hrs | Customer-specific exercises using their own repos |
+| Extensions + Outer Loop | 1 hr | Extensions Ecosystem (30 min) + UC1 Part 2 Outer Loop (20 min) |
+| Afternoon Session | 2.5 hrs | Customer-specific exercises using their own repos |
 
 ---
 

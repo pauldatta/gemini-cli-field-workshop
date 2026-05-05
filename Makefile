@@ -111,7 +111,7 @@ test-docsify:  ## Smoke test Docsify site (starts server, curls pages)
 		sleep 3; \
 		FAILED=0; \
 		for page in "" "setup" "sdlc-productivity" "legacy-modernization" \
-		            "devops-orchestration" "advanced-patterns" "cheatsheet"; do \
+		            "devops-orchestration" "advanced-patterns" "extensions-ecosystem" "cheatsheet"; do \
 			STATUS=$$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4173/#/$${page}"); \
 			if [ "$$STATUS" = "200" ]; then \
 				echo "  ✅ /$${page} → $$STATUS"; \

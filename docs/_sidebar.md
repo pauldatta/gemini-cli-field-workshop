@@ -5,5 +5,6 @@
   * [2. Legacy Modernization](legacy-modernization.md)
   * [3. DevOps Orchestration](devops-orchestration.md)
 * [🚀 Advanced Patterns](advanced-patterns.md)
+* [🧩 Extensions Ecosystem](extensions-ecosystem.md)
 * [📋 Facilitator Guide](facilitator-guide.md)
 * [📄 Cheatsheet](cheatsheet.md)

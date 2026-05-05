@@ -248,3 +248,53 @@ gemini -p "Generate JSDoc for all exports in backend/controllers/"
 # Batch processing
 for f in src/*.js; do gemini -p "Add TypeScript types" < "$f"; done
 ```
+
+---
+
+## Extensions
+
+```bash
+# Install from GitHub
+gemini extensions install https://github.com/owner/repo
+
+# Install a specific version
+gemini extensions install https://github.com/owner/repo --ref v1.2.0
+
+# List installed extensions
+gemini extensions list
+/extensions list   # from interactive mode
+
+# Update all extensions
+gemini extensions update --all
+
+# Create from a template
+gemini extensions new my-extension mcp-server
+
+# Develop locally (symlink — changes reflected immediately)
+gemini extensions link .
+
+# Disable for this workspace only
+gemini extensions disable my-extension --scope workspace
+```
+
+### Notable Community Extensions
+
+```bash
+# Conductor (spec-driven development) — already in UC1
+gemini extensions install https://github.com/gemini-cli-extensions/conductor
+
+# Superpowers (TDD, code review, subagent-driven development)
+gemini extensions install https://github.com/obra/superpowers
+
+# Oh-My-Gemini-CLI (multi-agent orchestration framework)
+gemini extensions install https://github.com/Joonghyun-Lee-Frieren/oh-my-gemini-cli
+
+# Google Workspace CLI (optional — requires Workspace auth)
+gemini extensions install https://github.com/googleworkspace/cli
+```
+
+### Gallery
+
+Browse community extensions: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
+
+Publish your own: Add `gemini-cli-extension` topic to your GitHub repo + tag a release.

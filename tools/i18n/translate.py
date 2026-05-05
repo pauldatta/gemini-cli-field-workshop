@@ -14,6 +14,7 @@ import json
 import os
 import re
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 import time
 from datetime import datetime, timezone
@@ -214,6 +215,7 @@ def translate_file(
     dry_run: bool = False,
     file_num: int = 0,
     file_total: int = 0,
+    **kwargs,
 ) -> dict:
     """Translate a single file. Returns stats dict."""
     content = source_path.read_text(encoding="utf-8")
@@ -243,32 +245,47 @@ def translate_file(
     non_empty = [s for s in sections if s.strip()]
     print(f"     {len(non_empty)} sections to translate")
 
-    # 3. Translate each section
+    # 3. Translate each section (parallel within file)
     system_prompt = build_system_prompt(glossary, lang)
-    translated_sections = []
+    translated_sections = [None] * len(sections)
     failures = 0
     file_start = time.time()
+    max_workers = kwargs.get("max_workers", 4)
 
+    # Identify which sections need translation
+    work_items = []
     for i, section in enumerate(sections):
         if not section.strip():
-            translated_sections.append(section)
-            continue
-        section_start = time.time()
-        try:
-            translated = translate_section(section, system_prompt, model_name)
-            translated_sections.append(translated)
-            elapsed = time.time() - section_start
-            # Show section heading if available
-            heading = ""
-            heading_match = re.search(r"^##+ (.+)", section, re.MULTILINE)
-            if heading_match:
-                heading = f" — {heading_match.group(1)[:40]}"
-            print(f"     ✅ Section {i + 1}/{len(sections)}{heading} ({elapsed:.1f}s)")
-        except Exception as e:
-            print(f"     ❌ Section {i + 1} failed: {e}")
-            print(f"        Keeping English for this section.")
-            translated_sections.append(section)
-            failures += 1
+            translated_sections[i] = section
+        else:
+            work_items.append((i, section))
+
+    def _translate_one(idx, section_text):
+        start = time.time()
+        result = translate_section(section_text, system_prompt, model_name)
+        elapsed = time.time() - start
+        heading = ""
+        heading_match = re.search(r"^##+ (.+)", section_text, re.MULTILINE)
+        if heading_match:
+            heading = f" — {heading_match.group(1)[:40]}"
+        return idx, result, elapsed, heading
+
+    with ThreadPoolExecutor(max_workers=min(max_workers, len(work_items) or 1)) as pool:
+        futures = {
+            pool.submit(_translate_one, idx, sec): idx
+            for idx, sec in work_items
+        }
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                idx, translated, elapsed, heading = future.result()
+                translated_sections[idx] = translated
+                print(f"     ✅ Section {idx + 1}/{len(sections)}{heading} ({elapsed:.1f}s)")
+            except Exception as e:
+                print(f"     ❌ Section {idx + 1} failed: {e}")
+                print(f"        Keeping English for this section.")
+                translated_sections[idx] = sections[idx]
+                failures += 1
 
     # 4. Reassemble
     translated_text = "\n".join(translated_sections)
@@ -436,6 +453,8 @@ def main():
     parser.add_argument("--all", action="store_true", help="Translate all workshop docs")
     parser.add_argument("--model", default="gemini-3.1-pro-preview", help="Gemini model")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be translated")
+    parser.add_argument("--parallel", type=int, default=4,
+                        help="Max parallel API calls per file (default: 4)")
     args = parser.parse_args()
 
     # Determine files
@@ -474,6 +493,8 @@ def main():
     total_start = time.time()
     results = []
 
+    print(f"  Parallel: {args.parallel} workers per file")
+
     for i, f in enumerate(files, 1):
         if not f.exists():
             print(f"\n  ⚠️  Skipping {f} (not found)")
@@ -481,6 +502,7 @@ def main():
         stats = translate_file(
             f, args.lang, glossary, args.model,
             file_num=i, file_total=len(files),
+            max_workers=args.parallel,
         )
         results.append(stats)
         update_manifest(args.lang, f)

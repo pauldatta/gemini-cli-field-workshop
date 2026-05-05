@@ -58,3 +58,4 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | DevOps Orchestration | DevOps 오케스트레이션 | Sidebar navigation (capitalized) |
 | Advanced Patterns | 고급 패턴 | Sidebar navigation (capitalized) |
 | Cheatsheet | 치트시트 | Sidebar navigation (capitalized) |
+| Extensions Ecosystem | 확장 프로그램 생태계 | Sidebar navigation |
