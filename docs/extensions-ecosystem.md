@@ -247,7 +247,7 @@ Gemini CLI provides 7 built-in templates:
 # Create from a template
 gemini extensions new my-extension mcp-server
 gemini extensions new my-extension custom-commands
-gemini extensions new my-extension context
+gemini extensions new my-extension exclude-tools
 gemini extensions new my-extension hooks
 gemini extensions new my-extension skills
 gemini extensions new my-extension policies
