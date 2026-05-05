@@ -1,6 +1,8 @@
 # Gemini CLI Cheatsheet
 
 > Quick reference for everything covered in this workshop.
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -36,14 +38,12 @@ gemini --version           # Check version
 | `/tools` | List available tools |
 | `/resume` | Resume a previous session |
 | `/rewind` | Roll back to a previous state |
-| `/checkpoint` | Save current state |
-| `/restore` | Restore from a checkpoint |
+| `/restore` | Restore from a checkpoint (requires [checkpointing enabled](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
 | `/memory show` | Show saved memories |
 | `/memory add "..."` | Add a memory |
 | `/hooks panel` | Show hook execution status |
 | `/skills list` | List available skills |
 | `/extensions list` | List installed extensions |
-| `/sandbox status` | Check sandbox mode |
 | `/commands` | List custom commands |
 
 ---
@@ -77,9 +77,11 @@ cat file.js | gemini -p "Review this code for bugs"
 
 ### Import syntax
 ```markdown
-@import ./docs/coding-standards.md
-@import ./docs/architecture.md
+@./docs/coding-standards.md
+@./docs/architecture.md
 ```
+
+> See [GEMINI.md reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md) for full syntax.
 
 ---
 
@@ -96,7 +98,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ### Subagent definition (`.gemini/agents/my-agent.md`)
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
@@ -128,25 +130,28 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 
 ```toml
 # Deny reading secrets
-[[rules]]
-agent = "*"
-tool = "read_file"
-action = "deny"
-when = { path_matches = ".*\\.env.*" }
+[[rule]]
+toolName = "read_file"
+argsPattern = '"file_path":".*\.env"'
+decision = "deny"
+priority = 100
+deny_message = "Reading .env files is not allowed."
 
-# Allow specific agent to run tests
-[[rules]]
-agent = "implementer"
-tool = "run_shell_command"
-action = "allow"
-when = { command_starts_with = "npm test" }
+# Allow running tests
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "npm test"
+decision = "allow"
+priority = 50
 
 # Default: ask human
-[[rules]]
-agent = "*"
-tool = "*"
-action = "ask_user"
+[[rule]]
+toolName = "*"
+decision = "ask_user"
+priority = 1
 ```
+
+> See [Policy Engine reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) for the full schema and [Secure Gemini CLI with the Policy Engine](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) for a practical walkthrough.
 
 ---
 
@@ -157,7 +162,7 @@ action = "ask_user"
 {
   "hooks": {
     "BeforeTool": [{
-      "matcher": "write_file|replace_in_file",
+      "matcher": "write_file|replace",
       "hooks": [{
         "name": "my-hook",
         "type": "command",
@@ -187,8 +192,12 @@ echo '{"systemMessage":"Remember to..."}'
 
 ### Hook events
 ```
-SessionStart → BeforeModel → AfterModel → BeforeTool → AfterTool → AfterAgent → SessionEnd
+SessionStart → BeforeAgent → BeforeModel → BeforeToolSelection →
+AfterModel → BeforeTool → AfterTool → AfterAgent → PreCompress →
+Notification → SessionEnd
 ```
+
+> See [Hooks reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md) for the complete event lifecycle.
 
 ---
 

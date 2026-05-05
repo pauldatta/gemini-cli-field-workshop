@@ -1,6 +1,8 @@
 # Environment Setup
 
 > Complete this before starting any use case. Takes ~15 minutes.
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -73,17 +75,9 @@ gcloud config set project YOUR_PROJECT_ID
 
 # Authenticate
 gcloud auth application-default login
-
-# Configure Gemini CLI to use Vertex AI
-# Add to ~/.gemini/settings.json:
-{
-  "auth": {
-    "provider": "vertex-ai",
-    "project": "YOUR_PROJECT_ID",
-    "location": "us-central1"
-  }
-}
 ```
+
+Gemini CLI will auto-detect Vertex AI credentials. For enterprise-enforced authentication, see the [Enterprise guide](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md).
 
 ---
 

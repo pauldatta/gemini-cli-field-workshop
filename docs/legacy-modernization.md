@@ -3,6 +3,8 @@
 > **Duration:** ~60 minutes  
 > **Goal:** Migrate a legacy application using Plan Mode, custom subagents, skills, and checkpointing. Learn to decompose massive codebases safely.  
 > **Exercise PRDs:** [.NET Modernization](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_dotnet_modernization.md) · [Java Upgrade](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_java_upgrade.md)
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -16,7 +18,7 @@ Plan Mode is read-only research. The agent analyzes your codebase, proposes chan
 /plan
 ```
 
-> The prompt indicator changes to show you're in Plan Mode. The agent loses access to write tools — it can only read files, search the web, and think.
+> The CLI indicates you're in Plan Mode. The agent loses access to write tools — it can only read files, search the web, and think.
 
 ### Analyze the Codebase
 
@@ -29,7 +31,7 @@ Identify:
 4. Migration risks and complexity hotspots
 ```
 
-> **What's happening:** The agent reads the entire project — package.json, source files, configuration — and builds a mental model. It can hold your full architecture in context: every dependency, every pattern, every anti-pattern — simultaneously.
+> **What's happening:** The agent reads the project — package.json, source files, configuration — and builds a mental model. It explores your codebase on-demand using tools like `read_file`, `glob`, and `grep_search` to trace every dependency, pattern, and anti-pattern.
 
 ### Review the Plan
 
@@ -68,15 +70,15 @@ Toggle back to normal mode. Now the agent can execute the approved plan.
 
 ### Automatic Model Routing
 
-Gemini CLI automatically routes between models based on task complexity:
+Gemini CLI can automatically select between models based on task complexity:
 
-| Task Type | Model Used | Why |
+| Task Type | Typical Model | Why |
 |---|---|---|
 | Planning, architecture analysis | **Gemini Pro** | Complex reasoning, long-form analysis |
 | Code generation, file edits | **Gemini Flash** | Fast execution, lower cost |
 | Simple queries, status checks | **Gemini Flash** | Speed-optimized |
 
-> You don't configure this — it happens automatically. The agent picks the right model for each step.
+> This routing is heuristic, not deterministic — the CLI evaluates prompt complexity and selects accordingly. You can override with `/model` to select a specific model. See [Model Routing](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/model-routing.md) for details.
 
 ### Model Steering 🔬
 
@@ -123,18 +125,18 @@ Create a GEMINI.md that encodes your target architecture:
 - Document every decision in a MIGRATION.md changelog
 ```
 
-### The @ Import Syntax
+### The @file Import Syntax
 
 For large projects, split GEMINI.md into modular files:
 
 ```markdown
 # GEMINI.md
-@import ./docs/architecture.md
-@import ./docs/coding-standards.md
-@import ./docs/migration-checklist.md
+@./docs/architecture.md
+@./docs/coding-standards.md
+@./docs/migration-checklist.md
 ```
 
-> **Why imports matter:** A single GEMINI.md can get unwieldy for enterprise projects. Imports let you organize context into focused documents that are easier to maintain and review.
+> **Why imports matter:** A single GEMINI.md can get unwieldy for enterprise projects. Imports let you organize context into focused documents that are easier to maintain and review. See [GEMINI.md reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md) for full syntax.
 
 ### Memory for Migration Patterns
 
@@ -199,11 +201,11 @@ Each subagent can have its own tool allowlist:
 ```markdown
 # .gemini/agents/security-scanner.md
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
-  - web_search
+  - google_web_search
 # No write_file, no run_shell_command — this agent is read-only
 ---
 
@@ -232,13 +234,13 @@ Skills are reusable instruction sets that the agent activates when relevant:
 
 ### Auto Memory 🔬
 
-Auto Memory extracts skills from your sessions automatically:
+Auto Memory extracts patterns from your sessions and saves them to GEMINI.md:
 
 ```
 /memory show
 ```
 
-> After completing a migration, the agent might auto-save: "When migrating Express.js middleware, check for `req.query` vs `req.params` mismatches — the old API used query strings, the new one uses path parameters."
+> **Experimental:** Auto Memory requires `experimental.autoMemory` to be enabled in `settings.json`. See [Auto Memory docs](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md). When enabled, the agent might auto-save patterns like: "When migrating Express.js middleware, check for `req.query` vs `req.params` mismatches."
 
 ---
 
@@ -246,19 +248,25 @@ Auto Memory extracts skills from your sessions automatically:
 
 ### Checkpointing
 
-Before risky changes, save a checkpoint:
+Checkpointing automatically saves the state of modified files before changes, allowing you to revert if something goes wrong. To enable it, add to your `settings.json`:
 
-```
-/checkpoint
+```json
+{
+  "general": {
+    "checkpointing": {
+      "enabled": true
+    }
+  }
+}
 ```
 
-This saves the current state of all modified files. If something goes wrong:
+When enabled, use `/restore` to revert to a previous checkpoint:
 
 ```
 /restore
 ```
 
-> **Checkpoints are lightweight** — they track file changes, not full git history. Use them freely before any multi-file refactor.
+> **Checkpoints are lightweight** — they track file changes, not full git history. See [Checkpointing docs](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md) for details.
 
 ### Git Worktrees 🔬
 
@@ -302,7 +310,7 @@ Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a m
 | **Custom subagents** | Specialized agents with tool isolation |
 | **Skills** | Reusable instruction sets that auto-activate |
 | **Auto Memory** | Agent learns patterns from sessions |
-| **Checkpointing** | Save/restore state before risky changes |
+| **Checkpointing** | Automatic save/restore state before risky changes (enable in settings.json) |
 | **Git Worktrees** | Parallel branches for simultaneous work |
 
 ---

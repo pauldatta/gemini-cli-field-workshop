@@ -3,6 +3,8 @@
 > **소요 시간:** 약 45분 (자기 주도)  
 > **목표:** 프롬프트 작성 원칙, 검증 루프, 컨텍스트 엔지니어링 및 병렬 개발을 마스터합니다. 이러한 기술은 모든 Gemini CLI 워크플로우에서 작동합니다.  
 > **사전 요구 사항:** 최소한 [사용 사례 1: SDLC 생산성 향상](sdlc-productivity.md)을 완료했거나 기본 사항에 익숙해야 합니다.
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 프롬프트 작성 기법: 목표 vs. 지시
@@ -95,13 +97,13 @@ cookieParser → authMiddleware → routes."
 
 ```bash
 # Instead of pasting a long spec into chat:
-echo "Your detailed spec..." > .gemini/context/feature-spec.md
+echo "Your detailed spec..." > docs/feature-spec.md
 
 # Then reference it:
-# "Read the spec in .gemini/context/feature-spec.md and implement it"
+# "Read the spec in @./docs/feature-spec.md and implement it"
 ```
 
-에이전트는 필요할 때(JIT) 컨텍스트 파일을 로드합니다. 즉, 필요할 때까지 토큰을 소비하지 않습니다.
+에이전트는 필요할 때(JIT) `read_file` 도구를 사용하여 파일을 로드합니다. `@./path` 구문을 사용하면 GEMINI.md에서 상시 컨텍스트로 파일을 가져올 수 있습니다.
 
 #### 4. 에이전트 위임을 통한 격리
 

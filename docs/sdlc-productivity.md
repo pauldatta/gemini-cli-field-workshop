@@ -3,6 +3,8 @@
 > **Duration:** ~60 minutes  
 > **Goal:** Build an enterprise-grade developer workflow from first install through context engineering, spec-driven development with Conductor, and governance guardrails.  
 > **Exercise PRD:** [Product Wishlist Feature](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_sdlc_productivity.md)
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -31,7 +33,7 @@ What is the tech stack of this project? List the main frameworks,
 database, and authentication mechanism.
 ```
 
-> **What's happening:** The agent reads `package.json`, scans the directory structure, and maps the architecture. Unlike tools limited to open files, Gemini CLI can hold your entire codebase in a single session — it understands how your controllers, routes, models, and middleware connect.
+> **What's happening:** The agent reads `package.json`, scans the directory structure, and maps the architecture. Gemini CLI explores your codebase on-demand — reading files, searching patterns, and tracing dependencies using tools like `read_file`, `glob`, and `grep_search` as needed.
 
 ### Explore the Tools
 
@@ -46,7 +48,7 @@ This shows every tool the agent can use: file operations, shell commands, web se
 | Shortcut | Action |
 |---|---|
 | `Tab` | Accept a suggested edit |
-| `Shift+Tab` | Cycle through edit options |
+| `Shift+Tab` | Cycle through approval modes |
 | `Ctrl+X` | Open multi-line editor |
 | `Ctrl+C` | Cancel current operation |
 | `/stats` | Show token usage for this session |
@@ -110,7 +112,7 @@ and port 3000 for the React dev server. MongoDB runs on default
 port 27017. Test database is 'proshop_test'."
 ```
 
-The agent can also save memories itself using the `save_memory` tool when it discovers important patterns during a session.
+The agent can also save memories itself using the `save_memory` tool — either when you explicitly ask it to remember something, or automatically if you enable `experimental.autoMemory` in [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md).
 
 ### The .geminiignore File
 
@@ -200,7 +202,7 @@ cat conductor/tracks/*/plan.md
 /conductor:implement
 ```
 
-> **Full-codebase awareness:** Right now, the agent is holding your `GEMINI.md` rules, the Conductor product docs, the specification, the implementation plan, AND the full ProShop codebase — all in context simultaneously. No file-splitting, no manual context management. The agent sees how every piece connects.
+> **On-demand exploration:** The agent navigates your codebase via tools — reading files, tracing imports, and cross-referencing patterns as it implements each step of the plan. Context files like `GEMINI.md` and Conductor specs are loaded alongside the files the agent is actively working on.
 
 ### Check Status
 
@@ -295,6 +297,8 @@ Default → Extension → Workspace → User → Admin (highest)
 
 An admin policy (set at the system level) overrides everything else. This is how enterprises enforce organization-wide guardrails.
 
+> **Note:** The Workspace tier is currently disabled in the CLI source. See the [Policy Engine reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) for the latest tier status.
+
 ### Hooks in Action
 
 The hooks configured in `settings.json` are already active:
@@ -314,30 +318,84 @@ Check hook status:
 
 ### Enterprise Configuration
 
-For organization-wide settings, admins can configure:
+For organization-wide tool restrictions, use the [Policy Engine](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) with admin-tier TOML policies. For a practical walkthrough, see [Secure Gemini CLI with the Policy Engine](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy).
 
-```json
-{
-  "tools": {
-    "allowed": ["read_file", "write_file", "run_shell_command"],
-    "blocked": ["web_fetch"]
-  },
-  "auth": {
-    "required": true,
-    "provider": "vertex-ai"
-  }
-}
+**Admin-tier policies** (deployed via MDM to `/etc/gemini-cli/policies/`) enforce organization-wide security that individual developers cannot override:
+
+```toml
+# /etc/gemini-cli/policies/admin.toml
+
+# Block network exfiltration tools
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["curl", "wget", "nc", "netcat", "nmap", "ssh"]
+decision = "deny"
+priority = 900
+deny_message = "Network commands are blocked to prevent data exfiltration."
+
+# Block reading sensitive system files and secrets
+[[rule]]
+toolName = ["read_file", "grep_search", "glob"]
+argsPattern = "(\\.env|/etc/shadow|/etc/passwd|\\.ssh/|\\.aws/)"
+decision = "deny"
+priority = 900
+deny_message = "Access to system secrets and environment variables is prohibited."
+
+# Block privilege escalation
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["sudo", "su ", "chmod 777", "chown "]
+decision = "deny"
+priority = 950
+deny_message = "Agents are not permitted to elevate privileges."
 ```
+
+**Workspace-tier policies** (checked into your repo at `.gemini/policies/dev.toml`) set team-level defaults:
+
+```toml
+# .gemini/policies/dev.toml
+
+# Allow the CLI to read freely to build context
+[[rule]]
+toolName = ["read_file", "grep_search", "glob"]
+decision = "allow"
+priority = 100
+
+# Auto-approve safe local commands
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["npm test", "git diff"]
+decision = "allow"
+priority = 100
+
+# Explicitly prompt for file modifications
+[[rule]]
+toolName = ["write_file", "replace"]
+decision = "ask_user"
+priority = 100
+
+# Block destructive commands
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "^rm -rf /"
+decision = "deny"
+priority = 999
+deny_message = "Blocked by policy: Destructive root commands are prohibited."
+```
+
+> **Inspecting active policies:** Use `/policies list` in the CLI to see all rules governing your session, including their decision, priority tier, and source file.
+
+For enterprise authentication enforcement, use `security.auth.enforcedType` in the system-level `settings.json` (see [Enterprise guide](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)).
 
 ### Sandboxing
 
-Gemini CLI supports sandboxed execution:
+Gemini CLI supports [sandboxed execution](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/sandbox.md):
 - **Docker sandbox**: Runs shell commands in an isolated container
-- **macOS seatbelt**: Uses macOS sandboxing to restrict file system access
+- **macOS sandbox**: Uses macOS sandboxing to restrict file system access
 
-```
-# Check current sandbox mode
-/sandbox status
+```bash
+# Launch with sandboxing enabled
+gemini --sandbox
 ```
 
 ---
@@ -660,7 +718,7 @@ Create `.gemini/agents/adr-writer.md`:
 
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
@@ -716,11 +774,11 @@ Create `.gemini/agents/onboarding-guide.md`:
 
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
-  - search_in_files
+  - grep_search
 ---
 You are a codebase onboarding guide. When a new developer asks about 
 this codebase, help them understand:

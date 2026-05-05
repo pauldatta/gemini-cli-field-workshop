@@ -1,6 +1,8 @@
 # 환경 설정
 
 > 사용 사례를 시작하기 전에 이 단계를 완료하세요. 약 15분이 소요됩니다.
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 시스템 요구 사항
@@ -69,17 +71,9 @@ gcloud config set project YOUR_PROJECT_ID
 
 # Authenticate
 gcloud auth application-default login
-
-# Configure Gemini CLI to use Vertex AI
-# Add to ~/.gemini/settings.json:
-{
-  "auth": {
-    "provider": "vertex-ai",
-    "project": "YOUR_PROJECT_ID",
-    "location": "us-central1"
-  }
-}
 ```
+
+Gemini CLI는 Vertex AI 자격 증명을 자동으로 감지합니다. 엔터프라이즈 인증 적용에 대해서는 [엔터프라이즈 가이드](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)를 참조하세요.
 
 ---
 ## 4단계: 설치 확인

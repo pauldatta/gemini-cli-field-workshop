@@ -3,6 +3,8 @@
 > **Duration:** ~30 minutes (self-paced)
 > **Goal:** Understand what extensions are, discover and install community extensions, and learn how organizations package knowledge and tools for distribution.
 > **Prerequisites:** Complete at least [Use Case 1: SDLC Productivity](sdlc-productivity.md) or be familiar with the basics. You should already know how `GEMINI.md`, agents, and skills work.
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -352,12 +354,13 @@ Extensions contribute policy rules at **tier 2 precedence** — higher than defa
 # policies/safety.toml (contributed by your org extension)
 [[rule]]
 toolName = "run_shell_command"
+commandRegex = ".*--force.*"
 decision = "deny"
-when = { command_matches = ".*--force.*" }
 priority = 100
+denyMessage = "Force operations are blocked by organization policy."
 ```
 
-> **Security guarantee:** Extension-contributed policies cannot set `allow` decisions or enable `yolo` mode. An extension can only `deny` or `ask_user`. This prevents a malicious extension from auto-approving dangerous tool calls.
+> **Security model:** Extension policies operate at tier 2 precedence. User (tier 4) and admin (tier 5) policies always take precedence. This means an extension can set guardrails, but users and admins can override them when necessary. See [Policy Engine](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) for full tier details and [Secure Gemini CLI with the Policy Engine](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) for a practical walkthrough.
 
 **Settings with keychain storage:** Extensions can define settings that are stored in the system keychain:
 
@@ -410,7 +413,7 @@ For organizations maintaining a private extension ecosystem:
 | **Gallery** | Auto-indexed via `gemini-cli-extension` GitHub topic |
 | **Building** | `gemini extensions new` from 7 templates, `link` for local dev |
 | **Enterprise value** | Package org knowledge, enforce standards, distribute via install command |
-| **Security** | Extension policies can't `allow` — only `deny` or `ask_user`. Secrets in keychain |
+| **Security** | Extension policies at tier 2 — user and admin tiers always override. Secrets in keychain |
 | **Portability** | Skills work across Gemini CLI, Cursor, and OpenCode |
 
 ---

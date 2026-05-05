@@ -3,6 +3,8 @@
 > **소요 시간:** 약 60분  
 > **목표:** 플랜 모드, 맞춤형 서브에이전트, 스킬 및 체크포인트를 사용하여 레거시 애플리케이션을 마이그레이션합니다. 거대한 코드베이스를 안전하게 분해하는 방법을 배웁니다.  
 > **실습 PRD:** [.NET 현대화](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_dotnet_modernization.md) · [Java 업그레이드](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_java_upgrade.md)
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 2.1 — 플랜 모드: 안전한 조사 (15분)
@@ -28,7 +30,7 @@ Identify:
 4. Migration risks and complexity hotspots
 ```
 
-> **진행 상황:** 에이전트가 package.json, 소스 파일, 구성 등 전체 프로젝트를 읽고 멘탈 모델을 구축합니다. 모든 종속성, 모든 패턴, 모든 안티 패턴 등 전체 아키텍처를 컨텍스트 내에 동시에 유지할 수 있습니다.
+> **진행 상황:** 에이전트가 도구를 사용하여 package.json, 소스 파일, 구성 등을 읽고 멘탈 모델을 구축합니다. `read_file`, `list_directory`, `grep_search` 등의 도구를 사용하여 필요에 따라 파일을 탐색하고 읽습니다.
 
 ### 계획 검토
 
@@ -66,7 +68,7 @@ Ctrl+X
 
 ### 자동 모델 라우팅
 
-Gemini CLI는 작업 복잡도에 따라 모델 간에 자동으로 라우팅합니다:
+Gemini CLI는 작업 복잡도에 따라 내부적으로 모델 간에 라우팅할 수 있습니다. 정확한 라우팅 동작은 백엔드 구성에 따라 다르며 변경될 수 있습니다:
 
 | 작업 유형 | 사용된 모델 | 이유 |
 |---|---|---|
@@ -74,7 +76,7 @@ Gemini CLI는 작업 복잡도에 따라 모델 간에 자동으로 라우팅합
 | 코드 생성, 파일 편집 | **Gemini Flash** | 빠른 실행, 낮은 비용 |
 | 단순 쿼리, 상태 확인 | **Gemini Flash** | 속도 최적화 |
 
-> 이를 구성할 필요는 없습니다. 자동으로 수행됩니다. 에이전트가 각 단계에 적합한 모델을 선택합니다.
+> 이를 구성할 필요는 없습니다. 에이전트가 각 단계에 적합한 모델을 선택합니다.
 
 ### 모델 스티어링 🔬
 
@@ -126,9 +128,9 @@ layer first — we need the endpoints working before we touch the schema.
 
 ```markdown
 # GEMINI.md
-@import ./docs/architecture.md
-@import ./docs/coding-standards.md
-@import ./docs/migration-checklist.md
+@./docs/architecture.md
+@./docs/coding-standards.md
+@./docs/migration-checklist.md
 ```
 
 > **Import가 중요한 이유:** 엔터프라이즈 프로젝트에서는 단일 GEMINI.md가 다루기 힘들어질 수 있습니다. Import를 사용하면 유지 관리 및 검토가 더 쉬운 집중된 문서로 컨텍스트를 구성할 수 있습니다.
@@ -195,11 +197,11 @@ Top 10 vulnerabilities. Check for:
 ```markdown
 # .gemini/agents/security-scanner.md
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
-  - web_search
+  - google_web_search
 # No write_file, no run_shell_command — this agent is read-only
 ---
 
@@ -227,6 +229,8 @@ You are a security analyst. Your job is to find vulnerabilities...
 
 ### 자동 메모리 🔬
 
+> **실험적 기능:** 자동 메모리는 현재 실험적이며, `settings.json`에서 `autoMemory: true`로 활성화해야 합니다. 세부 사항은 [메모리 문서](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/memory.md)를 참조하세요.
+
 자동 메모리는 세션에서 스킬을 자동으로 추출합니다:
 
 ```
@@ -240,13 +244,11 @@ You are a security analyst. Your job is to find vulnerabilities...
 
 ### 체크포인트
 
-위험한 변경을 수행하기 전에 체크포인트를 저장하세요:
+위험한 변경을 수행하기 전에 체크포인트를 사용하여 상태를 저장하세요.
 
-```
-/checkpoint
-```
+> **설정 필요:** 체크포인팅은 `settings.json`에서 `checkpointing: true`를 설정해야 합니다. 세부 사항은 [체크포인팅 문서](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)를 참조하세요.
 
-이렇게 하면 수정된 모든 파일의 현재 상태가 저장됩니다. 문제가 발생할 경우:
+활성화된 후 CLI가 자동으로 체크포인트를 생성하며 `/restore`를 사용하여 복원할 수 있습니다:
 
 ```
 /restore
@@ -287,7 +289,7 @@ gemini
 | 기능 | 역할 |
 |---|---|
 | **플랜 모드** | 읽기 전용 조사 — 수정 전 분석 |
-| **모델 라우팅** | 자동 Pro(계획) → Flash(코딩) 선택 |
+| **모델 라우팅** | 작업 복잡도에 따라 자동 모델 선택 |
 | **모델 스티어링** | 진행 중인 에이전트의 경로 수정 |
 | **@ import 구문** | 대규모 프로젝트를 위한 모듈식 GEMINI.md |
 | **@codebase_investigator** | 읽기 전용 코드베이스 분석 서브에이전트 |

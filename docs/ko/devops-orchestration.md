@@ -3,6 +3,8 @@
 > **소요 시간:** 약 45분  
 > **목표:** 파이프라인 실패를 진단하고, 수정 사항을 생성하며, PR을 제출하고, 팀에 알림을 보내는 CI/CD 자동화를 구축합니다. — 이 모든 것을 헤드리스 모드, 훅, 그리고 GitHub Actions를 통해 수행합니다.  
 > **실습 PRD:** [CI/CD 파이프라인 상태 모니터](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 3.1 — 헤드리스 모드: CLI 없는 CLI (15분)
@@ -152,8 +154,8 @@ echo '{"systemMessage":"Additional context for the agent..."}'
 #!/usr/bin/env bash
 # Notification hook — forward to Slack
 input=$(cat)
-message=$(echo "$input" | jq -r '.notification.message // ""')
-title=$(echo "$input" | jq -r '.notification.title // "Gemini CLI"')
+message=$(echo "$input" | jq -r '.message // ""')
+title=$(echo "$input" | jq -r '.title // "Gemini CLI"')
 
 if [ -n "$SLACK_WEBHOOK_URL" ]; then
   curl -s -X POST "$SLACK_WEBHOOK_URL" \
@@ -272,6 +274,8 @@ jobs:
 
 ### 자동 메모리 🔬
 
+> **실험적 기능:** 자동 메모리는 현재 실험적이며, `settings.json`에서 `autoMemory: true`로 활성화해야 합니다.
+
 여러 세션에 걸쳐 에이전트와 작업한 후, 자동 메모리는 패턴을 추출하여 스킬로 저장합니다:
 
 ```
@@ -308,7 +312,7 @@ done
 
 ```bash
 # List recent sessions
-gemini -p "/resume"
+gemini --list-sessions
 
 # Resume a specific session by ID
 gemini --resume SESSION_ID

@@ -3,6 +3,8 @@
 > **소요 시간:** 약 30분 (자기 주도)
 > **목표:** 확장 프로그램이 무엇인지 이해하고, 커뮤니티 확장 프로그램을 검색 및 설치하며, 조직이 배포를 위해 지식과 도구를 패키징하는 방법을 알아봅니다.
 > **사전 요구 사항:** 최소한 [사용 사례 1: SDLC 생산성 향상](sdlc-productivity.md)을 완료했거나 기본 사항에 익숙해야 합니다. `GEMINI.md`, 에이전트 및 스킬이 어떻게 작동하는지 이미 알고 있어야 합니다.
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 확장 프로그램이란 무엇인가요?
@@ -341,18 +343,19 @@ my-org-extension/
 
 ### 거버넌스 패턴
 
-확장 프로그램은 **티어 2 우선순위**로 정책 규칙을 제공합니다. 이는 기본값보다 높고 사용자/관리자 재정의보다 낮습니다:
+확장 프로그램은 **티어 2 우선순위**로 정책 규칙을 제공합니다. 이는 기본값보다 높고 사용자/관리자 재정의보다 낮습니다. 사용자(티어 4)와 관리자(티어 5) 규칙은 항상 확장 프로그램 규칙을 재정의합니다:
 
 ```toml
 # policies/safety.toml (contributed by your org extension)
 [[rule]]
 toolName = "run_shell_command"
+commandRegex = ".*--force.*"
 decision = "deny"
-when = { command_matches = ".*--force.*" }
 priority = 100
+deny_message = "Force operations are blocked by extension policy."
 ```
 
-> **보안 보장:** 확장 프로그램이 제공하는 정책은 `allow` 결정을 설정하거나 `yolo` 모드를 활성화할 수 없습니다. 확장 프로그램은 `deny` 또는 `ask_user`만 할 수 있습니다. 이는 악의적인 확장 프로그램이 위험한 도구 호출을 자동 승인하는 것을 방지합니다.
+> 전체 5단계 우선순위 계층 구조 및 정책 구문에 대해서는 [정책 엔진 레퍼런스](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) 및 [정책 엔진으로 Gemini CLI 보안 강화하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
 
 **키체인 스토리지가 있는 설정:** 확장 프로그램은 시스템 키체인에 저장되는 설정을 정의할 수 있습니다:
 
@@ -404,7 +407,7 @@ priority = 100
 | **갤러리** | `gemini-cli-extension` GitHub 토픽을 통해 자동 색인됨 |
 | **빌드** | 7개의 템플릿에서 `gemini extensions new` 사용, 로컬 개발을 위한 `link` |
 | **엔터프라이즈 가치** | 조직 지식 패키징, 표준 적용, 설치 명령어를 통한 배포 |
-| **보안** | 확장 프로그램 정책은 `allow`를 할 수 없으며 `deny` 또는 `ask_user`만 가능. 키체인에 비밀 정보 저장 |
+| **보안** | 확장 프로그램 정책은 티어 2 — 사용자 및 관리자 티어가 항상 재정의. 키체인에 비밀 정보 저장 |
 | **이식성** | 스킬은 Gemini CLI, Cursor 및 OpenCode 전반에서 작동함 |
 
 ---

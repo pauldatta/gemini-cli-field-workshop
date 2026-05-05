@@ -1,8 +1,11 @@
 # Gemini CLI 치트시트
 
 > 이 워크숍에서 다룬 모든 내용에 대한 빠른 참조입니다.
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
+
 ## 설치
 
 ```bash
@@ -12,6 +15,7 @@ gemini --version           # Check version
 ```
 
 ---
+
 ## 키보드 단축키
 
 | 단축키 | 동작 |
@@ -23,6 +27,7 @@ gemini --version           # Check version
 | `↑` / `↓` | 프롬프트 기록 탐색 |
 
 ---
+
 ## 슬래시 명령어
 
 | 명령어 | 설명 |
@@ -33,17 +38,16 @@ gemini --version           # Check version
 | `/tools` | 사용 가능한 도구 목록 표시 |
 | `/resume` | 이전 세션 재개 |
 | `/rewind` | 이전 상태로 롤백 |
-| `/checkpoint` | 현재 상태 저장 |
-| `/restore` | 체크포인트에서 복원 |
+| `/restore` | 체크포인트에서 복원 ([체크포인팅 활성화](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md) 필요) |
 | `/memory show` | 저장된 메모리 표시 |
 | `/memory add "..."` | 메모리 추가 |
 | `/hooks panel` | 훅 실행 상태 표시 |
 | `/skills list` | 사용 가능한 스킬 목록 표시 |
 | `/extensions list` | 설치된 확장 프로그램 목록 표시 |
-| `/sandbox status` | 샌드박스 모드 확인 |
 | `/commands` | 사용자 지정 명령어 목록 표시 |
 
 ---
+
 ## 헤드리스 모드
 
 ```bash
@@ -61,6 +65,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ```
 
 ---
+
 ## GEMINI.md 계층 구조
 
 ```
@@ -72,11 +77,14 @@ cat file.js | gemini -p "Review this code for bugs"
 
 ### Import 구문
 ```markdown
-@import ./docs/coding-standards.md
-@import ./docs/architecture.md
+@./docs/coding-standards.md
+@./docs/architecture.md
 ```
 
+> 전체 구문은 [GEMINI.md 레퍼런스](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)를 참조하세요.
+
 ---
+
 ## 서브에이전트
 
 ```
@@ -90,7 +98,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ### 서브에이전트 정의 (`.gemini/agents/my-agent.md`)
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
@@ -99,6 +107,7 @@ You are a specialist in...
 ```
 
 ---
+
 ## Conductor 확장 프로그램
 
 ```bash
@@ -116,31 +125,36 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 ```
 
 ---
+
 ## 정책 엔진 (TOML)
 
 ```toml
-# Deny reading secrets
-[[rules]]
-agent = "*"
-tool = "read_file"
-action = "deny"
-when = { path_matches = ".*\\.env.*" }
+# 시크릿 읽기 차단
+[[rule]]
+toolName = "read_file"
+argsPattern = '"file_path":".*\.env"'
+decision = "deny"
+priority = 100
+deny_message = "Reading .env files is not allowed."
 
-# Allow specific agent to run tests
-[[rules]]
-agent = "implementer"
-tool = "run_shell_command"
-action = "allow"
-when = { command_starts_with = "npm test" }
+# 테스트 실행 허용
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "npm test"
+decision = "allow"
+priority = 50
 
-# Default: ask human
-[[rules]]
-agent = "*"
-tool = "*"
-action = "ask_user"
+# 기본값: 사용자에게 확인
+[[rule]]
+toolName = "*"
+decision = "ask_user"
+priority = 1
 ```
 
+> 전체 스키마는 [정책 엔진 레퍼런스](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)를, 실용적인 안내는 [정책 엔진으로 Gemini CLI 보안 강화하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
+
 ---
+
 ## 훅
 
 ### Settings.json 훅 설정
@@ -148,7 +162,7 @@ action = "ask_user"
 {
   "hooks": {
     "BeforeTool": [{
-      "matcher": "write_file|replace_in_file",
+      "matcher": "write_file|replace",
       "hooks": [{
         "name": "my-hook",
         "type": "command",
@@ -178,10 +192,15 @@ echo '{"systemMessage":"Remember to..."}'
 
 ### 훅 이벤트
 ```
-SessionStart → BeforeModel → AfterModel → BeforeTool → AfterTool → AfterAgent → SessionEnd
+SessionStart → BeforeAgent → BeforeModel → BeforeToolSelection →
+AfterModel → BeforeTool → AfterTool → AfterAgent → PreCompress →
+Notification → SessionEnd
 ```
 
+> 전체 이벤트 라이프사이클은 [훅 레퍼런스](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md)를 참조하세요.
+
 ---
+
 ## MCP 서버
 
 ```json
@@ -199,6 +218,7 @@ SessionStart → BeforeModel → AfterModel → BeforeTool → AfterTool → Aft
 ```
 
 ---
+
 ## GitHub Actions
 
 ```yaml
@@ -208,6 +228,7 @@ SessionStart → BeforeModel → AfterModel → BeforeTool → AfterTool → Aft
 ```
 
 ---
+
 ## 인증 옵션
 
 ```bash
@@ -220,6 +241,7 @@ gcloud auth application-default login
 ```
 
 ---
+
 ## 유용한 패턴
 
 ```bash
@@ -237,6 +259,7 @@ for f in src/*.js; do gemini -p "Add TypeScript types" < "$f"; done
 ```
 
 ---
+
 ## 확장 프로그램
 
 ```bash

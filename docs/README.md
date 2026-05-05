@@ -1,6 +1,8 @@
 # Gemini CLI Workshop
 
-> **Hands-on enablement for enterprise developers** — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI's full-codebase awareness, Plan Mode, and extensible agent system.
+> **Hands-on enablement for enterprise developers** — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI's tool-assisted exploration, Plan Mode, and extensible agent system.
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 

@@ -3,6 +3,8 @@
 > **Duration:** ~45 minutes (self-paced)  
 > **Goal:** Master prompting discipline, verification loops, context engineering, and parallel development. These techniques work with any Gemini CLI workflow.  
 > **Prerequisites:** Complete at least [Use Case 1: SDLC Productivity](sdlc-productivity.md) or be familiar with the basics.
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -97,13 +99,20 @@ Move large specs out of the conversation and into files:
 
 ```bash
 # Instead of pasting a long spec into chat:
-echo "Your detailed spec..." > .gemini/context/feature-spec.md
+echo "Your detailed spec..." > feature-spec.md
 
-# Then reference it:
-# "Read the spec in .gemini/context/feature-spec.md and implement it"
+# Then reference it in your prompt with @:
+# "Read @./feature-spec.md and implement it"
 ```
 
-The agent loads context files on-demand (JIT) — they don't consume tokens until needed.
+Or add it as an import in your GEMINI.md for persistent context:
+
+```markdown
+# GEMINI.md
+@./feature-spec.md
+```
+
+> See [GEMINI.md reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md) for import syntax.
 
 #### 4. Isolation via Agent Delegation
 

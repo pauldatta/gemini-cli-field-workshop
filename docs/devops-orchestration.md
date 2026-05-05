@@ -3,6 +3,8 @@
 > **Duration:** ~45 minutes  
 > **Goal:** Build CI/CD automation that diagnoses pipeline failures, creates fixes, submits PRs, and notifies teams — all from headless mode, hooks, and GitHub Actions.  
 > **Exercise PRD:** [CI/CD Pipeline Health Monitor](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
+>
+> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -154,16 +156,18 @@ Forward agent notifications to Slack or Teams:
 #!/usr/bin/env bash
 # Notification hook — forward to Slack
 input=$(cat)
-message=$(echo "$input" | jq -r '.notification.message // ""')
-title=$(echo "$input" | jq -r '.notification.title // "Gemini CLI"')
+message=$(echo "$input" | jq -r '.message // ""')
+notification_type=$(echo "$input" | jq -r '.notification_type // "unknown"')
 
 if [ -n "$SLACK_WEBHOOK_URL" ]; then
   curl -s -X POST "$SLACK_WEBHOOK_URL" \
     -H 'Content-Type: application/json' \
-    -d "{\"text\":\"*${title}*\n${message}\"}" >&2
+    -d "{\"text\":\"*${notification_type}*\n${message}\"}" >&2
 fi
 echo '{}'
 ```
+
+> See [Hooks reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/reference.md) for the complete input/output schema for each hook event.
 
 ---
 
@@ -276,11 +280,13 @@ jobs:
 
 ### Auto Memory 🔬
 
-After working with the agent across multiple sessions, Auto Memory extracts patterns and saves them as skills:
+After working with the agent across multiple sessions, Auto Memory extracts patterns and saves them as memories:
 
 ```
 /memory show
 ```
+
+> **Experimental:** Auto Memory requires `experimental.autoMemory` to be enabled in [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md).
 
 Example auto-learned memories:
 - "ProShop uses asyncHandler for all async route handlers"
@@ -312,12 +318,12 @@ done
 
 ```bash
 # List recent sessions
-gemini -p "/resume"
+gemini --list-sessions
 
 # Resume a specific session by ID
 gemini --resume SESSION_ID
 
-# Continue where you left off
+# Or use /resume interactively to browse sessions
 ```
 
 ---

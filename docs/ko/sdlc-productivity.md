@@ -3,6 +3,8 @@
 > **소요 시간:** 약 60분  
 > **목표:** 초기 설치부터 컨텍스트 엔지니어링, Conductor를 활용한 사양 주도 개발, 그리고 거버넌스 가드레일까지 포함하는 엔터프라이즈급 개발자 워크플로우를 구축합니다.  
 > **실습 PRD:** [제품 위시리스트 기능](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_sdlc_productivity.md)
+>
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 1.1 — 첫 만남 (10분)
@@ -30,7 +32,7 @@ What is the tech stack of this project? List the main frameworks,
 database, and authentication mechanism.
 ```
 
-> **진행 상황:** 에이전트가 `package.json`을 읽고, 디렉터리 구조를 스캔하며, 아키텍처를 매핑합니다. 열려 있는 파일로만 제한되는 도구들과 달리, Gemini CLI는 단일 세션에서 전체 코드베이스를 유지할 수 있습니다. 즉, 컨트롤러, 라우트, 모델 및 미들웨어가 어떻게 연결되는지 이해합니다.
+> **진행 상황:** 에이전트가 `package.json`을 읽고, 디렉터리 구조를 스캔하며, 아키텍처를 매핑합니다. `read_file`, `list_directory`, `grep_search` 등의 도구를 사용하여 필요에 따라 파일을 탐색하고 읽습니다.
 
 ### 도구 탐색
 
@@ -331,9 +333,11 @@ Gemini CLI는 샌드박스 실행을 지원합니다:
 - **macOS seatbelt**: macOS 샌드박스를 사용하여 파일 시스템 액세스를 제한합니다.
 
 ```
-# Check current sandbox mode
-/sandbox status
+# Check current sandbox mode via settings
+/settings
 ```
+
+> 샌드박스 구성에 대해서는 [샌드박스 문서](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/sandbox.md)를 참조하세요.
 
 ---
 ## 1.6 — 세션 관리 (5분)
@@ -651,7 +655,7 @@ gemini extensions install https://github.com/obra/superpowers
 
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
@@ -707,11 +711,11 @@ it for completeness — does it explain the *why*, not just the *what*?
 
 ```markdown
 ---
-model: gemini-2.5-flash
+model: gemini-3.1-flash-lite-preview
 tools:
   - read_file
   - list_directory
-  - search_in_files
+  - grep_search
 ---
 You are a codebase onboarding guide. When a new developer asks about 
 this codebase, help them understand:
