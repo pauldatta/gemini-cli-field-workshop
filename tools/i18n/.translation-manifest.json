@@ -23,6 +23,10 @@
     "docs/cheatsheet.md": {
       "source_sha": "50752720d5f0e558537a2f2b9267a3f24ae52de8",
       "translated_at": "2026-05-05T02:02:25.052228+00:00"
+    },
+    "docs/extensions-ecosystem.md": {
+      "source_sha": "ed8d13c41ac372d62dccfc4ded81e01d10d2cf8b",
+      "translated_at": "2026-05-05T02:28:32.224521+00:00"
     }
   }
 }

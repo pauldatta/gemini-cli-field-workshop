@@ -5,7 +5,7 @@
   * [2. 레거시 현대화](/ko/legacy-modernization.md)
   * [3. DevOps 오케스트레이션](/ko/devops-orchestration.md)
 * [🚀 고급 패턴](/ko/advanced-patterns.md)
-* [🧩 확장 프로그램 생태계](/extensions-ecosystem.md)
+* [🧩 확장 프로그램 생태계](/ko/extensions-ecosystem.md)
 * [📋 진행자 가이드](/facilitator-guide.md)
 * [📄 치트시트](/ko/cheatsheet.md)
 

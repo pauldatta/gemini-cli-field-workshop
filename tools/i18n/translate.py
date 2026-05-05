@@ -28,13 +28,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # public-workshop/
 TOOLS_DIR = REPO_ROOT / "tools" / "i18n"
 MANIFEST_PATH = TOOLS_DIR / ".translation-manifest.json"
 
-# The 6 workshop docs that get translated
+# The 7 workshop docs that get translated
 TRANSLATABLE_DOCS = [
     "docs/setup.md",
     "docs/sdlc-productivity.md",
     "docs/legacy-modernization.md",
     "docs/devops-orchestration.md",
     "docs/advanced-patterns.md",
+    "docs/extensions-ecosystem.md",
     "docs/cheatsheet.md",
 ]
 
