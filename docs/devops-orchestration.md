@@ -340,6 +340,10 @@ Open the **CI/CD Pipeline Health Monitor PRD** and build:
 
 ---
 
+> **Add security analysis to your CI pipeline:** The official [Security Extension](https://github.com/gemini-cli-extensions/security) ships a ready-to-use GitHub Actions workflow for automated PR security reviews. It runs `/security:analyze` (SAST) and `/security:scan-deps` (dependency CVE scan) on every pull request. Install locally with `gemini extensions install https://github.com/gemini-cli-extensions/security`, then copy its CI workflow into your repo. See [SDLC Productivity §2.3](sdlc-productivity.md) and [Extensions Ecosystem — Exercise 4](extensions-ecosystem.md) for full setup details.
+
+---
+
 ## Summary: What You Learned
 
 | Feature | What It Does |
@@ -352,6 +356,7 @@ Open the **CI/CD Pipeline Health Monitor PRD** and build:
 | **WIF auth** | Zero-secret authentication via Workload Identity Federation |
 | **Auto Memory** | Agent learns patterns across sessions |
 | **Batch processing** | Loop over files/tasks in headless mode |
+| **Security in CI** | Official Security Extension for automated PR vulnerability analysis |
 
 ---
 

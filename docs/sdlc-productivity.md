@@ -575,43 +575,43 @@ You are a technical writer generating documentation from source code.
 
 ---
 
-### Agent 3: The Compliance Checker
+### Agent 3: Security Analysis (Official Extension)
 
-Audits code for license headers, PII exposure, hardcoded secrets, and policy violations.
+Instead of building a custom compliance checker, install the **official [Security Extension](https://github.com/gemini-cli-extensions/security)** — a Google-maintained extension with a full SAST engine, dependency scanning via [OSV-Scanner](https://github.com/google/osv-scanner), and benchmarked performance (90% precision, 93% recall against real CVEs).
 
 ```bash
-cp samples/agents/compliance-checker.md .gemini/agents/
+# Install the Security Extension (requires Gemini CLI v0.4.0+)
+gemini extensions install https://github.com/gemini-cli-extensions/security
 ```
 
-```markdown
-<!-- .gemini/agents/compliance-checker.md -->
----
-name: compliance-checker
-description: Audit code for compliance, PII exposure, and policy violations.
-model: gemini-3.1-flash-lite-preview
-tools:
-  - read_file
-  - glob
-  - grep_search
----
-
-You are a compliance auditor. Scan for:
-1. License headers — every source file needs one
-2. PII exposure — emails, phone numbers, SSNs in code or logs
-3. Hardcoded secrets — API keys, passwords, tokens
-4. Logging hygiene — no user data in log statements
-
-Report as: Category / Severity / File:Line / Finding / Remediation.
-If clean, state "✅ PASS: [category]".
-```
-
-**Try it:**
+**Analyze code changes for vulnerabilities:**
 
 ```
-@compliance-checker Audit the entire backend/ directory
+/security:analyze
 ```
 
-> **Enterprise value:** Samsung's evaluation specifically tests "content filtering and centralized audit." This agent demonstrates that capability directly.
+The extension runs a two-pass SAST analysis on your current branch diff, checking for:
+- Hardcoded secrets and API keys
+- SQL injection, XSS, SSRF, and command injection
+- Broken access control and authentication bypass
+- PII exposure in logs and API responses
+- LLM safety issues (prompt injection, insecure tool usage)
+
+**Scan dependencies for known CVEs:**
+
+```
+/security:scan-deps
+```
+
+This uses [OSV-Scanner](https://github.com/google/osv-scanner) to cross-reference your dependencies against [osv.dev](https://osv.dev), Google's open-source vulnerability database.
+
+**Customize the scope:**
+
+```
+/security:analyze Analyze all the source code under the backend/ folder. Skip tests and config files.
+```
+
+> **Enterprise value:** This extension ships with skills for PoC generation (`poc`), automated patching (`security-patcher`), and vulnerability allowlisting. It's production-ready out of the box — no need to build a custom compliance agent.
 
 ---
 
@@ -817,58 +817,38 @@ pattern — which files do I create and in what order?
 
 ---
 
-### 2.3 — Dependency Auditing in CI Pipelines
+### 2.3 — Security Analysis in CI Pipelines
 
-In Part 1, you built a `@compliance-checker` subagent that reviews code locally. The next step is promoting it into a CI pipeline — an agent that runs on every PR to audit dependencies for CVEs, problematic licenses, and unmaintained packages.
+In Part 1, you installed the [Security Extension](https://github.com/gemini-cli-extensions/security) for local analysis. The next step is promoting it into CI — automated security analysis on every pull request.
 
-#### The Pattern: Headless Gemini CLI in GitHub Actions
+#### The Pattern: Security Extension in GitHub Actions
 
-```yaml
-# .github/workflows/dependency-audit.yml
-name: Dependency Audit
+The Security Extension ships with a ready-to-use GitHub Actions workflow. Copy it directly:
 
-on:
-  pull_request:
-    paths:
-      - 'package.json'
-      - 'package-lock.json'
-      - 'requirements.txt'
-      - 'go.mod'
-
-jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: google-github-actions/run-gemini-cli@v1
-        with:
-          prompt: |
-            Audit the dependency files in this repository:
-            1. Check for known CVEs in dependencies
-            2. Flag any GPL or AGPL licenses that conflict with our MIT license
-            3. Identify unmaintained packages (no updates in 2+ years)
-            4. Check for packages with known supply chain risks
-            
-            Output a structured report with severity levels:
-            - CRITICAL: Known CVEs with exploits
-            - HIGH: License conflicts or supply chain risks
-            - MEDIUM: Unmaintained packages
-            - LOW: Minor version pinning issues
-            
-            If no issues found, output: AUDIT_CLEAN
+```bash
+# Copy the extension's CI workflow into your repo
+cp $(gemini extensions path security)/.github/workflows/gemini-review.yml \
+  .github/workflows/security-review.yml
 ```
 
-**Why agents beat static scanners:**
+Or reference the [official workflow template](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml) and add it manually. The workflow:
 
-| Static Scanner | Agent-Based Audit |
+1. Installs the Security Extension into the CI runner
+2. Runs `/security:analyze` on the PR diff
+3. Runs `/security:scan-deps` for dependency vulnerabilities
+4. Posts findings as PR comments
+
+**Why the Security Extension beats hand-written prompts:**
+
+| Hand-Written Audit Prompt | Security Extension |
 |---|---|
-| Checks against a fixed CVE database | Reasons about *your specific usage* — is the vulnerable function actually called? |
-| Binary license match | Understands license interaction — MIT + Apache is fine, MIT + GPL is problematic |
-| Reports everything | Prioritizes by actual impact to *your* codebase |
-| Requires tool-specific config | Natural language prompt — adjust criteria by editing text |
+| Free-form prompt — results vary per run | Structured two-pass SAST engine with consistent methodology |
+| No vulnerability taxonomy | 7 categories, 20+ vuln types, severity rubric (Critical/High/Medium/Low) |
+| No dependency scanning | Integrated OSV-Scanner against Google's vulnerability database |
+| No remediation workflow | Built-in PoC generation and auto-patching skills |
+| No allowlisting | Persistent `.gemini_security/vuln_allowlist.txt` for accepted risks |
 
-> **This is Slide 18 Pattern 2:** Using `google-github-actions/run-gemini-cli@v1` to run agents in CI/CD. The same subagent you built locally in §1.5 now runs automatically on every PR. No new code — just a deployment wrapper around the same prompt.
+> **This is the CI pattern from slide 18** but using a production-grade, benchmarked extension (90% precision, 93% recall) instead of a hand-written prompt. The same `/security:analyze` command you ran locally in §1.7 now runs automatically on every PR.
 
 ---
 
@@ -879,7 +859,7 @@ Part 1 gave you the building blocks: subagents, Conductor, policy engine, hooks.
 | Building Block (Part 1) | Outer Loop Application (Part 2) |
 |---|---|
 | Custom subagent (§1.5) | ADR writer, onboarding guide |
-| Compliance checker (§1.5) | CI dependency auditor |
+| Security Extension (§1.7) | CI security analysis pipeline |
 | Conductor spec-to-code (§1.4) | PRD → ADR → implementation pipeline |
 | Headless mode (referenced in UC3) | GitHub Action automation |
 
@@ -900,11 +880,12 @@ The pattern is always the same: **build locally → validate → promote to CI/C
 | **Policy engine** | Guardrails-as-code in TOML — deny, allow, or ask_user |
 | **Hooks** | Lightweight context injection and model steering at agent lifecycle events |
 | **Sandboxing** | Isolated execution for untrusted environments |
-| **Custom agents** | Specialized agents for reviews, docs, compliance, release notes — not just coding |
+| **Custom agents** | Specialized agents for reviews, docs, release notes — not just coding |
+| **Security Extension** | Official SAST + dependency scanning with PoC generation and auto-patching |
 | **Built-in agents** | `generalist`, `codebase_investigator`, `cli_help` — delegation without setup |
 | **ADR generation** | Subagent-driven architecture decision records from git diffs |
 | **Onboarding agent** | Codebase mapping for new developers — traces actual code paths |
-| **CI dependency audit** | Headless agents in GitHub Actions for automated compliance |
+| **CI security pipeline** | Security Extension in GitHub Actions for automated vulnerability analysis |
 
 ---
 

@@ -117,9 +117,30 @@ gemini extensions enable my-extension --scope workspace
 gemini extensions uninstall my-extension
 ```
 
+### Google-Managed Extensions
+
+Google maintains an official extension organization at [**gemini-cli-extensions**](https://github.com/gemini-cli-extensions) with 60+ extensions covering security, databases, CI/CD, and Google Cloud services:
+
+| Extension | Focus | What It Adds |
+|---|---|---|
+| [**security**](https://github.com/gemini-cli-extensions/security) | Security analysis | Full SAST engine, dependency scanning via OSV-Scanner, PoC generation, auto-patching. 90% precision, 93% recall |
+| [**conductor**](https://github.com/gemini-cli-extensions/conductor) | Spec-driven development | Structured planning, implementation tracking, and context-driven development |
+| [**workspace**](https://github.com/gemini-cli-extensions/workspace) | Google Workspace | Gmail, Drive, Calendar, Sheets integration with agent-optimized JSON output |
+| [**cicd**](https://github.com/gemini-cli-extensions/cicd) | CI/CD | Pipeline generation, workflow debugging, and deployment automation |
+| [**firebase**](https://github.com/gemini-cli-extensions/firebase) | Firebase | Firebase project management, Firestore queries, and hosting deployment |
+| [**bigquery-data-analytics**](https://github.com/gemini-cli-extensions/bigquery-data-analytics) | Data analytics | BigQuery skills for data exploration, query optimization, and analytics |
+| [**cloud-sql-***](https://github.com/gemini-cli-extensions) | Databases | Skills for PostgreSQL, MySQL, SQL Server, AlloyDB, OracleDB |
+| [**vertex**](https://github.com/gemini-cli-extensions/vertex) | Vertex AI | Prompt management and Vertex AI integration |
+
+Install any of them with:
+
+```bash
+gemini extensions install https://github.com/gemini-cli-extensions/<name>
+```
+
 ### Notable Community Extensions
 
-Beyond Conductor (which you've already used), the community has built increasingly sophisticated extensions:
+Beyond the official ecosystem, the community has built increasingly sophisticated extensions:
 
 | Extension | Focus | What It Adds |
 |---|---|---|
@@ -236,6 +257,51 @@ Use gws to generate a standup report from my calendar and recent email activity
 ```
 
 `gws` outputs structured JSON optimized for agent consumption. It also supports `--sanitize` to route API responses through Model Armor templates before the agent processes them.
+
+---
+
+### Exercise 4: Security Extension — Production-Grade SAST
+
+The [Security Extension](https://github.com/gemini-cli-extensions/security) is Google's official security analysis tool for Gemini CLI. Unlike a hand-rolled compliance agent, it ships with a full SAST engine, dependency scanner, and benchmarked results.
+
+```bash
+# Install
+gemini extensions install https://github.com/gemini-cli-extensions/security
+```
+
+**Run a security analysis on your current changes:**
+
+```
+/security:analyze
+```
+
+The extension runs a structured two-pass analysis:
+1. **Reconnaissance pass** — fast scan of all changed files against its vulnerability taxonomy
+2. **Investigation pass** — deep-dive into flagged patterns, tracing data flows from source to sink
+
+It checks for hardcoded secrets, injection vulnerabilities (SQLi, XSS, SSRF, SSTI), broken access control, PII exposure, weak crypto, and LLM safety issues.
+
+**Scan dependencies for known CVEs:**
+
+```
+/security:scan-deps
+```
+
+This uses [OSV-Scanner](https://github.com/google/osv-scanner) against [osv.dev](https://osv.dev) — Google's open-source vulnerability database.
+
+**Customize the scope:**
+
+```
+/security:analyze Analyze all source code under the src/ folder. Skip docs and config files.
+```
+
+**Key capabilities:**
+- **PoC generation** — generate proof-of-concept scripts to validate findings (`poc` skill)
+- **Auto-patching** — apply fixes for confirmed vulnerabilities (`security-patcher` skill)
+- **Allowlisting** — persist accepted risks in `.gemini_security/vuln_allowlist.txt`
+- **CI integration** — ships a ready-to-use [GitHub Actions workflow](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml) for automated PR security reviews
+
+> **Enterprise value:** This is the same extension referenced in [SDLC Productivity §1.7](sdlc-productivity.md) and [§2.3](sdlc-productivity.md). It replaces the need to build a custom compliance-checker agent — one `gemini extensions install` gives your entire team a production-grade security pipeline.
 
 ---
 
@@ -409,11 +475,12 @@ For organizations maintaining a private extension ecosystem:
 | Concept | Key Takeaway |
 |---|---|
 | **What extensions package** | 7 features: MCP servers, commands, context, skills, hooks, themes, policies |
+| **Google-managed** | 60+ extensions at [gemini-cli-extensions](https://github.com/gemini-cli-extensions) — security, databases, CI/CD, Workspace |
 | **Installation** | `gemini extensions install <url>` — one command |
 | **Gallery** | Auto-indexed via `gemini-cli-extension` GitHub topic |
 | **Building** | `gemini extensions new` from 7 templates, `link` for local dev |
 | **Enterprise value** | Package org knowledge, enforce standards, distribute via install command |
-| **Security** | Extension policies at tier 2 — user and admin tiers always override. Secrets in keychain |
+| **Security** | Official Security Extension with SAST + dep scanning. Extension policies at tier 2. Secrets in keychain |
 | **Portability** | Skills work across Gemini CLI, Cursor, and OpenCode |
 
 ---

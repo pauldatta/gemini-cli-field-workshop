@@ -332,6 +332,11 @@ gemini --resume SESSION_ID
 5. 실습 중 **Auto Memory**가 캡처한 내용 검토
 
 ---
+
+> **CI 파이프라인에 보안 분석 추가:** 공식 [Security Extension](https://github.com/gemini-cli-extensions/security)에는 자동화된 PR 보안 리뷰를 위한 즉시 사용 가능한 GitHub Actions 워크플로가 포함되어 있습니다. 모든 풀 리퀘스트에서 `/security:analyze`(SAST) 및 `/security:scan-deps`(종속성 CVE 스캔)를 실행합니다. `gemini extensions install https://github.com/gemini-cli-extensions/security`로 로컬 설치한 후 CI 워크플로를 저장소에 복사하세요. 전체 설정 방법은 [SDLC 생산성 향상 §2.3](sdlc-productivity.md) 및 [확장 프로그램 생태계 — 실습 4](extensions-ecosystem.md)를 참조하세요.
+
+---
+
 ## 요약: 배운 내용
 
 | 기능 | 설명 |
@@ -344,6 +349,7 @@ gemini --resume SESSION_ID
 | **WIF 인증** | Workload Identity Federation을 통한 무비밀(Zero-secret) 인증 |
 | **자동 메모리** | 에이전트가 세션 전반에 걸쳐 패턴을 학습 |
 | **일괄 처리** | 헤드리스 모드에서 파일/작업 반복 처리 |
+| **CI 보안** | 자동화된 PR 취약점 분석을 위한 공식 Security Extension |
 
 ---
 ## 워크숍 완료! 🎉

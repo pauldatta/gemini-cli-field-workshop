@@ -115,9 +115,30 @@ gemini extensions enable my-extension --scope workspace
 gemini extensions uninstall my-extension
 ```
 
+### Google 관리 확장 프로그램
+
+Google은 [**gemini-cli-extensions**](https://github.com/gemini-cli-extensions) 공식 확장 프로그램 조직을 운영하며, 보안, 데이터베이스, CI/CD 및 Google Cloud 서비스를 다루는 60개 이상의 확장 프로그램이 있습니다:
+
+| 확장 프로그램 | 주요 기능 | 추가 기능 |
+|---|---|---|
+| [**security**](https://github.com/gemini-cli-extensions/security) | 보안 분석 | 완전한 SAST 엔진, OSV-Scanner 기반 종속성 스캐닝, PoC 생성, 자동 패칭. 90% 정밀도, 93% 재현율 |
+| [**conductor**](https://github.com/gemini-cli-extensions/conductor) | 사양 주도 개발 | 구조화된 계획, 구현 추적 및 컨텍스트 주도 개발 |
+| [**workspace**](https://github.com/gemini-cli-extensions/workspace) | Google Workspace | Gmail, Drive, Calendar, Sheets 통합, 에이전트 최적화 JSON 출력 |
+| [**cicd**](https://github.com/gemini-cli-extensions/cicd) | CI/CD | 파이프라인 생성, 워크플로 디버깅 및 배포 자동화 |
+| [**firebase**](https://github.com/gemini-cli-extensions/firebase) | Firebase | Firebase 프로젝트 관리, Firestore 쿼리 및 호스팅 배포 |
+| [**bigquery-data-analytics**](https://github.com/gemini-cli-extensions/bigquery-data-analytics) | 데이터 분석 | BigQuery 데이터 탐색, 쿼리 최적화 및 분석 스킬 |
+| [**cloud-sql-***](https://github.com/gemini-cli-extensions) | 데이터베이스 | PostgreSQL, MySQL, SQL Server, AlloyDB, OracleDB 스킬 |
+| [**vertex**](https://github.com/gemini-cli-extensions/vertex) | Vertex AI | 프롬프트 관리 및 Vertex AI 통합 |
+
+다음 명령어로 설치하세요:
+
+```bash
+gemini extensions install https://github.com/gemini-cli-extensions/<name>
+```
+
 ### 주목할 만한 커뮤니티 확장 프로그램
 
-이미 사용해 본 Conductor 외에도, 커뮤니티에서는 점점 더 정교한 확장 프로그램을 구축하고 있습니다:
+공식 생태계 외에도, 커뮤니티에서는 점점 더 정교한 확장 프로그램을 구축하고 있습니다:
 
 | 확장 프로그램 | 주요 기능 | 추가 기능 |
 |---|---|---|
@@ -233,6 +254,51 @@ Use gws to generate a standup report from my calendar and recent email activity
 ```
 
 `gws`는 에이전트가 소비하기에 최적화된 구조화된 JSON을 출력합니다. 또한 에이전트가 처리하기 전에 Model Armor 템플릿을 통해 API 응답을 라우팅하는 `--sanitize`를 지원합니다.
+
+---
+
+### 실습 4: Security Extension — 프로덕션 등급 SAST
+
+[Security Extension](https://github.com/gemini-cli-extensions/security)은 Gemini CLI를 위한 Google의 공식 보안 분석 도구입니다. 직접 만든 규정 준수 에이전트와 달리, 완전한 SAST 엔진, 종속성 스캐너 및 벤치마크된 결과를 제공합니다.
+
+```bash
+# 설치
+gemini extensions install https://github.com/gemini-cli-extensions/security
+```
+
+**현재 변경 사항에 대한 보안 분석 실행:**
+
+```
+/security:analyze
+```
+
+이 확장 프로그램은 구조화된 2단계 분석을 실행합니다:
+1. **정찰 패스** — 취약점 분류체계에 따른 변경된 모든 파일의 빠른 스캔
+2. **조사 패스** — 플래그된 패턴에 대한 심층 분석, 소스에서 싱크까지 데이터 흐름 추적
+
+하드코딩된 시크릿, 인젝션 취약점(SQLi, XSS, SSRF, SSTI), 접근 제어 취약점, PII 노출, 약한 암호화 및 LLM 안전성 이슈를 검사합니다.
+
+**알려진 CVE에 대한 종속성 스캔:**
+
+```
+/security:scan-deps
+```
+
+이 명령은 [OSV-Scanner](https://github.com/google/osv-scanner)를 사용하여 [osv.dev](https://osv.dev) — Google의 오픈소스 취약점 데이터베이스와 대조합니다.
+
+**스캔 범위 사용자 지정:**
+
+```
+/security:analyze Analyze all source code under the src/ folder. Skip docs and config files.
+```
+
+**주요 기능:**
+- **PoC 생성** — 발견 사항을 검증하기 위한 개념 증명 스크립트 생성(`poc` 스킬)
+- **자동 패칭** — 확인된 취약점에 대한 수정 적용(`security-patcher` 스킬)
+- **허용 목록** — `.gemini_security/vuln_allowlist.txt`에 수용된 위험 영구 저장
+- **CI 통합** — 자동화된 PR 보안 리뷰를 위한 즉시 사용 가능한 [GitHub Actions 워크플로](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml) 제공
+
+> **엔터프라이즈 가치:** 이것은 [SDLC 생산성 향상 §1.7](sdlc-productivity.md) 및 [§2.3](sdlc-productivity.md)에서 참조된 것과 동일한 확장 프로그램입니다. 맞춤형 규정 준수 에이전트를 직접 구축할 필요 없이, `gemini extensions install` 한 번으로 전체 팀에 프로덕션 등급 보안 파이프라인을 제공할 수 있습니다.
 
 ---
 ## 나만의 확장 프로그램 만들기
@@ -403,11 +469,12 @@ deny_message = "Force operations are blocked by extension policy."
 | 개념 | 주요 내용 |
 |---|---|
 | **확장 프로그램 패키지 구성** | 7가지 기능: MCP 서버, 명령어, 컨텍스트, 스킬, 훅, 테마, 정책 |
+| **Google 관리** | [gemini-cli-extensions](https://github.com/gemini-cli-extensions)에서 60개 이상의 확장 프로그램 — 보안, 데이터베이스, CI/CD, Workspace |
 | **설치** | `gemini extensions install <url>` — 단일 명령어 |
 | **갤러리** | `gemini-cli-extension` GitHub 토픽을 통해 자동 색인됨 |
 | **빌드** | 7개의 템플릿에서 `gemini extensions new` 사용, 로컬 개발을 위한 `link` |
 | **엔터프라이즈 가치** | 조직 지식 패키징, 표준 적용, 설치 명령어를 통한 배포 |
-| **보안** | 확장 프로그램 정책은 티어 2 — 사용자 및 관리자 티어가 항상 재정의. 키체인에 비밀 정보 저장 |
+| **보안** | 공식 Security Extension으로 SAST + 종속성 스캔닝. 확장 프로그램 정책은 티어 2. 키체인에 비밀 정보 저장 |
 | **이식성** | 스킬은 Gemini CLI, Cursor 및 OpenCode 전반에서 작동함 |
 
 ---

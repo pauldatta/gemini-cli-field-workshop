@@ -513,43 +513,43 @@ You are a technical writer generating documentation from source code.
 
 ---
 
-### 에이전트 3: 규정 준수 검사기
+### 에이전트 3: 보안 분석 (공식 확장 프로그램)
 
-라이선스 헤더, PII 노출, 하드코딩된 시크릿 및 정책 위반에 대해 코드를 감사(audit)합니다.
+맞춤형 규정 준수 검사기를 직접 만드는 대신, **공식 [Security Extension](https://github.com/gemini-cli-extensions/security)**을 설치하세요. 이 Google 관리 확장 프로그램은 완전한 SAST 엔진, [OSV-Scanner](https://github.com/google/osv-scanner)를 통한 종속성 스캐닝, 그리고 벤치마크된 성능(실제 CVE 대비 90% 정밀도, 93% 재현율)을 제공합니다.
 
 ```bash
-cp samples/agents/compliance-checker.md .gemini/agents/
+# Security Extension 설치 (Gemini CLI v0.4.0 이상 필요)
+gemini extensions install https://github.com/gemini-cli-extensions/security
 ```
 
-```markdown
-<!-- .gemini/agents/compliance-checker.md -->
----
-name: compliance-checker
-description: Audit code for compliance, PII exposure, and policy violations.
-model: gemini-3.1-flash-lite-preview
-tools:
-  - read_file
-  - glob
-  - grep_search
----
-
-You are a compliance auditor. Scan for:
-1. License headers — every source file needs one
-2. PII exposure — emails, phone numbers, SSNs in code or logs
-3. Hardcoded secrets — API keys, passwords, tokens
-4. Logging hygiene — no user data in log statements
-
-Report as: Category / Severity / File:Line / Finding / Remediation.
-If clean, state "✅ PASS: [category]".
-```
-
-**직접 해보기:**
+**코드 변경 사항의 취약점 분석:**
 
 ```
-@compliance-checker Audit the entire backend/ directory
+/security:analyze
 ```
 
-> **엔터프라이즈 가치:** 삼성의 평가는 특히 "콘텐츠 필터링 및 중앙 집중식 감사"를 테스트합니다. 이 에이전트는 해당 기능을 직접적으로 보여줍니다.
+이 확장 프로그램은 현재 브랜치 diff에 대해 2단계 SAST 분석을 실행합니다:
+- 하드코딩된 시크릿 및 API 키
+- SQL 인젝션, XSS, SSRF, 커맨드 인젝션
+- 접근 제어 및 인증 우회 취약점
+- 로그 및 API 응답에서의 PII 노출
+- LLM 안전성 이슈 (프롬프트 인젝션, 안전하지 않은 도구 사용)
+
+**알려진 CVE에 대한 종속성 스캔:**
+
+```
+/security:scan-deps
+```
+
+이 명령은 [OSV-Scanner](https://github.com/google/osv-scanner)를 사용하여 종속성을 Google의 오픈소스 취약점 데이터베이스 [osv.dev](https://osv.dev)와 대조합니다.
+
+**스캔 범위 사용자 지정:**
+
+```
+/security:analyze Analyze all the source code under the backend/ folder. Skip tests and config files.
+```
+
+> **엔터프라이즈 가치:** 이 확장 프로그램에는 PoC 생성(`poc`), 자동 패칭(`security-patcher`), 취약점 허용 목록 관리 스킬이 포함되어 있습니다. 별도의 규정 준수 에이전트를 구축할 필요 없이 프로덕션에 바로 사용할 수 있습니다.
 
 ---
 
@@ -754,58 +754,38 @@ pattern — which files do I create and in what order?
 
 ---
 
-### 2.3 — CI 파이프라인의 종속성 감사
+### 2.3 — CI 파이프라인의 보안 분석
 
-1부에서는 로컬에서 코드를 리뷰하는 `@compliance-checker` 서브에이전트를 구축했습니다. 다음 단계는 이를 CI 파이프라인으로 승격시키는 것입니다. 즉, 모든 PR에서 실행되어 CVE, 문제가 있는 라이선스 및 유지 관리되지 않는 패키지에 대한 종속성을 감사하는 에이전트를 만드는 것입니다.
+1부에서는 로컬 분석을 위해 [Security Extension](https://github.com/gemini-cli-extensions/security)을 설치했습니다. 다음 단계는 이를 CI로 승격시키는 것입니다. 모든 풀 리퀘스트에서 자동으로 보안 분석을 수행합니다.
 
-#### 패턴: GitHub Actions의 헤드리스 모드 Gemini CLI
+#### 패턴: GitHub Actions의 Security Extension
 
-```yaml
-# .github/workflows/dependency-audit.yml
-name: Dependency Audit
+Security Extension에는 바로 사용할 수 있는 GitHub Actions 워크플로가 포함되어 있습니다. 직접 복사하세요:
 
-on:
-  pull_request:
-    paths:
-      - 'package.json'
-      - 'package-lock.json'
-      - 'requirements.txt'
-      - 'go.mod'
-
-jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: google-github-actions/run-gemini-cli@v1
-        with:
-          prompt: |
-            Audit the dependency files in this repository:
-            1. Check for known CVEs in dependencies
-            2. Flag any GPL or AGPL licenses that conflict with our MIT license
-            3. Identify unmaintained packages (no updates in 2+ years)
-            4. Check for packages with known supply chain risks
-            
-            Output a structured report with severity levels:
-            - CRITICAL: Known CVEs with exploits
-            - HIGH: License conflicts or supply chain risks
-            - MEDIUM: Unmaintained packages
-            - LOW: Minor version pinning issues
-            
-            If no issues found, output: AUDIT_CLEAN
+```bash
+# 확장 프로그램의 CI 워크플로를 저장소에 복사
+cp $(gemini extensions path security)/.github/workflows/gemini-review.yml \
+  .github/workflows/security-review.yml
 ```
 
-**에이전트가 정적 스캐너보다 뛰어난 이유:**
+또는 [공식 워크플로 템플릿](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml)을 참고하여 수동으로 추가하세요. 이 워크플로는 다음을 수행합니다:
 
-| 정적 스캐너 | 에이전트 기반 감사 |
+1. CI 러너에 Security Extension 설치
+2. PR diff에 대해 `/security:analyze` 실행
+3. 종속성 취약점에 대해 `/security:scan-deps` 실행
+4. 분석 결과를 PR 코멘트로 게시
+
+**Security Extension이 수작업 프롬프트보다 뛰어난 이유:**
+
+| 수작업 감사 프롬프트 | Security Extension |
 |---|---|
-| 고정된 CVE 데이터베이스와 대조하여 검사 | *특정 사용 방식*에 대해 추론 — 취약한 함수가 실제로 호출되는가? |
-| 이진 라이선스 일치 여부 확인 | 라이선스 상호 작용 이해 — MIT + Apache는 괜찮지만, MIT + GPL은 문제가 됨 |
-| 모든 것을 보고 | *사용자*의 코드베이스에 미치는 실제 영향을 기준으로 우선순위 지정 |
-| 도구별 설정 필요 | 자연어 프롬프트 — 텍스트를 편집하여 기준 조정 |
+| 자유 형식 프롬프트 — 실행마다 결과가 다름 | 구조화된 2단계 SAST 엔진으로 일관된 방법론 |
+| 취약점 분류 체계 없음 | 7개 카테고리, 20+ 취약점 유형, 심각도 등급 (Critical/High/Medium/Low) |
+| 종속성 스캐닝 없음 | Google 취약점 데이터베이스 기반 통합 OSV-Scanner |
+| 수정 워크플로 없음 | 내장된 PoC 생성 및 자동 패칭 스킬 |
+| 허용 목록 없음 | `.gemini_security/vuln_allowlist.txt`를 통한 영구 허용 목록 관리 |
 
-> **이것은 슬라이드 18 패턴 2입니다:** `google-github-actions/run-gemini-cli@v1`을 사용하여 CI/CD에서 에이전트를 실행합니다. §1.5에서 로컬로 구축한 것과 동일한 서브에이전트가 이제 모든 PR에서 자동으로 실행됩니다. 새로운 코드는 필요 없으며, 동일한 프롬프트를 감싸는 배포 래퍼(wrapper)만 있으면 됩니다.
+> **이것은 슬라이드 18의 CI 패턴이지만**, 수작업 프롬프트 대신 프로덕션 등급의 벤치마크된 확장 프로그램(90% 정밀도, 93% 재현율)을 사용합니다. §1.7에서 로컬로 실행한 것과 동일한 `/security:analyze` 명령이 이제 모든 PR에서 자동으로 실행됩니다.
 
 ---
 
@@ -816,7 +796,7 @@ jobs:
 | 구성 요소 (1부) | 아우터 루프 애플리케이션 (2부) |
 |---|---|
 | 맞춤형 서브에이전트 (§1.5) | ADR 작성기, 온보딩 가이드 |
-| 규정 준수 검사기 (§1.5) | CI 종속성 감사기 |
+| Security Extension (§1.7) | CI 보안 분석 파이프라인 |
 | Conductor 사양-코드 변환 (§1.4) | PRD → ADR → 구현 파이프라인 |
 | 헤드리스 모드 (UC3에서 참조됨) | GitHub Action 자동화 |
 
@@ -836,11 +816,12 @@ jobs:
 | **정책 엔진** | TOML 형식의 코드형 가드레일(Guardrails-as-code)입니다. deny, allow 또는 ask_user를 지원합니다. |
 | **훅** | 에이전트 수명 주기 이벤트에서 경량 컨텍스트 주입 및 모델 스티어링을 수행합니다. |
 | **샌드박싱** | 신뢰할 수 없는 환경을 위한 격리된 실행을 제공합니다. |
-| **사용자 지정 에이전트** | 단순한 코딩뿐만 아니라 리뷰, 문서, 규정 준수, 릴리스 노트 등을 위한 특화된 에이전트입니다. |
+| **사용자 지정 에이전트** | 단순한 코딩뿐만 아니라 리뷰, 문서, 릴리스 노트 등을 위한 특화된 에이전트입니다. |
+| **Security Extension** | 공식 SAST + 종속성 스캐닝, PoC 생성 및 자동 패칭 지원 |
 | **기본 제공 에이전트** | `generalist`, `codebase_investigator`, `cli_help` — 설정 없이 위임할 수 있습니다. |
 | **ADR 생성** | git diff를 기반으로 서브에이전트 주도의 아키텍처 결정 기록(ADR)을 생성합니다. |
 | **온보딩 에이전트** | 새로운 개발자를 위한 코드베이스 매핑 — 실제 코드 경로를 추적합니다. |
-| **CI 종속성 감사** | 자동화된 규정 준수를 위한 GitHub Actions 내의 헤드리스 에이전트입니다. |
+| **CI 보안 파이프라인** | GitHub Actions에서 자동화된 취약점 분석을 위한 Security Extension |
 
 ---
 ## 다음 단계

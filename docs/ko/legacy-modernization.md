@@ -280,8 +280,10 @@ gemini
 4. **@codebase_investigator**를 사용하여 종속성 매핑
 5. 시작하기 전에 **체크포인트** 생성
 6. 마이그레이션 시작 — 필요에 따라 **모델 스티어링**을 사용하여 방향 수정
-7. 각 단계가 끝난 후 **@security-scanner**로 확인
+7. 각 단계가 끝난 후 보안 스캔 실행 (아래 참조)
 8. 세션에서 **Auto Memory**가 학습한 내용 검토
+
+> **마이그레이션 후 보안 스캔:** 레거시 코드를 현대화한 후, 공식 [Security Extension](https://github.com/gemini-cli-extensions/security)을 실행하여 마이그레이션 중 도입된 취약점을 포착하세요. `gemini extensions install https://github.com/gemini-cli-extensions/security`로 설치한 후 `/security:analyze`를 실행하여 변경 사항을 스캔하세요. 자세한 내용은 [확장 프로그램 생태계 — 실습 4](extensions-ecosystem.md)를 참조하세요.
 
 ---
 ## 요약: 학습한 내용
@@ -298,6 +300,7 @@ gemini
 | **자동 메모리** | 세션에서 패턴을 학습하는 에이전트 |
 | **체크포인트** | 위험한 변경 전 상태 저장/복원 |
 | **git 워크트리** | 동시 작업을 위한 병렬 브랜치 |
+| **Security Extension** | `/security:analyze`를 통한 마이그레이션 후 취약점 스캔 |
 
 ---
 ## 다음 단계

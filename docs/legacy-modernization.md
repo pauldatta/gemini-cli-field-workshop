@@ -293,8 +293,10 @@ Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a m
 4. Use **@codebase_investigator** to map dependencies
 5. Create a **checkpoint** before starting
 6. Begin the migration — use **model steering** to course-correct as needed
-7. After each phase, check with **@security-scanner**
+7. After each phase, run a security scan (see below)
 8. Review what **Auto Memory** learned from the session
+
+> **Post-migration security scan:** After modernizing legacy code, run the official [Security Extension](https://github.com/gemini-cli-extensions/security) to catch vulnerabilities introduced during migration. Install it with `gemini extensions install https://github.com/gemini-cli-extensions/security`, then run `/security:analyze` to scan your changes. See [Extensions Ecosystem — Exercise 4](extensions-ecosystem.md) for full details.
 
 ---
 
@@ -312,6 +314,7 @@ Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a m
 | **Auto Memory** | Agent learns patterns from sessions |
 | **Checkpointing** | Automatic save/restore state before risky changes (enable in settings.json) |
 | **Git Worktrees** | Parallel branches for simultaneous work |
+| **Security Extension** | Post-migration vulnerability scan with `/security:analyze` |
 
 ---
 
