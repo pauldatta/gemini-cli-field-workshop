@@ -29,7 +29,9 @@ All issues are automatically triaged by Gemini CLI with type, area, and priority
 - **Voice:** Instructional, concise, and encouraging. Write for enterprise developers who may be new to AI-assisted coding.
 - **Code samples:** Must be tested and copy-pasteable. Use fenced code blocks with language tags.
 - **Module structure:** Each use case follows the pattern: context → demo → hands-on exercise → recap.
-- **Translations:** If updating English content, note in your PR that `ko/` translations may need updating for parity.
+- **Date stamps:** Update the `Last updated` line in any file you modify. This appears in the blockquote header of each doc.
+- **Grounding:** All technical claims must be verifiable against the [gemini-cli source repo](https://github.com/google-gemini/gemini-cli). See [`AUDIT.md`](AUDIT.md) for the full checklist.
+- **Translations:** If updating English content, note in your PR that `ko/` translations may need updating for parity. Keep technical terms (tool names, commands, code) in English within Korean prose.
 
 ### Repository Structure
 
@@ -40,10 +42,12 @@ docs/
 ├── legacy-modernization.md  # Use Case 2
 ├── devops-orchestration.md  # Use Case 3
 ├── advanced-patterns.md     # Advanced topics
+├── extensions-ecosystem.md  # Extensions deep-dive
 ├── facilitator-guide.md     # Delivery guide for CEs
 ├── cheatsheet.md            # Quick reference
 ├── ko/                      # Korean translations
 └── assets/                  # Images and media
+AUDIT.md                     # Agent-readable audit instructions
 ```
 
 ## Code of Conduct
