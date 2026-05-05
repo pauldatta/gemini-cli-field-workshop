@@ -358,4 +358,4 @@ gemini --resume SESSION_ID
 
 → 더 많은 것을 원하시나요? **[고급 패턴](advanced-patterns.md)**에서는 프롬프트 작성 기술, 검증 루프, 컨텍스트 엔지니어링 및 병렬 개발을 다룹니다.
 
-강사용: 진행 팁과 맞춤설정 옵션은 **[진행자 가이드](/facilitator-guide.md)**를 참조하세요.
+강사용: 진행 팁과 맞춤설정 옵션은 **[진행자 가이드](../facilitator-guide.md)**를 참조하세요.
