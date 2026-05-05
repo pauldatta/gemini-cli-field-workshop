@@ -104,9 +104,52 @@ Shows the current model, token usage, and caching status.
 
 ## 2.3 — Context Engineering for Migrations (10 min)
 
-### Setting Up Migration Standards
+Migration projects are where context engineering pays the biggest dividend. A legacy codebase is full of implicit knowledge — architectural patterns, deprecated API usage, hidden dependency chains — that isn't written down anywhere. The agent needs to internalize this before it can safely change anything.
 
-Create a GEMINI.md that encodes your target architecture:
+There are two approaches: **manual** (you write the GEMINI.md) and **agent-driven** (the agent writes it for you). Both produce the same artifact, but the agent-driven approach often surfaces things you'd miss.
+
+### Agent-Driven: Self-Onboarding with @codebase_investigator
+
+The most powerful pattern for migrations is having the agent **investigate the codebase and write its own GEMINI.md**. This is the "agent self-onboarding" pattern — it mirrors what a senior engineer does when joining a new project, but at machine speed.
+
+**Step 1 — Investigate:**
+
+```
+@codebase_investigator Analyze this entire codebase. Map:
+1. Framework versions, build system, and dependency tree
+2. Architectural patterns (MVC, data access layers, security config)
+3. All javax.* imports that will need jakarta.* migration
+4. Configuration files and property sources
+5. Test frameworks and coverage patterns
+Report any migration risks or complexity hotspots.
+```
+
+> **What's happening:** The `@codebase_investigator` subagent reads every file, traces imports, maps class hierarchies, and builds a complete picture — all in read-only mode. It never modifies anything.
+
+**Step 2 — Generate context:**
+
+```
+Based on your codebase analysis, write a GEMINI.md that:
+1. Documents what you found (current state: Boot 2.6, Java 8, javax.*)
+2. Defines the target state (Boot 3.3, Java 21, jakarta.*)
+3. Lists migration rules (one module at a time, preserve API contracts)
+4. Encodes testing standards (every phase must pass mvn clean verify)
+5. Flags the specific risks you identified
+
+Write this file to the project root as GEMINI.md.
+```
+
+**Step 3 — Review and refine:**
+
+The agent produces a GEMINI.md grounded in what it actually found in the code — not guesses. Review it, add any team-specific conventions, and approve. From this point forward, every migration command the agent executes is guided by this context.
+
+> **Why this works:** The agent is writing instructions for itself. The GEMINI.md it produces becomes the guardrails for its own subsequent work. This is a self-reinforcing loop: better context → better code changes → the agent learns more patterns → context improves further (via Auto Memory).
+
+> **See it in practice:** The [Java Upgrade PRD](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_java_upgrade.md) uses this pattern as Phase 0 — the agent must self-onboard before touching any migration code.
+
+### Manual: Writing Migration Standards Directly
+
+For teams with established standards, write the GEMINI.md yourself:
 
 ```markdown
 # Migration Standards
@@ -153,6 +196,8 @@ You can also explicitly teach it:
 check for .edmx files and replace them with code-first models. 
 The database-first approach is deprecated in EF Core."
 ```
+
+> **Context engineering lifecycle:** The best migration workflows combine all three: an agent-generated GEMINI.md (initial context), @file imports (modular standards), and Auto Memory (patterns learned during execution). Each reinforces the others.
 
 ---
 
@@ -285,16 +330,36 @@ gemini
 
 ## Hands-On Exercise
 
-Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a migration:
+Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a migration. Choose your approach:
 
-1. Enter **Plan Mode** → analyze the target codebase
-2. Create a **GEMINI.md** with migration standards
-3. Use **Conductor** to create a phased migration plan
-4. Use **@codebase_investigator** to map dependencies
+### Approach A: Conductor-First (Plan → Context → Execute)
+
+Start with structured planning and let the plan drive context creation:
+
+1. Enter **Plan Mode** (`/plan`) → analyze the target codebase read-only
+2. Use **Conductor** to create a phased migration plan matching the PRD phases
+3. Write a **GEMINI.md** encoding migration standards and the approved plan
+4. Use **@codebase_investigator** to map dependencies and validate the plan
+5. Create a **checkpoint** before starting
+6. Exit Plan Mode → begin the migration, one phase at a time
+7. Use **model steering** to course-correct as needed
+8. After each phase, run `mvn clean verify` and a security scan (see below)
+9. Review what **Auto Memory** learned from the session
+
+### Approach B: Self-Onboarding (Investigate → Context → Plan → Execute)
+
+Let the agent build its own understanding first, then plan from what it found:
+
+1. Use **@codebase_investigator** to analyze the target codebase and map dependencies
+2. Have the agent **write a GEMINI.md** based on its analysis (agent self-onboarding)
+3. Review and refine the generated context — add team-specific standards
+4. Enter **Plan Mode** → let **Conductor** create a phased migration plan informed by the GEMINI.md
 5. Create a **checkpoint** before starting
 6. Begin the migration — use **model steering** to course-correct as needed
-7. After each phase, run a security scan (see below)
+7. After each phase, run `mvn clean verify` and a security scan (see below)
 8. Review what **Auto Memory** learned from the session
+
+> **Which approach?** Approach A works well when you already know the codebase and want to lead with structure. Approach B works better with unfamiliar legacy code — the agent often surfaces migration risks that a human-written plan would miss. Try both and compare the quality of the resulting plans.
 
 > **Post-migration security scan:** After modernizing legacy code, run the official [Security Extension](https://github.com/gemini-cli-extensions/security) to catch vulnerabilities introduced during migration. Install it with `gemini extensions install https://github.com/gemini-cli-extensions/security`, then run `/security:analyze` to scan your changes. See [Extensions Ecosystem — Exercise 4](extensions-ecosystem.md) for full details.
 
@@ -307,6 +372,7 @@ Open the **.NET Modernization PRD** or **Java Upgrade PRD** and work through a m
 | **Plan Mode** | Read-only research — analyze before modifying |
 | **Model routing** | Automatic Pro (planning) → Flash (coding) selection |
 | **Model steering** | Course-correct the agent mid-stream |
+| **Agent self-onboarding** | Agent investigates codebase and writes its own GEMINI.md |
 | **@ import syntax** | Modular GEMINI.md for large projects |
 | **@codebase_investigator** | Read-only codebase analysis subagent |
 | **Custom subagents** | Specialized agents with tool isolation |

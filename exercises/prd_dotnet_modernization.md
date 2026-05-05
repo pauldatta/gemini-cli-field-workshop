@@ -1,87 +1,114 @@
-# PRD: .NET Framework → .NET 8 Cloud-Native Migration
+# PRD: .NET 5 → .NET 8 Cloud-Native Migration
 
-> **Workshop Use:** Practice exercise for legacy modernization. Demonstrates Conductor planning, @architect analysis, and the Developer Knowledge MCP for current .NET 8 patterns.
+> **Workshop Use:** Practice exercise for legacy modernization. Demonstrates Conductor planning, @codebase_investigator analysis, and the Developer Knowledge MCP for current .NET 8 patterns. The target repository includes a reference `modernization-prompt.md` authored by GCP Cloud Solutions Architects — a gold-standard example of prompt engineering for migration tasks.
 
 ## Problem
 
-A Windows-bound ASP.NET Framework 4.8 application runs on dedicated VMs. Deployments take 2-3 hours with manual IIS configuration. The application can't scale horizontally, and Windows Server licensing costs $15K/year per instance.
+A partially-upgraded ASP.NET application (ContosoUniversity) runs on .NET 5 with Entity Framework 6 and the legacy Generic Host pattern (`Startup.cs` + `Program.cs`). .NET 5 reached end of support in May 2022. The app uses SQL Server-flavored EF6 but needs to target Cloud Run with PostgreSQL. It lacks containerization, structured logging, and graceful shutdown handling.
 
 ## Business Drivers
 
 | Driver | Impact |
 |:---|:---|
-| **Licensing** | Eliminate Windows Server licensing — Linux containers on Cloud Run cost ~70% less |
-| **Deployment speed** | From 2-3 hours (manual IIS) to 3 minutes (container push) |
+| **Security compliance** | .NET 5 is EOL — no security patches. Blocks compliance certification. |
+| **Deployment speed** | From manual VM deployment to 3-minute container push on Cloud Run |
 | **Scalability** | Cloud Run auto-scales from 0 to N instances based on traffic |
-| **Maintainability** | .NET Framework 4.8 receives only security fixes — no new features or performance improvements |
+| **Cost** | Eliminate Windows Server licensing — Linux containers on Cloud Run cost ~70% less |
+| **Data layer** | Migrate from EF6/SQL Server to EF Core 8/PostgreSQL for managed Cloud SQL |
 
 ## Target Repository
 
-[Google Cloud .NET Modernization Demo](https://github.com/GoogleCloudPlatform/cloud-solutions/tree/main/projects/dotnet-modernization-demo)
+[ContosoUniversity — Google Cloud .NET Modernization Demo](https://github.com/GoogleCloudPlatform/cloud-solutions/tree/main/projects/dotnet-modernization-demo)
+
+The repo provides both the legacy app (`dotnet-migration-sample/`) and the completed target state (`dotnet-migration-sample-modernized/`) for self-verification. Students work exclusively in the `dotnet-migration-sample/` directory.
+
+```bash
+git clone --depth 1 https://github.com/GoogleCloudPlatform/cloud-solutions.git
+cd cloud-solutions/projects/dotnet-modernization-demo/dotnet-migration-sample
+```
+
+> **Bonus resource:** The repo includes [`modernization-prompt.md`](https://github.com/GoogleCloudPlatform/cloud-solutions/blob/main/projects/dotnet-modernization-demo/modernization-prompt.md) — a 225-line production-grade Gemini migration prompt from the GCP team. Compare your agent's approach with this reference prompt to study prompt engineering for migration tasks.
 
 ## Scope
 
 ### In Scope
-- Upgrade project files from .NET Framework 4.8 to .NET 8
-- Replace `System.Web` with `Microsoft.AspNetCore`
+- Upgrade target framework from .NET 5 to .NET 8
+- Replace Generic Host pattern (`Startup.cs`) with minimal hosting API (`WebApplication.CreateBuilder()`)
 - Migrate Entity Framework 6 to Entity Framework Core 8
-- Replace `web.config` with `appsettings.json`
-- Replace In-Memory Session with Redis (Memorystore)
-- Create a Linux-based Dockerfile
-- Deploy to Cloud Run
+- Switch database provider from SQL Server to PostgreSQL (Npgsql)
+- Create a Cloud Run-compliant Dockerfile and Docker Compose configuration
+- Implement structured logging, PORT binding, and SIGTERM graceful shutdown
 
 ### Out of Scope
-- Database schema migration (EF Core should map to the existing schema)
-- Rewriting the frontend (if any — just ensure it compiles)
-- Performance optimization beyond the migration
+- Business logic changes (faithful 1:1 feature replication)
+- Frontend redesign (Razor views stay as-is, just ensure they compile)
+- Database schema changes (EF Core should map to equivalent schema)
 
 ## Migration Checklist
 
-### Phase 1: Project File Modernization
-- [ ] Convert `.csproj` from the verbose XML format to SDK-style:
-  ```xml
-  <Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-      <TargetFramework>net8.0</TargetFramework>
-    </PropertyGroup>
-  </Project>
+### Phase 0: Context Engineering — Agent Self-Onboarding
+
+Before writing migration code, the agent should build its own understanding of the codebase.
+
+- [ ] **Investigate the codebase:**
   ```
-- [ ] Remove `packages.config` — move all dependencies to `<PackageReference>` in `.csproj`
-- [ ] Delete `AssemblyInfo.cs` — properties move to `.csproj`
-- [ ] Run `dotnet restore` — resolve any missing packages
+  @codebase_investigator Analyze the ContosoUniversity application. Map:
+  1. Current framework version and all NuGet dependencies
+  2. The Startup.cs/Program.cs hosting pattern
+  3. All System.Data.Entity (EF6) usage across DAL, controllers, and migrations
+  4. Configuration sources (appsettings.json, web.config remnants)
+  5. Google Cloud integrations (Diagnostics, logging)
+  ```
+- [ ] **Generate a migration-aware GEMINI.md** based on the analysis
+- [ ] **Review and approve** the generated GEMINI.md before proceeding
 
-### Phase 2: Framework API Replacement
-- [ ] Replace `System.Web.HttpContext` → `Microsoft.AspNetCore.Http.HttpContext`
-- [ ] Replace `System.Web.Mvc.Controller` → `Microsoft.AspNetCore.Mvc.Controller`
-- [ ] Replace `Global.asax` startup code → `Program.cs` with `WebApplication.CreateBuilder()`
-- [ ] Replace `web.config` → `appsettings.json` for all config values
-- [ ] Replace `ConfigurationManager.AppSettings["key"]` → `IConfiguration` injection
-- [ ] Add `builder.Services.AddControllersWithViews()` in `Program.cs`
+### Phase 1: TFM and Package Upgrade
+- [ ] Update `ContosoUniversity.csproj`: change `<TargetFramework>net5.0</TargetFramework>` → `net8.0`
+- [ ] Update all NuGet packages to .NET 8-compatible versions:
+  - `Microsoft.AspNetCore.Mvc.NewtonsoftJson` → 8.0.x
+  - `System.ComponentModel.Annotations` → 8.0.x
+  - `System.Configuration.ConfigurationManager` → 8.0.x
+  - `Google.Cloud.Diagnostics.AspNetCore` → latest 8.0-compatible
+- [ ] Remove the `Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers` package (no longer needed)
+- [ ] Remove `<GenerateAssemblyInfo>false</GenerateAssemblyInfo>` and delete `Properties/AssemblyInfo.cs`
+- [ ] Run `dotnet restore` — resolve any package conflicts
 
-### Phase 3: Entity Framework Migration
-- [ ] Remove `EntityFramework` 6.x package
-- [ ] Add `Microsoft.EntityFrameworkCore` and `Microsoft.EntityFrameworkCore.SqlServer` (or `.Npgsql` for PostgreSQL)
-- [ ] Update `DbContext`:
-  - Remove `Database.SetInitializer<T>(null)`
-  - Add `OnConfiguring` or use `AddDbContext` in `Program.cs`
-- [ ] Replace `DbModelBuilder` fluent API with `ModelBuilder` (most syntax is similar)
-- [ ] Run existing tests to verify query behavior is preserved
-
-### Phase 4: Session State & Caching
-- [ ] Remove In-Memory Session dependency
-- [ ] Add `Microsoft.Extensions.Caching.StackExchangeRedis`
-- [ ] Configure distributed session in `Program.cs`:
+### Phase 2: Hosting Modernization
+- [ ] Replace `Startup.cs` + `Program.cs` (Generic Host pattern) with minimal hosting API:
   ```csharp
-  builder.Services.AddStackExchangeRedisCache(options =>
-  {
-      options.Configuration = builder.Configuration["Redis:ConnectionString"];
-  });
-  builder.Services.AddSession();
+  var builder = WebApplication.CreateBuilder(args);
+  builder.Services.AddControllersWithViews();
+  // ... service registration
+  var app = builder.Build();
+  // ... middleware pipeline
+  app.Run();
   ```
-- [ ] Replace all `HttpContext.Session["key"]` usage with the new `ISession` API
+- [ ] Move `ConfigureServices()` body into the top-level `builder.Services` block
+- [ ] Move `Configure()` body into the top-level `app.Use*()` pipeline
+- [ ] Migrate `CreateHostBuilder` secret config loading to the new pattern
+- [ ] Configure PORT binding for Cloud Run: `app.Run("http://0.0.0.0:" + port)`
+- [ ] Add SIGTERM graceful shutdown handler
+- [ ] Delete `Startup.cs` after migration is complete
 
-### Phase 5: Containerization & Deployment
-- [ ] Create a multi-stage `Dockerfile`:
+### Phase 3: Entity Framework 6 → EF Core 8
+- [ ] Remove `EntityFramework` 6.4.4 package
+- [ ] Add `Microsoft.EntityFrameworkCore` and `Npgsql.EntityFrameworkCore.PostgreSQL` 8.0.x
+- [ ] Refactor `SchoolContext`:
+  - Replace `System.Data.Entity` imports → `Microsoft.EntityFrameworkCore`
+  - Replace `DbModelBuilder` → `ModelBuilder` in `OnModelCreating`
+  - Remove `PluralizingTableNameConvention` → add explicit `.ToTable()` calls
+  - Remove `MapToStoredProcedures()` (not supported in EF Core)
+  - Replace constructor `SchoolContext(string connectString) : base(connectString)` → `SchoolContext(DbContextOptions<SchoolContext> options) : base(options)`
+- [ ] Register DbContext in DI: `builder.Services.AddDbContext<SchoolContext>(options => options.UseNpgsql(...))`
+- [ ] Refactor `SchoolInitializer.cs` → `DbInitializer.cs` using `context.Database.EnsureCreated()`
+- [ ] Remove `SchoolConfiguration.cs` (`Database.SetInitializer<T>()` is EF6-only)
+- [ ] Remove `SchoolInterceptorLogging.cs` and `SchoolInterceptorTransientErrors.cs` (EF6 interceptors) → replace with EF Core logging via `ILoggerFactory`
+- [ ] Delete all EF6 migration files (`Migrations/2014*.cs`, `Migrations/Configuration.cs`)
+- [ ] Update all controllers to remove `System.Data.Entity` imports and fix `RetryLimitExceededException` (EF6) → EF Core equivalent
+- [ ] Run `dotnet build` — fix all compilation errors
+
+### Phase 4: Containerization & Cloud Run
+- [ ] Create multi-stage `Dockerfile`:
   ```dockerfile
   FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
   WORKDIR /src
@@ -93,27 +120,46 @@ A Windows-bound ASP.NET Framework 4.8 application runs on dedicated VMs. Deploym
   COPY --from=build /app .
   USER 1000
   EXPOSE 8080
-  ENTRYPOINT ["dotnet", "MyApp.dll"]
+  ENTRYPOINT ["dotnet", "ContosoUniversity.dll"]
   ```
 - [ ] Add `.dockerignore` (exclude `bin/`, `obj/`, `.git/`)
-- [ ] Replace hardcoded connection strings with Google Cloud Secret Manager references
-- [ ] Run `docker build` and `docker run` locally to verify
-- [ ] Deploy: `gcloud run deploy --source .`
+- [ ] Create `compose.yaml` with PostgreSQL + app services:
+  - PostgreSQL container with `pg_isready` healthcheck
+  - App container with connection string via environment variable
+  - No `version` attribute (deprecated in Compose Spec)
+- [ ] Configure structured JSON logging for Cloud Logging: `builder.Logging.AddJsonConsole()`
+- [ ] Run `docker build --check .` — pass all Docker build checks
+- [ ] Run `docker compose up --build --detach` — verify the app starts and database initializes
+
+### Phase 5: Validation & Testing
+- [ ] `dotnet build` compiles without errors or warnings
+- [ ] Docker image builds and runs on Linux (not Windows containers)
+- [ ] Container runs as non-root user (UID 1000)
+- [ ] All HTTP endpoints respond correctly (GET, POST for CRUD operations)
+- [ ] Database is initialized with seed data on first run
+- [ ] Application handles anti-forgery tokens correctly for POST/DELETE operations
+- [ ] Structured JSON logs appear in `docker compose logs`
+- [ ] No connection strings or credentials in source code
 
 ## What the Agent Should Do
 
-1. **@architect**: Analyze the legacy codebase and produce a dependency map showing which files reference `System.Web`, EF6, and `web.config`
-2. **Conductor**: Generate a phased plan matching the checklist above
-3. **@implementer**: Execute each phase, running `dotnet build` after each to catch errors early
-4. **Developer Knowledge MCP**: Look up current .NET 8 migration patterns instead of hallucinating deprecated APIs
-5. **@security-scanner**: Scan the final code for hardcoded credentials that should be in Secret Manager
+This PRD is designed to test the agent's ability to:
+
+1. **Bootstrap its own context** — use `@codebase_investigator` to write a GEMINI.md before starting (Phase 0)
+2. **Understand legacy patterns** — recognize EF6 idioms (`DbModelBuilder`, interceptors, `Database.SetInitializer`) and map them to EF Core equivalents
+3. **Follow a phased plan** — Conductor should generate a plan matching these phases
+4. **Perform mechanical refactoring** — the EF6 → EF Core migration touches every controller and model file
+5. **Verify its own work** — run `dotnet build` and `docker compose up` after each phase
+6. **Know current APIs** — use Developer Knowledge MCP to look up EF Core 8 and minimal hosting patterns instead of hallucinating deprecated APIs
 
 ## Acceptance Criteria
 
-- [ ] `dotnet build` compiles without errors or warnings
-- [ ] `dotnet test` passes all existing tests
-- [ ] Docker image builds and runs on Linux (not Windows containers)
-- [ ] Container runs as non-root user (UID 1000)
-- [ ] No connection strings or credentials in source code — all in Secret Manager or environment variables
-- [ ] `gcloud run deploy` completes with 0 configuration warnings
-- [ ] Application responds to health check at `/health` within 2 seconds of cold start
+- [ ] A `GEMINI.md` exists in the project root encoding the migration context
+- [ ] `dotnet build` compiles without errors on .NET 8
+- [ ] No `System.Data.Entity` imports remain anywhere in the codebase
+- [ ] No `Startup.cs` — app uses minimal hosting API in `Program.cs`
+- [ ] `EntityFramework` 6.x package fully replaced by `Microsoft.EntityFrameworkCore` 8.x
+- [ ] Docker image builds and runs on Linux with non-root user
+- [ ] `docker compose up` successfully starts app + PostgreSQL and seeds the database
+- [ ] No connection strings or credentials in source code
+- [ ] Application responds to health check within 2 seconds of cold start
