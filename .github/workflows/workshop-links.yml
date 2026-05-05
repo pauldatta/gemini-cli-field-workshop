@@ -45,8 +45,8 @@ jobs:
             --exclude 'YOUR_KEY'
             --exclude 'your-org'
             --exclude 'aipositive\.substack\.com'
-            --exclude-path '**/\_sidebar.md'
-            --exclude-path '**/\_navbar.md'
+            --exclude-path '_sidebar\.md'
+            --exclude-path '_navbar\.md'
             --root-dir .
             --cache
             --max-cache-age 1d
