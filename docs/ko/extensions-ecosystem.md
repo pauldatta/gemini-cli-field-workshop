@@ -132,7 +132,7 @@ Google은 [**gemini-cli-extensions**](https://github.com/gemini-cli-extensions) 
 
 다음 명령어로 설치하세요:
 
-```bash
+```text
 gemini extensions install https://github.com/gemini-cli-extensions/<name>
 ```
 

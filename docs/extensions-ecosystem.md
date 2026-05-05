@@ -134,7 +134,7 @@ Google maintains an official extension organization at [**gemini-cli-extensions*
 
 Install any of them with:
 
-```bash
+```text
 gemini extensions install https://github.com/gemini-cli-extensions/<name>
 ```
 

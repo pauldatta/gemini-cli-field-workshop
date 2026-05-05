@@ -44,9 +44,11 @@ jobs:
             --exclude '127\.0\.0\.1'
             --exclude 'YOUR_KEY'
             --exclude 'your-org'
+            --exclude 'aipositive\.substack\.com'
             --exclude '^/[a-z]{2}/$'
             --exclude '/[a-z]{2}$'
-            --exclude '.*/[a-z]{2}/facilitator-guide\.md'
+            --exclude '^/ko/'
+            --exclude '^/facilitator-guide\.md'
             --root-dir .
             --cache
             --max-cache-age 1d

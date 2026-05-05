@@ -229,7 +229,7 @@ You are a security analyst. Your job is to find vulnerabilities...
 
 ### 자동 메모리 🔬
 
-> **실험적 기능:** 자동 메모리는 현재 실험적이며, `settings.json`에서 `autoMemory: true`로 활성화해야 합니다. 세부 사항은 [메모리 문서](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/memory.md)를 참조하세요.
+> **실험적 기능:** 자동 메모리는 현재 실험적이며, `settings.json`에서 `autoMemory: true`로 활성화해야 합니다. 세부 사항은 [메모리 문서](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md)를 참조하세요.
 
 자동 메모리는 세션에서 스킬을 자동으로 추출합니다:
 
