@@ -22,7 +22,7 @@ gemini --version           # Check version
 |---|---|
 | `Tab` | Accept suggested edit |
 | `Shift+Tab` | Cycle through options |
-| `Ctrl+X` | Multi-line editor |
+| `Ctrl+G` | External editor (edit prompt or plan) |
 | `Ctrl+C` | Cancel current operation |
 | `↑` / `↓` | Navigate prompt history |
 

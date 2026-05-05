@@ -49,7 +49,7 @@ This shows every tool the agent can use: file operations, shell commands, web se
 |---|---|
 | `Tab` | Accept a suggested edit |
 | `Shift+Tab` | Cycle through approval modes |
-| `Ctrl+X` | Open multi-line editor |
+| `Ctrl+G` | Open external editor (edit prompt or plan) |
 | `Ctrl+C` | Cancel current operation |
 | `/stats` | Show token usage for this session |
 | `/clear` | Clear context and start fresh |

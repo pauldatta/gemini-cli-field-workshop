@@ -22,7 +22,7 @@ gemini --version           # Check version
 |---|---|
 | `Tab` | 제안된 편집 수락 |
 | `Shift+Tab` | 옵션 순환 |
-| `Ctrl+X` | 여러 줄 편집기 |
+| `Ctrl+G` | 외부 편집기 (프롬프트 또는 계획 편집) |
 | `Ctrl+C` | 현재 작업 취소 |
 | `↑` / `↓` | 프롬프트 기록 탐색 |
 

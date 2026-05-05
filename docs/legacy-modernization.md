@@ -48,10 +48,10 @@ from session-based to JWT with refresh tokens. Include:
 
 ### Collaborative Plan Editing
 
-Open the multi-line editor to refine the plan:
+Open the external editor to refine the plan:
 
 ```
-Ctrl+X
+Ctrl+G
 ```
 
 This opens your `$EDITOR` (or a built-in editor) where you can modify the plan directly. The agent sees your edits and adjusts its approach.

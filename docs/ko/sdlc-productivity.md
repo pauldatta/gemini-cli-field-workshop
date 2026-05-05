@@ -48,7 +48,7 @@ database, and authentication mechanism.
 |---|---|
 | `Tab` | 제안된 편집 수락 |
 | `Shift+Tab` | 편집 옵션 순환 |
-| `Ctrl+X` | 여러 줄 편집기 열기 |
+| `Ctrl+G` | 외부 편집기 열기 (프롬프트 또는 계획 편집) |
 | `Ctrl+C` | 현재 작업 취소 |
 | `/stats` | 이 세션의 토큰 사용량 표시 |
 | `/clear` | 컨텍스트를 지우고 새로 시작 |

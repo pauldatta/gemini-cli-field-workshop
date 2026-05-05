@@ -30,6 +30,8 @@
    | `docs/cli/extensions.md` | Extension manifest and policy contribution |
    | `docs/cli/slash-commands.md` | Built-in slash commands |
    | `packages/core/src/tools/` | Tool implementation source code |
+   | `packages/cli/src/ui/key/keyBindings.ts` | Keyboard shortcuts and deprecated bindings |
+   | `packages/cli/src/ui/hooks/slashCommandProcessor.ts` | Slash command implementations |
 
 ---
 
@@ -117,6 +119,34 @@ grep -rn 'github.com/google-gemini/gemini-cli' docs/ | grep -v node_modules
 ```
 
 Spot-check that linked files and paths exist in the cloned repo.
+
+### 10. Keyboard Shortcuts & UI Bindings
+Verify all keyboard shortcuts documented in workshop materials match the actual bindings in the upstream source code at `packages/cli/src/ui/key/keyBindings.ts`.
+
+**How to verify:**
+1. Extract all `Ctrl+`, `Shift+`, `Alt+` references from workshop docs:
+   ```bash
+   grep -rn 'Ctrl+\|Shift+\|Alt+\|Cmd+' docs/ --include='*.md'
+   ```
+2. Cross-reference each against the `defaultKeyBindingConfig` map in `keyBindings.ts`
+3. Check for `DEPRECATED_` prefixed commands — these bindings still work but should not be taught as primary shortcuts
+
+**Known deprecations (verify current state):**
+- `Ctrl+X` → **DEPRECATED** for external editor. Current binding: `Ctrl+G` / `Ctrl+Shift+G`
+
+**Key bindings to verify:**
+| Workshop Claim | Source Command | Source Binding |
+|---|---|---|
+| `Tab` accepts edits | `ACCEPT_SUGGESTION` | `tab`, `enter` |
+| `Shift+Tab` cycles modes | `CYCLE_APPROVAL_MODE` | `shift+tab` |
+| `Ctrl+G` opens editor | `OPEN_EXTERNAL_EDITOR` | `ctrl+g`, `ctrl+shift+g` |
+| `Ctrl+C` cancels | `QUIT` | `ctrl+c` |
+| `Ctrl+Y` toggles YOLO | `TOGGLE_YOLO` | `ctrl+y` |
+
+**Also verify against source (not just docs):**
+- Slash command implementations in `packages/cli/src/ui/hooks/slashCommandProcessor.ts`
+- Tool signatures in `packages/core/src/tools/`
+- Settings schema in `schemas/`
 
 ---
 

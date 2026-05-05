@@ -47,10 +47,10 @@ from session-based to JWT with refresh tokens. Include:
 
 ### 협업 계획 편집
 
-다중 줄 편집기를 열어 계획을 구체화하세요:
+외부 편집기를 열어 계획을 구체화하세요:
 
 ```
-Ctrl+X
+Ctrl+G
 ```
 
 그러면 `$EDITOR`(또는 내장 편집기)가 열리고 계획을 직접 수정할 수 있습니다. 에이전트는 사용자의 편집 내용을 확인하고 접근 방식을 조정합니다.
