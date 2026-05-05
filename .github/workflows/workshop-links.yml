@@ -45,13 +45,15 @@ jobs:
             --exclude 'YOUR_KEY'
             --exclude 'your-org'
             --exclude 'aipositive\.substack\.com'
-            --exclude '^/[a-z]{2}/$'
-            --exclude '/[a-z]{2}$'
             --exclude '^/ko/'
             --exclude '^/facilitator-guide\.md'
+            --exclude '^/[a-z]{2}/$'
+            --exclude '/[a-z]{2}$'
             --root-dir .
             --cache
             --max-cache-age 1d
             'docs/**/*.md'
+            '!docs/**/_sidebar.md'
+            '!docs/**/_navbar.md'
             'README.md'
           fail: true
