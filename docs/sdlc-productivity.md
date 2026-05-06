@@ -88,6 +88,8 @@ Put the database query logic directly in the route file.
 
 > **Expected:** The agent should recognize this violates the GEMINI.md rule ("No business logic in route files") and instead create the endpoint in a controller, with a thin route that delegates.
 
+> **Enforcing the Rules:** While `GEMINI.md` provides strong guidance (Prompt Engineering), AI can still occasionally hallucinate or make mistakes during complex refactors. To build a truly robust workflow, you should pair these prompt-based rules with deterministic linters (like `dependency-cruiser`) using CI/CD or [Gemini CLI Hooks](https://geminicli.com/docs/hooks/). See [Deterministic Enforcement](advanced-patterns.md#deterministic-enforcement) in the Advanced Patterns guide for how to set this up.
+
 ### Add Backend Context
 
 ```bash

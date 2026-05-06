@@ -2,14 +2,14 @@
 
 > **Durasi:** ~45 menit (mandiri)  
 > **Tujuan:** Menguasai disiplin prompting, loop verifikasi, rekayasa konteks, dan pengembangan paralel. Teknik-teknik ini berfungsi dengan alur kerja Gemini CLI apa pun.  
-> **Prasyarat:** Menyelesaikan setidaknya [Kasus Penggunaan 1: Produktivitas SDLC](sdlc-productivity.md) atau sudah terbiasa dengan dasar-dasarnya.
+> **Prasyarat:** Selesaikan setidaknya [Kasus Penggunaan 1: Produktivitas SDLC](sdlc-productivity.md) atau sudah familier dengan dasar-dasarnya.
 >
 > *Terakhir diperbarui: 2026-05-05 · [Sumber diverifikasi terhadap repositori gemini-cli](https://github.com/google-gemini/gemini-cli)*
 
 ---
-## Keahlian Prompt: Tujuan vs. Instruksi
+## Keahlian Prompting: Tujuan vs. Instruksi
 
-Peningkatan tunggal terbesar yang dapat Anda lakukan pada kualitas output AI adalah mengubah **cara Anda bertanya**.
+Peningkatan terbesar tunggal yang dapat Anda lakukan pada kualitas keluaran AI adalah mengubah **cara Anda bertanya**.
 
 ### Masalah
 
@@ -23,7 +23,7 @@ Then create a Redux slice.
 Then create the WishlistScreen component.
 ```
 
-Ini memaksa agen ke jalur tertentu — bahkan jika ada pendekatan yang lebih baik. Agen tidak dapat menolak, memunculkan tradeoff, atau beradaptasi.
+Ini memaksa agen ke jalur tertentu — bahkan jika ada pendekatan yang lebih baik. Agen tidak dapat menolak, menunjukkan tradeoff, atau beradaptasi.
 
 ### Solusi: Tujuan Deklaratif dengan Kriteria Keberhasilan
 
@@ -51,8 +51,8 @@ Say "WISHLIST_COMPLETE" when all criteria are verified.
 
 ### Latihan
 
-Cobalah kedua pendekatan pada tugas yang sama dengan ProShop. Bandingkan:
-1. Berapa banyak giliran yang dibutuhkan masing-masing pendekatan?
+Coba kedua pendekatan pada tugas yang sama dengan ProShop. Bandingkan:
+1. Berapa banyak giliran yang dibutuhkan masing-masing?
 2. Apakah versi deklaratif menemukan pendekatan yang lebih baik?
 3. Mana yang menghasilkan kode yang lebih bersih?
 
@@ -65,7 +65,7 @@ Setiap token di jendela konteks agen membuat respons berikutnya menjadi sedikit 
 
 - Agen mulai mengulangi dirinya sendiri
 - Halusinasi meningkat (merujuk pada file yang tidak ada)
-- Kualitas output turun secara nyata setelah 15-20 giliran
+- Kualitas output menurun drastis setelah 15-20 giliran
 - Agen "lupa" instruksi sebelumnya
 
 ### Toolkit
@@ -78,7 +78,7 @@ Ketika kualitas output menurun:
 /clear
 ```
 
-Ini mereset konteks percakapan sambil menjaga GEMINI.md, memori, dan status file tetap utuh. Agen memulai ulang dengan segar tetapi dengan semua pengetahuan proyek Anda.
+Ini akan mereset konteks percakapan sambil menjaga GEMINI.md, memori, dan status file tetap utuh. Agen memulai ulang dengan segar tetapi dengan semua pengetahuan proyek Anda.
 
 #### 2. Simpan Sebelum Anda Membersihkan
 
@@ -91,7 +91,7 @@ cookieParser → authMiddleware → routes."
 
 Memori bertahan di seluruh sesi dan reset `/clear`. Simpan penemuan penting sebelum membersihkan.
 
-#### 3. Pengalihan Konteks
+#### 3. Pelepasan Konteks
 
 Pindahkan spesifikasi besar keluar dari percakapan dan ke dalam file:
 
@@ -103,7 +103,7 @@ echo "Your detailed spec..." > feature-spec.md
 # "Read @./feature-spec.md and implement it"
 ```
 
-Atau tambahkan sebagai impor di GEMINI.md Anda untuk konteks yang persisten:
+Atau tambahkan sebagai impor di GEMINI.md Anda untuk konteks persisten:
 
 ```markdown
 # GEMINI.md
@@ -128,7 +128,7 @@ Now refactor based on the investigator's findings
 
 ### Latihan
 
-1. Mulai sebuah sesi dan bangun tiga fitur secara berurutan (sengaja menumpuk konteks)
+1. Mulai sesi dan bangun tiga fitur secara berurutan (dengan sengaja mengumpulkan konteks)
 2. Perhatikan penurunan kualitas di sekitar giliran 15-20
 3. Jalankan `/memory add` untuk menyimpan fakta-fakta kunci
 4. Jalankan `/clear` — amati peningkatan kualitas secara langsung
@@ -137,7 +137,7 @@ Now refactor based on the investigator's findings
 ---
 ## Loop Verifikasi
 
-Cara paling andal untuk mendapatkan kode yang benar dari sebuah agen adalah dengan memberikannya **loop umpan balik** — sebuah cara untuk memeriksa pekerjaannya sendiri dan memperbaiki kesalahan secara otomatis.
+Cara paling andal untuk mendapatkan kode yang benar dari agen adalah dengan memberinya **loop umpan balik** — sebuah cara untuk memeriksa pekerjaannya sendiri dan memperbaiki kesalahan secara otomatis.
 
 ### Pola
 
@@ -158,12 +158,12 @@ Say "RATINGS_COMPLETE" when all 5 criteria are verified.
 Frasa "katakan X jika sudah selesai" memberikan agen:
 
 1. **Titik henti yang jelas** — agen tahu kapan harus berhenti bekerja
-2. **Insentif verifikasi mandiri** — agen memeriksa pekerjaannya sebelum menyatakan selesai
+2. **Insentif verifikasi mandiri** — agen memeriksa pekerjaannya sebelum menyatakannya selesai
 3. **Pemulihan iteratif** — jika pengujian gagal, agen memperbaiki dan menjalankan ulang daripada bertanya kepada Anda
 
 ### Mengotomatiskan Loop
 
-Untuk tugas-tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan hook. Sebuah hook `AfterAgent` memeriksa apakah janji penyelesaian muncul di output. Jika tidak, hook tersebut akan mengatur ulang percakapan (mempertahankan perubahan file) dan menjalankan ulang dengan prompt asli + basis kode yang telah ditingkatkan:
+Untuk tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan hook. Sebuah hook `AfterAgent` memeriksa apakah janji penyelesaian muncul di output. Jika tidak, hook tersebut mengatur ulang percakapan (mempertahankan perubahan file) dan menjalankan ulang dengan prompt asli + basis kode yang ditingkatkan:
 
 ```json
 {
@@ -181,16 +181,16 @@ Untuk tugas-tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan
 
 ### Latihan
 
-Berikan agen sebuah tugas refactoring dengan kriteria keberhasilan yang eksplisit dan janji penyelesaian. Perhatikan agen tersebut beriterasi melalui kegagalan pengujian hingga mencapai hasil yang sukses (hijau).
+Beri agen tugas refactoring dengan kriteria keberhasilan yang eksplisit dan janji penyelesaian. Perhatikan agen beriterasi melalui kegagalan pengujian hingga mencapai hijau.
 
 ---
-## Pengembangan Paralel dengan worktree
+## Pengembangan Paralel dengan Worktree
 
-Jalankan beberapa sesi Gemini CLI secara bersamaan di cabang yang berbeda — masing-masing dalam isolasi penuh.
+Jalankan beberapa sesi Gemini CLI secara bersamaan pada cabang yang berbeda — masing-masing dalam isolasi penuh.
 
 ### Masalah
 
-Anda hanya dapat melakukan checkout satu cabang pada satu waktu. Jika Anda ingin mengerjakan sebuah fitur, perbaikan bug, dan refactor secara bersamaan dengan agen yang terpisah, mereka akan bertabrakan.
+Anda hanya dapat melakukan checkout pada satu cabang pada satu waktu. Jika Anda ingin mengerjakan fitur, perbaikan bug, dan refactor secara bersamaan dengan agen yang terpisah, mereka akan bertabrakan.
 
 ### Solusi
 
@@ -205,7 +205,7 @@ gemini --worktree fix-cart-rounding
 gemini --worktree update-api-docs
 ```
 
-Setiap agen bekerja di direktorinya sendiri, di cabangnya sendiri, dengan konteksnya sendiri. Tidak ada konflik.
+Setiap agen bekerja di direktorinya sendiri, pada cabangnya sendiri, dengan konteksnya sendiri. Tidak ada konflik.
 
 ### Alur Kerja
 
@@ -215,10 +215,10 @@ Setiap agen bekerja di direktorinya sendiri, di cabangnya sendiri, dengan kontek
 | **Konfigurasi** | Setiap worktree mendapatkan port server dev-nya sendiri untuk menghindari konflik |
 | **Eksekusi** | Luncurkan sesi Gemini CLI yang terpisah — setiap agen bekerja secara independen |
 | **Tinjauan** | Setiap agen melakukan commit ke cabangnya di dalam worktree-nya |
-| **Integrasi** | Gabungkan cabang kembali ke `main` melalui PR |
+| **Integrasi** | Gabungkan kembali cabang ke `main` melalui PR |
 | **Pembersihan** | `git worktree remove <path>` + `git worktree prune` |
 
-> **Perlakukan worktree sebagai sesuatu yang sekali pakai.** Mereka dioptimalkan untuk durasi satu tugas. Hapus setelah digabungkan.
+> **Perlakukan worktree sebagai sesuatu yang sekali pakai.** Mereka dioptimalkan untuk durasi satu tugas saja. Hapus setelah digabungkan.
 
 ### Latihan
 
@@ -231,11 +231,11 @@ Kedua agen bekerja secara bersamaan. Tidak ada yang melihat perubahan satu sama 
 ---
 ## Orkestrasi Multi-Agen
 
-Untuk tim yang mengelola puluhan agen di berbagai proyek, alat orkestrasi menyediakan isolasi, observabilitas, dan penskalaan tingkat perusahaan.
+Bagi tim yang mengelola puluhan agen di berbagai proyek, alat orkestrasi menyediakan isolasi, observabilitas, dan penskalaan tingkat perusahaan.
 
 ### Scion (Google Cloud Platform)
 
-**[Scion](https://github.com/GoogleCloudPlatform/scion)** adalah orkestrator multi-agen eksperimental yang menjalankan agen sebagai proses yang terisolasi dan konkuren — masing-masing di dalam containernya sendiri.
+**[Scion](https://github.com/GoogleCloudPlatform/scion)** adalah orkestrator multi-agen eksperimental yang menjalankan agen sebagai proses yang terisolasi dan bersamaan — masing-masing dalam kontainernya sendiri.
 
 ```bash
 # Install
@@ -254,12 +254,12 @@ scion attach implementer                # Watch an agent work
 
 | Konsep | Deskripsi |
 |---|---|
-| **Agen** | Proses dalam container yang menjalankan Gemini CLI |
+| **Agen** | Proses dalam kontainer yang menjalankan Gemini CLI |
 | **Grove** | Namespace proyek — biasanya 1:1 dengan repo git |
 | **Template** | Cetak biru agen: prompt sistem + skill + izin alat |
 | **Runtime** | Docker, Podman, Apple Container, atau Kubernetes |
 
-> **Kapan menggunakan Scion:** Tim dengan 5+ tugas agen konkuren, proyek yang membutuhkan isolasi ketat antar agen, atau organisasi yang menskalakan pengembangan yang dikelola AI di berbagai repositori.
+> **Kapan menggunakan Scion:** Tim dengan 5+ tugas agen yang berjalan bersamaan, proyek yang membutuhkan isolasi ketat antar agen, atau organisasi yang menskalakan pengembangan yang dikelola AI di berbagai repositori.
 
 ---
 ## Pola Konstitusi Rekayasa
@@ -268,7 +268,7 @@ Jika Anda harus memberi tahu agen hal yang sama dua kali, itu harus berada di da
 
 ### Apa yang Ada di dalam Konstitusi
 
-Sebuah `GEMINI.md` yang disusun dengan baik menyandikan standar rekayasa tim Anda sehingga agen mengikutinya secara otomatis:
+`GEMINI.md` yang disusun dengan baik menyandikan standar rekayasa tim Anda sehingga agen mengikutinya secara otomatis:
 
 ```markdown
 # GEMINI.md
@@ -289,15 +289,107 @@ Sebuah `GEMINI.md` yang disusun dengan baik menyandikan standar rekayasa tim And
 
 ### Latihan
 
-1. Tulis sebuah GEMINI.md dengan 5 aturan untuk ProShop
+1. Tulis sebuah `GEMINI.md` dengan 5 aturan untuk ProShop
 2. Minta agen untuk menambahkan fitur **tanpa** file tersebut — perhatikan outputnya
 3. Minta hal yang sama **dengan** file tersebut
 4. Bandingkan: Apakah agen mengikuti konvensi? Apakah ia menanyakan pertanyaan klarifikasi yang sebelumnya dilewati?
 
 ---
+## Penegakan Deterministik
+
+Meskipun Konstitusi Rekayasa (`GEMINI.md`) sangat baik untuk *memandu* agen (Rekayasa Prompt), hal itu tidak dapat menjamin kepatuhan 100%. Agen, seperti manusia, dapat membuat kesalahan atau berhalusinasi pola yang salah selama refaktor yang kompleks (sebuah fenomena yang dikenal sebagai *Prompt Drift*).
+
+Untuk membangun SDLC yang kuat, Anda harus memasangkan pembuatan AI dengan **Pagar Pengaman**—batasan deterministik yang membatasi apa yang dapat dilihat, dilakukan, dan dihasilkan oleh AI.
+
+### Pagar Pengaman Input vs. Output
+
+Dalam SDLC perusahaan, pagar pengaman terbagi dalam dua kategori:
+
+1. **Pagar Pengaman Input (Pra-pembuatan):** Melindungi agen dari input berbahaya atau membatasi konteksnya.
+   - *Contoh:* File `.geminiignore` mencegah agen membaca file yang tidak perlu.
+   - *Contoh:* `GEMINI.md` menetapkan ekspektasi arsitektur di awal.
+2. **Pagar Pengaman Output (Pasca-pembuatan):** Memverifikasi output agen *setelah* pembuatan tetapi *sebelum* digabungkan atau di-deploy.
+   - *Contoh:* Menegakkan batasan arsitektur menggunakan linter deterministik.
+   - *Contoh:* Menjalankan test suite atau pemindai untuk mendeteksi rahasia yang bocor.
+
+### Sinergi: "AI Mengusulkan, CI Menentukan"
+
+Daripada hanya mengandalkan LLM untuk mengawasi arsitekturnya sendiri, andalkan alat rekayasa perangkat lunak tradisional (Pagar Pengaman Output) untuk menegakkan aturan:
+
+1. **Panduan (`GEMINI.md`):** Memberi tahu agen *cara* menulis kode dengan benar pada kali pertama (Input).
+2. **Penjaga (Linter/Analisis Statis):** Menangkap agen secara deterministik jika membuat kesalahan (Output).
+3. **Loop:** Jika alat penjaga gagal, output kesalahan diumpankan kembali ke agen (melalui loop verifikasi berkelanjutan menggunakan [Gemini CLI Hooks](https://geminicli.com/docs/hooks/)), dan agen secara otomatis memperbaiki kesalahannya sendiri berdasarkan umpan balik keras tersebut.
+
+### Penegakan dalam Praktik
+
+Setiap alat deterministik yang dapat keluar dengan kode non-zero dapat berfungsi sebagai penegak. Anda dapat mengonfigurasi alat-alat ini untuk berjalan di pipeline CI/CD Anda, sebagai hook `pre-commit` Git, atau secara langsung melalui hook `AfterAgent` Gemini CLI.
+
+**Contoh Penegak Deterministik:**
+- **Linter Standar:** ESLint atau Ruff untuk menegakkan batas kompleksitas kode (misalnya, `max-lines-per-function` dalam file rute).
+- **Pemindai Keamanan:** Alat seperti `gitleaks` untuk memastikan agen tidak secara tidak sengaja melakukan hardcode pada kunci API.
+- **Linter Arsitektur:** Alat yang mengurai grafik dependensi untuk menegakkan batasan lapisan.
+
+#### Contoh: Menegakkan Batasan dengan `dependency-cruiser`
+
+Jika aturan `GEMINI.md` Anda menyatakan "Tidak ada logika bisnis dalam file rute", Anda dapat menegakkan ini dalam proyek JavaScript menggunakan [dependency-cruiser](https://github.com/sverweij/dependency-cruiser).
+
+```javascript
+// .dependency-cruiser.js
+module.exports = {
+  forbidden: [
+    {
+      name: 'no-business-logic-in-routes',
+      comment: 'Routes should only delegate to controllers. Never import models directly.',
+      severity: 'error',
+      from: { path: '^src/routes/' },
+      to: { path: '^src/models/' }
+    }
+  ]
+};
+```
+
+Untuk mengotomatiskan ini dalam alur kerja agen, Anda harus memformat output linter sebagai JSON agar Gemini CLI dapat memahaminya. Pertama, buat skrip hook yang menjalankan linter dan menangkap kesalahan:
+
+```bash
+#!/bin/bash
+# .gemini/hooks/check-architecture.sh
+output=$(npx depcruise src --config .dependency-cruiser.js 2>&1)
+if [ $? -ne 0 ]; then
+  # Inject the linter error directly into the agent's context
+  jq -n --arg msg "$output" '{systemMessage: ("Architecture Violation Detected:\n" + $msg)}'
+else
+  echo '{}'
+fi
+```
+
+Kemudian, daftarkan skrip ini sebagai hook `AfterAgent` di pengaturan Anda:
+
+```json
+// .gemini/settings.json
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "name": "architecture-guard",
+        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh"
+      }
+    ]
+  }
+}
+```
+
+Sekarang, jika agen membuat impor ilegal, hook segera mengumpankan kesalahan linter kembali ke dalam percakapan, memaksa agen untuk menyelesaikan pelanggaran tersebut.
+
+### Latihan
+1. Dalam sebuah proyek, buat file rute yang mengimpor model database secara langsung.
+2. Konfigurasikan penegak deterministik (seperti `dependency-cruiser` atau aturan ESLint kustom) untuk memblokir pola ini.
+3. Minta agen untuk "Menambahkan endpoint baru ke rute" dan amati apakah ia menyalin pola yang buruk atau memperbaikinya.
+4. Jalankan penegak, umpan balik kesalahan tersebut ke agen, dan minta ia untuk menyelesaikan pelanggaran tersebut.
+
+---
 ## Pengembangan Berbasis Skill
 
-Skill adalah file instruksi terstruktur dan dapat digunakan kembali (`SKILL.md`) yang menyandikan alur kerja insinyur senior secara langsung ke dalam agen. Tidak seperti prompt mentah, setiap skill mencakup proses langkah demi langkah, tabel anti-rasionalisasi (alasan umum yang mungkin digunakan agen untuk melewati langkah-langkah, dengan sanggahan yang didokumentasikan), tanda bahaya, dan gerbang verifikasi.
+Skill adalah file instruksi yang terstruktur dan dapat digunakan kembali (`SKILL.md`) yang menyandikan alur kerja insinyur senior secara langsung ke dalam agen. Tidak seperti prompt mentah, setiap skill mencakup proses langkah demi langkah, tabel anti-rasionalisasi (alasan umum yang mungkin digunakan agen untuk melewati langkah-langkah, dengan sanggahan yang didokumentasikan), tanda bahaya (red flags), dan gerbang verifikasi.
 
 ### Mengapa Skill Mengungguli Prompt Mentah
 
@@ -324,7 +416,7 @@ Setelah diinstal, skill aktif sesuai permintaan saat agen mengenali tugas yang c
 
 ### Perintah Garis Miring SDLC
 
-Paket skill ini menyertakan 7 perintah garis miring di bawah `.gemini/commands/` yang memetakan ke siklus hidup pengembangan:
+Paket skill menyediakan 7 perintah garis miring di bawah `.gemini/commands/` yang memetakan ke siklus hidup pengembangan:
 
 | Perintah | Fase | Apa yang Dilakukannya |
 |---|---|---|
@@ -334,9 +426,9 @@ Paket skill ini menyertakan 7 perintah garis miring di bawah `.gemini/commands/`
 | `/test` | Verifikasi | Menjalankan alur kerja TDD — red, green, refactor |
 | `/review` | Tinjau | Tinjauan kode lima sumbu dengan label tingkat keparahan |
 | `/code-simplify` | Tinjau | Mengurangi kompleksitas tanpa mengubah perilaku (Chesterton's Fence) |
-| `/ship` | Kirim | Daftar periksa pra-peluncuran melalui penyebaran persona paralel |
+| `/ship` | Kirim | Daftar periksa pra-peluncuran melalui fan-out persona paralel |
 
-> **Catatan:** Gunakan `/planning` alih-alih `/plan` — `/plan` berkonflik dengan perintah Mode Perencanaan bawaan Gemini CLI.
+> **Catatan:** Gunakan `/planning` alih-alih `/plan` — `/plan` bentrok dengan perintah Mode Perencanaan bawaan Gemini CLI.
 
 ### Skill vs GEMINI.md
 
@@ -348,7 +440,7 @@ Keduanya memengaruhi perilaku agen, tetapi melayani tujuan yang berbeda:
 | **Biaya token** | Minimal hingga diaktifkan | Overhead konstan |
 | **Terbaik untuk** | Alur kerja spesifik fase (TDD, tinjauan keamanan, pengiriman) | Konvensi proyek yang selalu aktif (tumpukan teknologi, standar pengkodean) |
 
-**Aturan praktis:** Jika Anda ingin ini aktif untuk *setiap* prompt, letakkan di GEMINI.md. Jika spesifik untuk fase tertentu, instal sebagai skill.
+**Aturan praktis:** Jika Anda ingin itu aktif untuk *setiap* prompt, letakkan di GEMINI.md. Jika itu spesifik fase, instal sebagai skill.
 
 ### Latihan
 
@@ -374,7 +466,7 @@ Google menyediakan **50+ server MCP terkelola** yang memberikan agen Anda akses 
 
 ### Developer Knowledge MCP
 
-[Server MCP Developer Knowledge](https://developers.google.com/knowledge/mcp) mendasarkan agen Anda pada dokumentasi resmi Google — Firebase, Cloud, Android, Maps, dan lainnya. Alih-alih berhalusinasi tentang tanda tangan API, agen menanyakan korpus dokumentasi langsung.
+[Server MCP Developer Knowledge](https://developers.google.com/knowledge/mcp) mendasarkan agen Anda pada dokumentasi resmi Google — Firebase, Cloud, Android, Maps, dan banyak lagi. Daripada berhalusinasi tentang tanda tangan API, agen menanyakan korpus dokumentasi langsung.
 
 **Instalasi satu baris (autentikasi kunci API):**
 
@@ -409,9 +501,9 @@ gemini mcp add -t http \
 
 | Alat | Tujuan |
 |---|---|
-| `search_documents` | Menemukan potongan dokumentasi yang relevan untuk sebuah kueri |
-| `get_documents` | Mengambil konten halaman penuh untuk dokumen tertentu |
-| `answer_query` | Mendapatkan jawaban yang disintesis dan berdasar dari korpus dokumentasi |
+| `search_documents` | Temukan potongan dokumentasi yang relevan untuk kueri |
+| `get_documents` | Ambil konten halaman penuh untuk dokumen tertentu |
+| `answer_query` | Dapatkan jawaban yang disintesis dan berdasar dari korpus dokumentasi |
 
 ### Server MCP Bernilai Tinggi Berdasarkan Kategori
 
@@ -419,9 +511,9 @@ gemini mcp add -t http \
 |---|---|---|
 | **Dokumen Pengembang** | Developer Knowledge API | "Bagaimana cara mengonfigurasi penskalaan otomatis Cloud Run?" → jawaban dengan kutipan sumber |
 | **Data & Analitik** | BigQuery, Spanner, Firestore, AlloyDB | Kueri data produksi langsung dari konteks agen |
-| **Infrastruktur** | Cloud Run, GKE, Compute Engine | Menyediakan, menskalakan, dan mengelola infrastruktur melalui bahasa alami |
-| **Produktivitas** | Gmail, Drive, Calendar, Chat | Meringkas utas, menyusun draf dokumen, mengelola undangan |
-| **Keamanan** | Security Operations, Model Armor | Menyelidiki ancaman, memblokir injeksi prompt secara real-time |
+| **Infrastruktur** | Cloud Run, GKE, Compute Engine | Sediakan, skalakan, dan kelola infrastruktur melalui bahasa alami |
+| **Produktivitas** | Gmail, Drive, Calendar, Chat | Ringkas utas, buat draf dokumen, kelola undangan |
+| **Keamanan** | Security Operations, Model Armor | Selidiki ancaman, blokir injeksi prompt secara real-time |
 
 > **Tata Kelola:** Gunakan [kebijakan IAM Deny](https://docs.cloud.google.com/mcp/control-mcp-use-iam#deny-all-mcp-tool-use) untuk membatasi alat MCP mana yang dapat dipanggil oleh agen. Gabungkan dengan [Model Armor](https://docs.cloud.google.com/model-armor/model-armor-mcp-google-cloud-integration) untuk bertahan dari injeksi prompt tidak langsung dan eksfiltrasi data.
 
@@ -430,12 +522,12 @@ gemini mcp add -t http \
 1. Dapatkan kunci API Developer Knowledge dari proyek Google Cloud Anda
 2. Tambahkan server MCP Developer Knowledge ke konfigurasi Gemini CLI Anda menggunakan perintah satu baris di atas
 3. Tanyakan kepada agen: *"Bagaimana cara men-deploy layanan Cloud Run dengan domain kustom?"*
-4. Verifikasi: Apakah respons tersebut mengutip dokumentasi resmi? Bandingkan dengan jawaban tanpa server MCP yang terhubung
+4. Verifikasi: Apakah respons mengutip dokumentasi resmi? Bandingkan dengan jawaban tanpa server MCP yang terhubung
 
 ---
 ## Membangun Agen dengan agents-cli
 
-[`agents-cli`](https://github.com/google/agents-cli) adalah sebuah CLI dan paket skill yang mengajarkan agen pengkodean Anda cara membangun, mengevaluasi, dan men-deploy agen di [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) milik Google. Ini bukan pengganti untuk Gemini CLI — ini adalah alat *untuk* agen pengkodean.
+[`agents-cli`](https://github.com/google/agents-cli) adalah CLI dan paket skill yang mengajarkan agen pengkodean Anda cara membangun, mengevaluasi, dan men-deploy agen di [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) Google. Ini bukan pengganti untuk Gemini CLI — ini adalah alat *untuk* agen pengkodean.
 
 ### Pengaturan Cepat
 
@@ -454,8 +546,8 @@ npx skills add google/agents-cli
 | Perintah | Apa yang Dilakukannya |
 |---|---|
 | `agents-cli scaffold <name>` | Membuat proyek agen ADK baru dengan struktur praktik terbaik |
-| `agents-cli scaffold enhance` | Menambahkan deployment, CI/CD, atau RAG ke proyek agen yang sudah ada |
-| `agents-cli eval run` | Menjalankan evaluasi agen (LLM-as-judge, penilaian lintasan) |
+| `agents-cli scaffold enhance` | Menambahkan deployment, CI/CD, atau RAG ke proyek agen yang ada |
+| `agents-cli eval run` | Menjalankan evaluasi agen (LLM-sebagai-juri, penilaian lintasan) |
 | `agents-cli deploy` | Men-deploy ke Google Cloud (Agent Runtime, Cloud Run, atau GKE) |
 | `agents-cli publish gemini-enterprise` | Mendaftarkan agen dengan Gemini Enterprise |
 
@@ -466,10 +558,10 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 | Skill | Apa yang Dipelajari Agen Pengkodean Anda |
 |---|---|
 | `google-agents-cli-workflow` | Siklus hidup pengembangan, aturan pelestarian kode, pemilihan model |
-| `google-agents-cli-adk-code` | ADK Python API — agen, alat, orkestrasi, callback, state |
+| `google-agents-cli-adk-code` | API Python ADK — agen, alat, orkestrasi, callback, status |
 | `google-agents-cli-scaffold` | Scaffolding proyek — `create`, `enhance`, `upgrade` |
-| `google-agents-cli-eval` | Metodologi evaluasi — metrik, evalset, LLM-as-judge |
-| `google-agents-cli-deploy` | Deployment — Agent Runtime, Cloud Run, GKE, CI/CD, secret |
+| `google-agents-cli-eval` | Metodologi evaluasi — metrik, evalset, LLM-sebagai-juri |
+| `google-agents-cli-deploy` | Deployment — Agent Runtime, Cloud Run, GKE, CI/CD, rahasia |
 | `google-agents-cli-publish` | Pendaftaran Gemini Enterprise |
 | `google-agents-cli-observability` | Cloud Trace, logging, integrasi pihak ketiga |
 
@@ -478,7 +570,7 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 | Skenario | Alat |
 |---|---|
 | Membangun agen dari awal dengan praktik terbaik | `agents-cli scaffold` |
-| Menambahkan RAG atau deployment ke agen yang sudah ada | `agents-cli scaffold enhance` |
+| Menambahkan RAG atau deployment ke agen yang ada | `agents-cli scaffold enhance` |
 | Mengevaluasi kualitas agen dengan metrik terstruktur | `agents-cli eval run` |
 | Men-deploy secara manual dengan kontrol penuh | `adk deploy` secara langsung |
 | Menulis kode ADK tanpa scaffolding | ADK Mentah + agen pengkodean Anda |
@@ -486,7 +578,7 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 ### Latihan
 
 1. Instal agents-cli: `uvx google-agents-cli setup`
-2. Lakukan scaffold agen baru: `agents-cli scaffold my-review-bot`
+2. Scaffold agen baru: `agents-cli scaffold my-review-bot`
 3. Buka proyek yang di-scaffold di Gemini CLI dan tanyakan: *"Tingkatkan agen ini dengan kemampuan RAG menggunakan Cloud Storage"*
 4. Jalankan evaluasi: `agents-cli eval run`
 5. Amati bagaimana skill yang diinstal memandu Gemini CLI melalui pola khusus ADK yang sebelumnya tidak diketahuinya
@@ -496,13 +588,13 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 
 | Sumber Daya | Keterangan |
 |---|---|
-| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 20 skill rekayasa tingkat produksi untuk agen pengodean |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 20 skill rekayasa tingkat produksi untuk agen pengkodean |
 | [google/agents-cli](https://github.com/google/agents-cli) | CLI + skill untuk membangun agen ADK di Google Cloud |
-| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | Mendasarkan agen pada dokumentasi developer Google resmi |
+| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | Mendasarkan agen pada dokumentasi resmi pengembang Google |
 | [Server MCP yang Dikelola Google](https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone) | 50+ server MCP perusahaan (Cloud Blog) |
 | [Produk MCP yang Didukung](https://docs.cloud.google.com/mcp/supported-products) | Katalog lengkap server MCP yang dikelola Google |
 | [GoogleCloudPlatform/scion](https://github.com/GoogleCloudPlatform/scion) | Orkestrasi multi-agen untuk tim |
-| [pauldatta/gemini-cli-field-workshop](https://github.com/pauldatta/gemini-cli-field-workshop) | Repositori sumber workshop ini |
+| [pauldatta/gemini-cli-field-workshop](https://github.com/pauldatta/gemini-cli-field-workshop) | Repositori sumber lokakarya ini |
 | [Dokumentasi Gemini CLI](https://geminicli.com) | Dokumentasi resmi |
 
 ---
