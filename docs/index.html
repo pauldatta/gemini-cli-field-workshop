@@ -46,7 +46,27 @@
       },
       auto2top: true,
       coverpage: false,
-      notFoundPage: true
+      notFoundPage: true,
+      plugins: [
+        function(hook, vm) {
+          hook.beforeEach(function(content) {
+            // Docsify plugin to fix i18n relative links in markdown.
+            // When on a language route (e.g. /ko/), it transforms links 
+            // pointing to other markdown pages to include the prefix.
+            var path = vm.route.path;
+            var langMatch = path.match(/^\/([a-z]{2})\//);
+            if (langMatch) {
+              var lang = langMatch[1];
+              // Match markdown links: [text](link.md)
+              // Only replace if it doesn't already start with http, /, or the language prefix
+              return content.replace(/\[([^\]]+)\]\((?!http|\/|#)[^\)]+\.md\)/g, function(match) {
+                return match.replace(/\((?!http|\/|#)([^\)]+)\.md\)/, '(/' + lang + '/$1.md)');
+              });
+            }
+            return content;
+          });
+        }
+      ]
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
