@@ -22,6 +22,7 @@ Hands-on enablement for enterprise developers — master agentic coding, legacy 
 ```bash
 git clone https://github.com/pauldatta/gemini-cli-field-workshop.git
 cd gemini-cli-field-workshop
+git submodule add https://github.com/bradtraversy/proshop-v2.git demo-app
 ./setup.sh
 cd demo-app && gemini
 ```
