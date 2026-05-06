@@ -40,35 +40,14 @@ Or deploy to GitHub Pages (Settings → Pages → Source: `/docs` on `main` bran
 
 ## Repository Structure
 
-```
-├── docs/                        # Docsify workshop site (GitHub Pages)
-│   ├── index.html               # Docsify SPA entry point
-│   ├── _sidebar.md              # Navigation
-│   ├── README.md                # Landing page
-│   ├── setup.md                 # Environment setup guide
-│   ├── sdlc-productivity.md     # Use Case 1
-│   ├── legacy-modernization.md  # Use Case 2
-│   ├── devops-orchestration.md  # Use Case 3
-│   ├── advanced-patterns.md     # Power-user agentic patterns
-│   ├── facilitator-guide.md     # Trainer delivery guide
-│   ├── cheatsheet.md            # Quick reference handout
-│   └── assets/                  # Diagrams and images
-├── exercises/                   # Workshop exercise PRDs
-├── samples/                     # Sample configurations
-│   ├── config/                  # settings.json, policy.toml
-│   ├── hooks/                   # Production-grade hook scripts
-│   ├── agents/                  # Custom subagent definitions
-│   │   ├── pr-reviewer.md       #   Code review agent (pro)
-│   │   ├── doc-writer.md        #   Documentation agent (flash-lite)
-│   │   ├── compliance-checker.md#   Compliance audit agent (flash-lite)
-│   │   ├── release-notes-drafter.md # Release notes agent (flash-lite)
-│   │   └── security-scanner.md  #   Security scanning agent (pro)
-│   ├── gemini-md/               # GEMINI.md hierarchy examples
-│   └── cicd/                    # GitHub Actions workflows
-├── demo-app/                    # Git submodule (proshop-v2)
-├── setup.sh                     # One-command environment setup
-└── LICENSE                      # Apache 2.0
-```
+| Directory | Contents |
+|---|---|
+| `docs/` | Docsify workshop site — modules, cheatsheet, facilitator guide, i18n translations |
+| `exercises/` | Hands-on PRDs for each use case |
+| `samples/` | Ready-to-use configs (`settings.json`, `policy.toml`), hooks, subagents, GEMINI.md examples |
+| `demo-app/` | Git submodule — [ProShop v2](https://github.com/bradtraversy/proshop-v2) (MERN stack) |
+| `tools/` | Translation pipeline and validation scripts |
+| `setup.sh` | One-command environment setup |
 
 ## For Trainers
 
