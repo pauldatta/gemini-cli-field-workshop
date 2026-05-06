@@ -331,7 +331,7 @@ LLM이 자체적으로 아키텍처를 감시하는 데만 의존하는 대신, 
 
 #### 예시: dependency-cruiser를 사용한 경계 강제 적용
 
-`GEMINI.md` 규칙에 "라우트 파일에 비즈니스 로직 금지"라고 명시되어 있다면, JavaScript 프로젝트에서 [dependency-cruiser](https://github.com/sverweij/dependency-cruiser)를 사용하여 이를 강제할 수 있습니다. 
+`GEMINI.md` 규칙에 "라우트 파일에 비즈니스 로직 금지"라고 명시되어 있다면, JavaScript 프로젝트에서 [dependency-cruiser](https://github.com/sverweij/dependency-cruiser)를 사용하여 이를 강제할 수 있습니다.
 
 ```javascript
 // .dependency-cruiser.js

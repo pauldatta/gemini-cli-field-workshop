@@ -338,7 +338,7 @@ Any deterministic tool that can exit with a non-zero code can serve as an enforc
 
 #### Example: Enforcing Boundaries with `dependency-cruiser`
 
-If your `GEMINI.md` rule states "No business logic in route files", you can enforce this in a JavaScript project using [dependency-cruiser](https://github.com/sverweij/dependency-cruiser). 
+If your `GEMINI.md` rule states "No business logic in route files", you can enforce this in a JavaScript project using [dependency-cruiser](https://github.com/sverweij/dependency-cruiser).
 
 ```javascript
 // .dependency-cruiser.js

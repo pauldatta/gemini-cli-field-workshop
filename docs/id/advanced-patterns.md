@@ -331,7 +331,7 @@ Setiap alat deterministik yang dapat keluar dengan kode non-zero dapat berfungsi
 
 #### Contoh: Menegakkan Batasan dengan `dependency-cruiser`
 
-Jika aturan `GEMINI.md` Anda menyatakan "Tidak ada logika bisnis dalam file rute", Anda dapat menegakkan ini dalam proyek JavaScript menggunakan [dependency-cruiser](https://github.com/sverweij/dependency-cruiser). 
+Jika aturan `GEMINI.md` Anda menyatakan "Tidak ada logika bisnis dalam file rute", Anda dapat menegakkan ini dalam proyek JavaScript menggunakan [dependency-cruiser](https://github.com/sverweij/dependency-cruiser).
 
 ```javascript
 // .dependency-cruiser.js
