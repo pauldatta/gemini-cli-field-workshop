@@ -304,41 +304,41 @@ A well-crafted `GEMINI.md` encodes your team's engineering standards so the agen
 
 ## Deterministic Enforcement
 
-While an Engineering Constitution (`GEMINI.md`) is excellent for *guiding* an agent (Prompt Engineering), it cannot guarantee 100% compliance. Agents, like humans, can make mistakes or hallucinate incorrect patterns during a complex refactor (a phenomenon known as *Prompt Drift*).
+A `GEMINI.md` is excellent for *guiding* an agent, but it cannot guarantee 100% compliance. Agents can hallucinate incorrect patterns during complex refactors — importing a model directly in a route file even though your constitution says not to.
 
-To build a robust SDLC, you must pair AI generation with **Guardrails**—deterministic boundaries that restrict what an AI can see, do, and generate.
+The fix: pair prompt-based guidance with **deterministic guardrails** — hard boundaries that catch violations mechanically.
 
 ### Input vs. Output Guardrails
 
-In an enterprise SDLC, guardrails fall into two categories:
+| Layer | When | Examples |
+|---|---|---|
+| **Input** (pre-generation) | Before the agent sees context | `.geminiignore` restricts file access; `GEMINI.md` sets architectural expectations |
+| **Output** (post-generation) | After generation, before merge | Linters enforce boundaries; scanners detect leaked secrets; test suites verify behavior |
 
-1. **Input Guardrails (Pre-generation):** Protecting the agent from malicious inputs or restricting its context.
-   - *Example:* The `.geminiignore` file prevents the agent from reading unnecessary files.
-   - *Example:* `GEMINI.md` sets the architectural expectations upfront.
-2. **Output Guardrails (Post-generation):** Verifying the agent's output *after* generation but *before* it is merged or deployed.
-   - *Example:* Enforcing architectural boundaries using deterministic linters.
-   - *Example:* Running a test suite or a scanner to detect leaked secrets.
+Input guardrails reduce mistakes. Output guardrails *catch* them.
 
-### The Synergy: "AI Proposes, CI Disposes"
+### The Pattern: "AI Proposes, CI Disposes"
 
-Instead of relying solely on the LLM to self-police its architecture, rely on traditional software engineering tools (Output Guardrails) to enforce the rules:
+Instead of relying on the LLM to self-police, use traditional engineering tools to enforce the rules:
 
-1. **The Guide (`GEMINI.md`):** Tells the agent *how* to write the code correctly the first time (Input).
-2. **The Guard (Linters/Static Analysis):** Catches the agent deterministically if it makes a mistake (Output).
-3. **The Loop:** If a guard tool fails, the error output is fed back to the agent (via a continuous verification loop using [Gemini CLI Hooks](https://geminicli.com/docs/hooks/)), and the agent automatically fixes its own mistake based on the hard feedback.
+1. **The Guide** (`GEMINI.md`) — tells the agent how to write code correctly the first time.
+2. **The Guard** (linters, static analysis) — catches violations deterministically.
+3. **The Loop** — if the guard fails, the error is fed back to the agent via an [`AfterAgent` hook](https://www.geminicli.com/docs/hooks/), forcing it to self-correct. This is the same [Verification Loop](#verification-loops) pattern, automated.
 
 ### Enforcement in Practice
 
-Any deterministic tool that can exit with a non-zero code can serve as an enforcer. You can configure these tools to run in your CI/CD pipeline, as a Git `pre-commit` hook, or directly via Gemini CLI's `AfterAgent` hook.
+Any tool that exits non-zero can serve as a guardrail. Wire it into CI, a Git `pre-commit` hook, or Gemini CLI's `AfterAgent` event:
 
-**Examples of Deterministic Enforcers:**
-- **Standard Linters:** ESLint or Ruff to enforce code complexity limits (e.g., `max-lines-per-function` in route files).
-- **Security Scanners:** Tools like `gitleaks` to ensure the agent didn't accidentally hardcode an API key.
-- **Architecture Linters:** Tools that parse the dependency graph to enforce layer boundaries.
+| Enforcer | What It Catches |
+|---|---|
+| **ESLint / Ruff** | Code complexity, style violations, banned APIs |
+| **gitleaks** | Hardcoded API keys, credentials in source |
+| **dependency-cruiser** | Illegal cross-layer imports (architecture boundaries) |
+| **Custom test suites** | Behavioral regressions |
 
-#### Example: Enforcing Boundaries with `dependency-cruiser`
+#### Example: Enforcing Layer Boundaries with `dependency-cruiser`
 
-If your `GEMINI.md` rule states "No business logic in route files", you can enforce this in a JavaScript project using [dependency-cruiser](https://github.com/sverweij/dependency-cruiser).
+If your `GEMINI.md` rule states "No business logic in route files", enforce it deterministically with [dependency-cruiser](https://github.com/sverweij/dependency-cruiser):
 
 ```javascript
 // .dependency-cruiser.js
@@ -355,43 +355,60 @@ module.exports = {
 };
 ```
 
-To automate this within the agent's workflow, you must format the linter's output as JSON so the Gemini CLI can understand it. First, create a hook script that runs the linter and captures errors:
+Create a hook script that runs the linter and returns structured JSON on failure:
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
 # .gemini/hooks/check-architecture.sh
+input=$(cat)  # Read hook input from stdin (required)
+
 output=$(npx depcruise src --config .dependency-cruiser.js 2>&1)
 if [ $? -ne 0 ]; then
-  # Inject the linter error directly into the agent's context
-  jq -n --arg msg "$output" '{systemMessage: ("Architecture Violation Detected:\n" + $msg)}'
+  # Return a denial — AfterAgent treats this as a retry prompt
+  jq -n --arg msg "$output" '{
+    "decision": "deny",
+    "reason": ("Architecture violation detected. Fix the illegal import:\n" + $msg)
+  }'
 else
-  echo '{}'
+  echo '{"decision": "allow"}'
 fi
 ```
 
-Then, register this script as an `AfterAgent` hook in your settings:
+> **How `AfterAgent` retry works:** When a hook returns `decision: "deny"`, Gemini CLI rejects the agent's response and sends the `reason` text back to the agent as a new prompt. The agent then attempts to fix the violation automatically. See the [Hooks Reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/reference.md) for the complete schema.
+
+Register the script in your settings using the standard hook configuration schema:
+
+**`.gemini/settings.json`**
 
 ```json
-// .gemini/settings.json
 {
   "hooks": {
     "AfterAgent": [
       {
-        "name": "architecture-guard",
-        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh"
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh",
+            "name": "architecture-guard",
+            "description": "Enforces layer boundaries via dependency-cruiser after each agent turn"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-Now, if the agent creates an illegal import, the hook immediately feeds the linter error back into the conversation, forcing the agent to resolve the violation.
+Now, if the agent creates an illegal import, the hook rejects the response and feeds the linter error back as a retry prompt — the agent fixes its own violation.
 
 ### Exercise
-1. In a project, create a route file that imports a database model directly.
-2. Configure a deterministic enforcer (like `dependency-cruiser` or a custom ESLint rule) to block this pattern.
-3. Ask the agent to "Add a new endpoint to the route" and observe if it copies the bad pattern or fixes it.
-4. Run the enforcer, feed the error back to the agent, and ask it to resolve the violation.
+
+1. In a project, create a route file that imports a database model directly
+2. Configure `dependency-cruiser` (or a custom ESLint rule) to block this pattern
+3. Register it as an `AfterAgent` hook using the config above
+4. Ask the agent to "Add a new endpoint to the route" — observe whether it copies the bad pattern
+5. If it does, watch the hook reject the response and the agent self-correct
 
 ---
 
