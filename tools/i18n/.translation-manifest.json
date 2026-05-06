@@ -57,6 +57,10 @@
     "docs/cheatsheet.md": {
       "source_sha": "1bbd31fdfc88a1f3d15ab7f6502443ae5ff5b0ba",
       "translated_at": "2026-05-06T02:21:41.677412+00:00"
+    },
+    "docs/README.md": {
+      "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
+      "translated_at": "2026-05-06T02:43:53.283276+00:00"
     }
   },
   "zh": {
@@ -87,6 +91,10 @@
     "docs/cheatsheet.md": {
       "source_sha": "1bbd31fdfc88a1f3d15ab7f6502443ae5ff5b0ba",
       "translated_at": "2026-05-06T02:25:13.877740+00:00"
+    },
+    "docs/README.md": {
+      "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
+      "translated_at": "2026-05-06T02:44:15.759446+00:00"
     }
   }
 }
