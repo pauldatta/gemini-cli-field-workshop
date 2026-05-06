@@ -359,4 +359,4 @@ gemini --resume SESSION_ID
 
 → 准备好了解更多了吗？**[高级模式](advanced-patterns.md)** 涵盖了提示词技巧、验证循环、上下文工程和并行开发。
 
-对于讲师：请参阅 **[讲师指南](/facilitator-guide.md)** 获取授课技巧和自定义选项。
+对于讲师：请参阅 **[讲师指南](../facilitator-guide.md)** 获取授课技巧和自定义选项。

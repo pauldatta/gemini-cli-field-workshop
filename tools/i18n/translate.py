@@ -132,8 +132,8 @@ def rewrite_links_for_lang(text: str) -> str:
         # Same-directory .md links: check if the target is translated
         elif path.endswith(".md") and "/" not in path:
             if path not in translated_basenames:
-                # Not translated — absolute link to English root
-                path = f"/{path}"
+                # Not translated — relative link up to docs/ root
+                path = f"../{path}"
         # Other same-directory doc links stay as-is (docsify resolves within lang/)
         return f"{link_text}({path})"
 

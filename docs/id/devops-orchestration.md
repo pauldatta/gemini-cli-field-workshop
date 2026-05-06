@@ -359,4 +359,4 @@ Anda telah menyelesaikan ketiga kasus penggunaan. Tinjau **[Lembar Contekan](che
 
 → Siap untuk lebih banyak lagi? **[Pola Lanjutan](advanced-patterns.md)** mencakup keterampilan prompt, loop verifikasi, rekayasa konteks, dan pengembangan paralel.
 
-Untuk pelatih: lihat **[Panduan Fasilitator](/facilitator-guide.md)** untuk kiat penyampaian dan opsi penyesuaian.
+Untuk pelatih: lihat **[Panduan Fasilitator](../facilitator-guide.md)** untuk kiat penyampaian dan opsi penyesuaian.
