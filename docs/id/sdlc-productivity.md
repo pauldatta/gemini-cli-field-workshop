@@ -47,7 +47,7 @@ Ini menunjukkan setiap alat yang dapat digunakan agen: operasi file, perintah sh
 | Pintasan | Tindakan |
 |---|---|
 | `Tab` | Terima saran pengeditan |
-| `Shift+Tab` | Beralih antar mode persetujuan |
+| `Shift+Tab` | Siklus melalui mode persetujuan |
 | `Ctrl+G` | Buka editor eksternal (edit prompt atau rencana) |
 | `Ctrl+C` | Batalkan operasi saat ini |
 | `/stats` | Tampilkan penggunaan token untuk sesi ini |
@@ -58,11 +58,11 @@ Ini menunjukkan setiap alat yang dapat digunakan agen: operasi file, perintah sh
 
 ### Hierarki Konteks
 
-Gemini CLI membaca file `GEMINI.md` pada berbagai tingkat, masing-masing menambahkan konteks yang lebih spesifik:
+Gemini CLI membaca file `GEMINI.md` pada beberapa tingkatan, masing-masing menambahkan konteks yang lebih spesifik:
 
 ![Hierarki Konteks GEMINI.md](../assets/context-hierarchy.png)
 
-> **Penemuan konteks JIT:** Agen hanya memuat file GEMINI.md yang relevan dengan file yang sedang dikerjakannya. Jika ia sedang mengedit `backend/controllers/productController.js`, ia memuat GEMINI.md proyek DAN GEMINI.md backend — tetapi bukan yang frontend.
+> **Penemuan konteks JIT:** Agen hanya memuat file GEMINI.md yang relevan dengan file yang sedang dikerjakannya. Jika agen sedang mengedit `backend/controllers/productController.js`, agen akan memuat GEMINI.md proyek DAN GEMINI.md backend — tetapi tidak memuat yang frontend.
 
 ### Memeriksa GEMINI.md Proyek
 
@@ -71,22 +71,22 @@ cat GEMINI.md
 ```
 
 File ini (disalin dari [`samples/gemini-md/project-gemini.md`](../../samples/gemini-md/project-gemini.md) selama pengaturan) mendefinisikan:
-- Aturan arsitektur (rute → pengontrol → model)
-- Anti-pola (tanpa callback, tanpa kredensial yang di-hardcode)
+- Aturan arsitektur (routes → controllers → models)
+- Anti-pattern (tanpa callback, tanpa kredensial yang di-hardcode)
 - Standar pengujian
 
 ### Menguji Penegakan Konteks
 
-Minta agen untuk melanggar aturan dan lihat apakah ia mengoreksi dirinya sendiri:
+Minta agen untuk melanggar aturan dan lihat apakah agen tersebut mengoreksi dirinya sendiri:
 
 ```
 Add a new GET endpoint to fetch featured products. 
 Put the database query logic directly in the route file.
 ```
 
-> **Diharapkan:** Agen harus mengenali bahwa ini melanggar aturan GEMINI.md ("Tidak ada logika bisnis dalam file rute") dan sebagai gantinya membuat endpoint di pengontrol, dengan rute tipis yang mendelegasikan.
+> **Diharapkan:** Agen harus mengenali bahwa ini melanggar aturan GEMINI.md ("Tidak ada logika bisnis dalam file route") dan sebagai gantinya membuat endpoint di dalam controller, dengan route tipis yang mendelegasikan.
 
-> **Menegakkan Aturan:** Meskipun `GEMINI.md` memberikan panduan yang kuat (Rekayasa Prompt), AI masih dapat sesekali berhalusinasi atau membuat kesalahan selama refaktor yang kompleks. Untuk membangun alur kerja yang benar-benar kuat, Anda harus memasangkan aturan berbasis prompt ini dengan linter deterministik (seperti `dependency-cruiser`) menggunakan CI/CD atau [Gemini CLI Hooks](https://geminicli.com/docs/hooks/). Lihat [Penegakan Deterministik](advanced-patterns.md#deterministic-enforcement) di panduan Pola Lanjutan untuk mengetahui cara mengaturnya.
+> **Menegakkan Aturan:** `GEMINI.md` memberikan panduan yang kuat, tetapi agen masih bisa membuat kesalahan selama refaktor yang kompleks. Pasangkan aturan berbasis prompt ini dengan linter deterministik (seperti `dependency-cruiser`) yang disambungkan ke CI/CD atau [Hook Gemini CLI](https://www.geminicli.com/docs/hooks/). Lihat [Penegakan Deterministik](advanced-patterns.md#deterministic-enforcement) di panduan Pola Lanjutan untuk pengaturan lengkapnya.
 
 ### Menambahkan Konteks Backend
 
@@ -98,7 +98,7 @@ Ini menambahkan aturan khusus backend tentang penanganan kesalahan, pola async, 
 
 ### Memori: Pengetahuan Persisten
 
-Agen dapat mengingat hal-hal di seluruh sesi:
+Agen dapat mengingat berbagai hal di seluruh sesi:
 
 ```
 /memory show
@@ -112,7 +112,7 @@ and port 3000 for the React dev server. MongoDB runs on default
 port 27017. Test database is 'proshop_test'."
 ```
 
-Agen juga dapat menyimpan memori itu sendiri menggunakan alat `save_memory` — baik saat Anda secara eksplisit memintanya untuk mengingat sesuatu, atau secara otomatis jika Anda mengaktifkan `experimental.autoMemory` di [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md).
+Agen juga dapat menyimpan memori itu sendiri menggunakan alat `save_memory` — baik ketika Anda secara eksplisit memintanya untuk mengingat sesuatu, atau secara otomatis jika Anda mengaktifkan `experimental.autoMemory` di [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md).
 
 ### File .geminiignore
 
@@ -126,14 +126,14 @@ cat .geminiignore
 # coverage/
 ```
 
-> **Mengapa ini penting:** Tanpa `.geminiignore`, agen mungkin membuang-buang token konteks untuk membaca `node_modules/` (ratusan ribu file). Dengannya, agen hanya berfokus pada kode sumber Anda.
+> **Mengapa ini penting:** Tanpa `.geminiignore`, agen mungkin membuang-buang token konteks karena membaca `node_modules/` (ratusan ribu file). Dengannya, agen hanya berfokus pada kode sumber Anda.
 
 ---
 ## 1.3 — Conductor: Build yang Mengutamakan Konteks (15 mnt)
 
 ### Mengapa Conductor?
 
-Mode Perencanaan sangat bagus untuk fitur sekali pakai. Namun untuk proyek multi-hari di mana Anda memerlukan spesifikasi yang persisten, rencana implementasi bertahap, dan pelacakan kemajuan di seluruh sesi — itulah Conductor.
+Mode Perencanaan sangat bagus untuk fitur sekali pakai. Namun, untuk proyek multi-hari di mana Anda memerlukan spesifikasi yang persisten, rencana implementasi bertahap, dan pelacakan kemajuan di seluruh sesi — itulah Conductor.
 
 ### Instal Conductor
 
@@ -167,7 +167,7 @@ cat conductor/product.md
 cat conductor/tech-stack.md
 ```
 
-> **Wawasan utama:** File-file ini sekarang menjadi sumber kebenaran (source of truth) untuk proyek Anda. File-file tersebut adalah Markdown, berada di repo Anda, di-commit dan ditinjau seperti kode lainnya. Saat Anda kembali besok — atau menyerahkan proyek ini kepada rekan kerja — AI akan melanjutkan tepat di mana Anda tinggalkan. Statusnya ada di dalam file, bukan di memori.
+> **Wawasan utama:** File-file ini sekarang menjadi sumber kebenaran (source of truth) untuk proyek Anda. File-file tersebut adalah Markdown, berada di repo Anda, di-commit dan ditinjau seperti kode lainnya. Saat Anda kembali besok — atau menyerahkan proyek ini kepada rekan kerja — AI akan melanjutkan tepat di tempat Anda berhenti. Statusnya ada di dalam file, bukan di memori.
 
 ### Buat Jalur Fitur
 
@@ -191,7 +191,7 @@ cat conductor/tracks/*/spec.md
 cat conductor/tracks/*/plan.md
 ```
 
-> **Lihat rencananya.** Rencana ini dipecah menjadi beberapa fase dengan tugas dan kotak centang tertentu. Fase 1: skema database. Fase 2: endpoint API. Fase 3: komponen frontend. Fase 4: pengujian. Agen mengikuti rencana ini secara berurutan, mencentang tugas saat berjalan.
+> **Lihatlah rencananya.** Rencana ini dipecah menjadi beberapa fase dengan tugas-tugas spesifik dan kotak centang. Fase 1: skema database. Fase 2: endpoint API. Fase 3: komponen frontend. Fase 4: pengujian. Agen mengikuti rencana ini secara berurutan, mencentang tugas-tugas yang telah diselesaikan.
 
 > **Jika Anda tidak setuju dengan pendekatannya** — katakanlah Anda menginginkan GraphQL alih-alih REST — edit `plan.md` secara langsung dan jalankan ulang. Rencana tersebut adalah kontrak antara Anda dan agen.
 
@@ -201,7 +201,7 @@ cat conductor/tracks/*/plan.md
 /conductor:implement
 ```
 
-> **Eksplorasi sesuai permintaan:** Agen menavigasi basis kode Anda melalui alat — membaca file, melacak impor, dan mereferensikan silang pola saat mengimplementasikan setiap langkah dari rencana. File konteks seperti `GEMINI.md` dan spesifikasi Conductor dimuat bersama file yang sedang dikerjakan secara aktif oleh agen.
+> **Eksplorasi sesuai permintaan:** Agen menavigasi basis kode Anda melalui alat — membaca file, melacak impor, dan mereferensikan silang pola saat mengimplementasikan setiap langkah dari rencana. File konteks seperti `GEMINI.md` dan spesifikasi Conductor dimuat bersamaan dengan file yang sedang dikerjakan secara aktif oleh agen.
 
 ### Periksa Status
 
@@ -214,7 +214,7 @@ What's the current status on all active Conductor tracks?
 
 ### Gambaran Umum Ekstensi
 
-Ekstensi memaketkan skill, sub-agen, hook, kebijakan, dan server MCP menjadi unit-unit yang dapat diinstal:
+Ekstensi memaketkan skill, sub-agen, hook, kebijakan, dan server MCP ke dalam unit yang dapat diinstal:
 
 ```
 /extensions list
@@ -230,11 +230,11 @@ cat .gemini/settings.json
 ```
 
 settings.json menyertakan server MCP GitHub. Saat dikonfigurasi dengan `GITHUB_TOKEN`, agen dapat:
-- Membaca repositori, isu, dan PR
-- Membuat isu dan komentar
+- Membaca repositori, issue, dan PR
+- Membuat issue dan komentar
 - Membuka pull request
 
-### Mencoba Prompt yang Terhubung
+### Coba Prompt yang Terhubung
 
 ```
 List the open issues in this repository using the GitHub MCP server.
@@ -255,14 +255,14 @@ Anda dapat membatasi alat MCP mana yang dapat diakses oleh sub-agen:
 }
 ```
 
-> **Nilai perusahaan:** Sub-agen `db-analyst` mendapatkan akses BigQuery hanya-baca. Ia dapat melakukan kueri dan membuat daftar tabel, tetapi tidak akan pernah bisa menghapus data. Isolasi alat adalah tata kelola di tingkat agen.
+> **Nilai perusahaan:** Sebuah sub-agen `db-analyst` mendapatkan akses BigQuery hanya-baca. Sub-agen ini dapat melakukan kueri dan membuat daftar tabel, tetapi tidak akan pernah bisa menghapus data. Isolasi alat adalah tata kelola di tingkat agen.
 
 ---
 ## 1.5 — Tata Kelola dan Mesin Kebijakan (10 menit)
 
 ### Mesin Kebijakan
 
-Kebijakan adalah pagar pengaman sebagai kode (guardrails-as-code) yang ditulis dalam TOML:
+Kebijakan adalah pagar pengaman-sebagai-kode yang ditulis dalam TOML:
 
 ```bash
 cat .gemini/policies/team-guardrails.toml
@@ -271,10 +271,10 @@ cat .gemini/policies/team-guardrails.toml
 ### Aturan Kebijakan dalam Praktik
 
 Contoh kebijakan:
-- **Menolak** pembacaan file `.env`, `.ssh`, dan kredensial
+- **Menolak** membaca file `.env`, `.ssh`, dan kredensial
 - **Menolak** perintah shell yang merusak (`rm -rf`, `curl`)
-- **Mengizinkan** agen implementer untuk menjalankan `npm test` dan `npm run lint`
-- **Mengatur default** untuk hal lainnya ke `ask_user` (memerlukan persetujuan manusia)
+- **Mengizinkan** agen pengimplementasi untuk menjalankan `npm test` dan `npm run lint`
+- **Mengatur default** untuk semua hal lainnya ke `ask_user` (memerlukan persetujuan manusia)
 
 ### Uji Kebijakan
 
@@ -292,16 +292,16 @@ Kebijakan menurun dalam urutan prioritas:
 Default → Extension → Workspace → User → Admin (highest)
 ```
 
-Kebijakan admin (ditetapkan pada tingkat sistem) mengesampingkan semua hal lainnya. Ini adalah cara perusahaan menegakkan pagar pengaman di seluruh organisasi.
+Kebijakan admin (ditetapkan pada tingkat sistem) menimpa semua hal lainnya. Ini adalah cara perusahaan menerapkan pagar pengaman di seluruh organisasi.
 
-> **Catatan:** Tingkat Workspace saat ini dinonaktifkan di sumber CLI. Lihat [Referensi Mesin Kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) untuk status tingkat terbaru.
+> **Catatan:** Tingkat Workspace saat ini dinonaktifkan di sumber CLI. Lihat [Referensi mesin kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) untuk status tingkat terbaru.
 
 ### Hook dalam Praktik
 
-Hook yang dikonfigurasi di `settings.json` sudah aktif:
+Hook yang dikonfigurasi dalam `settings.json` sudah aktif:
 
-1. **SessionStart → session-context**: Menyuntikkan nama cabang dan jumlah file dirty Anda pada awal sesi ini
-2. **BeforeTool → secret-scanner**: Mengawasi setiap penulisan file untuk mencari kredensial yang di-hardcode
+1. **SessionStart → session-context**: Menyuntikkan nama cabang Anda dan jumlah file kotor pada awal sesi ini
+2. **BeforeTool → secret-scanner**: Mengawasi setiap penulisan file untuk kredensial yang di-hardcode
 3. **BeforeTool → git-context**: Menyuntikkan riwayat git terbaru sebelum modifikasi file
 4. **AfterTool → test-nudge**: Mengingatkan agen untuk mempertimbangkan menjalankan pengujian
 
@@ -311,13 +311,13 @@ Periksa status hook:
 /hooks panel
 ```
 
-> **Filosofi desain:** Hook ini adalah penyuntik konteks dan pengarah model yang ringan — bukan pelari pengujian yang berat. Mereka menambahkan latensi total <200ms dan meningkatkan kualitas keputusan agen tanpa membebani sistem.
+> **Filosofi desain:** Hook ini adalah penyuntik konteks dan pengarah model yang ringan — bukan pelari pengujian yang berat. Mereka menambahkan total latensi <200ms dan meningkatkan kualitas keputusan agen tanpa membebani sistem.
 
-### Konfigurasi Enterprise
+### Konfigurasi Perusahaan
 
 Untuk pembatasan alat di seluruh organisasi, gunakan [Mesin Kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) dengan kebijakan TOML tingkat admin. Untuk panduan praktis, lihat [Amankan Gemini CLI dengan Mesin Kebijakan](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy).
 
-**Kebijakan tingkat admin** (disebarkan melalui MDM ke `/etc/gemini-cli/policies/`) menegakkan keamanan di seluruh organisasi yang tidak dapat dikesampingkan oleh pengembang individu:
+**Kebijakan tingkat admin** (disebarkan melalui MDM ke `/etc/gemini-cli/policies/`) menerapkan keamanan di seluruh organisasi yang tidak dapat ditimpa oleh pengembang individu:
 
 ```toml
 # /etc/gemini-cli/policies/admin.toml
@@ -347,7 +347,7 @@ priority = 950
 deny_message = "Agents are not permitted to elevate privileges."
 ```
 
-**Kebijakan tingkat Workspace** (di-check in ke repo Anda di `.gemini/policies/dev.toml`) menetapkan default tingkat tim:
+**Kebijakan tingkat workspace** (di-check-in ke repo Anda di `.gemini/policies/dev.toml`) menetapkan default tingkat tim:
 
 ```toml
 # .gemini/policies/dev.toml
@@ -380,14 +380,14 @@ priority = 999
 deny_message = "Blocked by policy: Destructive root commands are prohibited."
 ```
 
-> **Memeriksa kebijakan aktif:** Gunakan `/policies list` di CLI untuk melihat semua aturan yang mengatur sesi Anda, termasuk keputusannya, tingkat prioritas, dan file sumber.
+> **Memeriksa kebijakan aktif:** Gunakan `/policies list` di CLI untuk melihat semua aturan yang mengatur sesi Anda, termasuk keputusannya, tingkat prioritas, dan file sumbernya.
 
-Untuk penegakan autentikasi enterprise, gunakan `security.auth.enforcedType` di `settings.json` tingkat sistem (lihat [Panduan Enterprise](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)).
+Untuk penegakan autentikasi perusahaan, gunakan `security.auth.enforcedType` di `settings.json` tingkat sistem (lihat [Panduan Perusahaan](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)).
 
 ### Sandbox
 
 Gemini CLI mendukung [eksekusi sandbox](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/sandbox.md):
-- **Sandbox Docker**: Menjalankan perintah shell dalam wadah (container) yang terisolasi
+- **Sandbox Docker**: Menjalankan perintah shell dalam kontainer yang terisolasi
 - **Sandbox macOS**: Menggunakan sandbox macOS untuk membatasi akses sistem file
 
 ```bash
@@ -404,15 +404,15 @@ gemini --sandbox
 /resume
 ```
 
-Menampilkan daftar sesi terbaru. Pilih salah satu untuk melanjutkan dari tempat Anda terakhir kali berhenti.
+Menampilkan daftar sesi terbaru. Pilih salah satu untuk melanjutkan dari bagian terakhir yang Anda tinggalkan.
 
-### Mundur ke Status Sebelumnya
+### Kembali ke Status Sebelumnya
 
 ```
 /rewind
 ```
 
-Menampilkan linimasa perubahan dalam sesi saat ini. Pilih sebuah titik untuk kembali ke keadaan tersebut.
+Menampilkan linimasa perubahan pada sesi saat ini. Pilih satu titik untuk kembali.
 
 ### Perintah Kustom
 
@@ -427,24 +427,24 @@ Menampilkan perintah kustom yang tersedia. Anda dapat menentukan perintah Anda s
 
 | Fitur | Apa yang Dilakukannya |
 |---|---|
-| **Hierarki GEMINI.md** | Mengenkode konvensi proyek di setiap tingkat — agen mengikutinya secara otomatis |
+| **Hierarki GEMINI.md** | Mengodekan konvensi proyek di setiap tingkat — agen mengikutinya secara otomatis |
 | **Penemuan konteks JIT** | Hanya memuat file konteks yang relevan untuk tugas saat ini |
 | **Memori** | Mempertahankan pengetahuan di seluruh sesi |
-| **Conductor** | Pengembangan berbasis spesifikasi dengan rencana yang persisten dan pelacakan kemajuan |
+| **Conductor** | Pengembangan berbasis spesifikasi dengan rencana persisten dan pelacakan kemajuan |
 | **Ekstensi** | Paket skill, agen, hook, dan kebijakan yang dapat diinstal |
 | **Server MCP** | Terhubung ke alat eksternal (GitHub, BigQuery, Jira) |
-| **Mesin kebijakan** | Pagar pengaman sebagai kode dalam TOML — deny, allow, atau ask_user |
+| **Mesin kebijakan** | Pagar pengaman sebagai kode (guardrails-as-code) dalam TOML — deny, allow, atau ask_user |
 | **Hook** | Injeksi konteks yang ringan dan pengarahan model pada peristiwa siklus hidup agen |
 | **Sandboxing** | Eksekusi terisolasi untuk lingkungan yang tidak tepercaya |
 
 ---
 ## 1.7 — Agen Kustom untuk SDLC Penuh (20 mnt)
 
-> **Untuk pengguna mahir dan peserta yang kembali.** Bagian ini melampaui pembuatan kode untuk mencakup **siklus hidup pengembangan perangkat lunak penuh** — ulasan, dokumentasi, kepatuhan, dan manajemen rilis. Setiap agen dapat digunakan secara independen. Mulailah dari titik mana pun.
+> **Untuk pengguna mahir dan peserta yang kembali.** Bagian ini melampaui pembuatan kode untuk mencakup **seluruh siklus hidup pengembangan perangkat lunak** (SDLC) — ulasan, dokumentasi, kepatuhan, dan manajemen rilis. Setiap agen dapat digunakan secara independen. Anda dapat mulai dari titik mana saja.
 
 ### Agen Bawaan
 
-Gemini CLI dilengkapi dengan agen default yang dapat Anda gunakan segera. Daftarkan dengan:
+Gemini CLI dilengkapi dengan agen default yang dapat Anda gunakan segera. Daftarkan agen tersebut dengan:
 
 ```
 /agents
@@ -452,8 +452,8 @@ Gemini CLI dilengkapi dengan agen default yang dapat Anda gunakan segera. Daftar
 
 | Agen | Tujuan | Kapan Digunakan |
 |---|---|---|
-| **`generalist`** | Agen umum dengan akses alat penuh | Tugas bervolume tinggi atau intensif giliran |
-| **`codebase_investigator`** | Pemetaan arsitektur & analisis dependensi | "Petakan bagaimana alur autentikasi melalui aplikasi ini" |
+| **`generalist`** | Agen umum dengan akses alat penuh | Tugas dengan volume tinggi atau intensif giliran |
+| **`codebase_investigator`** | Pemetaan arsitektur & analisis dependensi | "Petakan bagaimana alur autentikasi di aplikasi ini" |
 | **`cli_help`** | Pakar dokumentasi Gemini CLI | "Bagaimana cara mengonfigurasi isolasi alat MCP?" |
 
 Gunakan sintaks `@agent` untuk mendelegasikan secara eksplisit:
@@ -463,7 +463,7 @@ Gunakan sintaks `@agent` untuk mendelegasikan secara eksplisit:
 product page through Redux, to the Express API, to the MongoDB model.
 ```
 
-> **Mengapa ini penting:** Penyelidik beroperasi dalam mode hanya-baca dengan konteks terfokus. Ia tidak akan secara tidak sengaja memodifikasi file saat memetakan arsitektur Anda. Agen utama kemudian menggunakan peta tersebut untuk merencanakan implementasi.
+> **Mengapa ini penting:** Investigator beroperasi dalam mode hanya-baca dengan konteks yang terfokus. Agen ini tidak akan secara tidak sengaja memodifikasi file saat memetakan arsitektur Anda. Agen utama kemudian menggunakan peta tersebut untuk merencanakan implementasi.
 
 ---
 
@@ -471,14 +471,14 @@ product page through Redux, to the Express API, to the MongoDB model.
 
 Agen kustom adalah file Markdown dengan frontmatter YAML, yang diletakkan ke dalam `.gemini/agents/`. Setiap agen mendapatkan:
 
-- Sebuah **nama** yang Anda panggil dengan `@agent-name`
-- Sebuah **deskripsi** yang digunakan CLI untuk perutean otomatis
-- Sebuah **daftar izin alat** yang mengontrol apa yang dapat diakses oleh agen
-- Sebuah **prompt sistem** yang mendefinisikan keahlian dan format outputnya
+- **Nama** yang Anda panggil dengan `@agent-name`
+- **Deskripsi** yang digunakan CLI untuk perutean otomatis
+- **Daftar izin alat** yang mengontrol apa yang dapat diakses oleh agen
+- **Prompt sistem** yang mendefinisikan keahlian dan format outputnya
 
 > **Prinsip desain utama:** Pisahkan pemikir dari pelaku. Agen hanya-baca untuk penelitian dan ulasan. Agen akses-tulis untuk implementasi. Jangan pernah mencampuradukkan investigasi dan mutasi dalam konteks yang sama.
 
-Contoh-contoh di bawah ini menunjukkan bahwa Gemini CLI bukan sekadar pembuat kode — ini adalah **platform SDLC penuh** yang mencakup ulasan, dokumentasi, kepatuhan, dan manajemen rilis.
+Contoh di bawah ini menunjukkan bahwa Gemini CLI bukan sekadar pembuat kode — ini adalah **platform SDLC penuh** yang mencakup ulasan, dokumentasi, kepatuhan, dan manajemen rilis.
 
 ---
 
@@ -522,7 +522,7 @@ For each finding:
 Keep feedback constructive. Acknowledge good patterns when you see them.
 ```
 
-**Cobalah:**
+**Coba ini:**
 
 ```
 @pr-reviewer Review all files changed in the last commit
@@ -534,7 +534,7 @@ Keep feedback constructive. Acknowledge good patterns when you see them.
 
 ### Agen 2: Penulis Dokumen
 
-Menghasilkan dokumentasi API, README, dan komentar kode dari kode sumber. Hanya-baca — ia tidak akan pernah dapat memodifikasi file Anda.
+Menghasilkan dokumentasi API, README, dan komentar kode dari kode sumber. Hanya-baca — agen ini tidak akan pernah dapat memodifikasi file Anda.
 
 ```bash
 cp samples/agents/doc-writer.md .gemini/agents/
@@ -559,7 +559,7 @@ You are a technical writer generating documentation from source code.
 - Flag undocumented endpoints or missing error handling
 ```
 
-**Cobalah:**
+**Coba ini:**
 
 ```
 @doc-writer Generate API documentation for all endpoints in backend/routes/
@@ -571,7 +571,7 @@ You are a technical writer generating documentation from source code.
 
 ### Agen 3: Analisis Keamanan (Ekstensi Resmi)
 
-Daripada membangun pemeriksa kepatuhan kustom, instal **[Security Extension](https://github.com/gemini-cli-extensions/security) resmi** — sebuah ekstensi yang dikelola Google dengan mesin SAST penuh, pemindaian dependensi melalui [OSV-Scanner](https://github.com/google/osv-scanner), dan performa yang telah diuji tolak ukurnya (presisi 90%, perolehan 93% terhadap CVE nyata).
+Daripada membangun pemeriksa kepatuhan kustom, instal **[Security Extension](https://github.com/gemini-cli-extensions/security) resmi** — ekstensi yang dikelola Google dengan mesin SAST penuh, pemindaian dependensi melalui [OSV-Scanner](https://github.com/google/osv-scanner), dan performa yang diukur (presisi 90%, perolehan 93% terhadap CVE nyata).
 
 ```bash
 # Install the Security Extension (requires Gemini CLI v0.4.0+)
@@ -588,7 +588,7 @@ Ekstensi ini menjalankan analisis SAST dua tahap pada diff cabang Anda saat ini,
 - Rahasia yang di-hardcode dan kunci API
 - Injeksi SQL, XSS, SSRF, dan injeksi perintah
 - Kontrol akses yang rusak dan bypass autentikasi
-- Paparan PII dalam log dan respons API
+- Eksposur PII dalam log dan respons API
 - Masalah keamanan LLM (injeksi prompt, penggunaan alat yang tidak aman)
 
 **Pindai dependensi untuk CVE yang diketahui:**
@@ -637,7 +637,7 @@ You are a release engineer. Process:
 4. Write user-facing descriptions, not developer jargon
 ```
 
-**Cobalah:**
+**Coba ini:**
 
 ```
 @release-notes-drafter Write release notes for the last 10 commits
@@ -649,7 +649,7 @@ You are a release engineer. Process:
 
 ### Menggabungkan Agen: Pipeline Penuh
 
-Kekuatan sebenarnya adalah menggabungkan agen ke dalam sebuah alur kerja. Setiap agen mendapatkan **konteks yang segar dan terfokus** — tidak ada satu agen pun yang mengakumulasi riwayat percakapan penuh:
+Kekuatan sebenarnya adalah menggabungkan agen ke dalam alur kerja. Setiap agen mendapatkan **konteks yang segar dan terfokus** — tidak ada satu agen pun yang mengakumulasi seluruh riwayat percakapan:
 
 ```
 # Step 1: Investigate (read-only, fresh context)
@@ -668,11 +668,11 @@ Add a "forgot password" endpoint following the patterns described above
 @compliance-checker Check the new code for hardcoded secrets or PII
 ```
 
-> **Mengapa ini berhasil:** Setiap langkah dimulai dengan konteks bersih yang terfokus pada pekerjaan spesifiknya. Penyelidik tidak membawa detail implementasi. Peninjau tidak membawa gangguan investigasi. Ini adalah prinsip di balik setiap alur kerja AI berkinerja tinggi.
+> **Mengapa ini berhasil:** Setiap langkah dimulai dengan konteks bersih yang terfokus pada pekerjaan spesifiknya. Investigator tidak membawa detail implementasi. Peninjau tidak membawa gangguan investigasi. Ini adalah prinsip di balik setiap alur kerja AI berkinerja tinggi.
 
 ---
 
-### Melangkah Lebih Dalam
+### Mempelajari Lebih Dalam
 
 Untuk teknik lanjutan tambahan — disiplin prompt, loop verifikasi, rekayasa konteks, dan pengembangan paralel — lihat halaman **[Pola Lanjutan](advanced-patterns.md)**:
 
@@ -683,20 +683,20 @@ Untuk teknik lanjutan tambahan — disiplin prompt, loop verifikasi, rekayasa ko
 - [Orkestrasi Multi-Agen](advanced-patterns.md#multi-agent-orchestration)
 
 ---
-## Bagian 2 — Loop Luar: Melampaui Penulisan Kode
+## Bagian 2 — Loop Luar: Lebih dari Sekadar Menulis Kode
 
-> **Durasi:** ~20 menit (kecepatan mandiri)
+> **Durasi:** ~20 menit (mandiri)
 > **Prasyarat:** Selesaikan Bagian 1 di atas. Keakraban dengan agen kustom (§1.5) dan Conductor (§1.4) akan sangat membantu.
 
-Latihan di atas berfokus pada **loop dalam** — menulis, menguji, dan meninjau kode. Namun agen juga dapat menangani **loop luar** — alur kerja yang mengelilingi kode: keputusan arsitektur, orientasi pengembang, audit dependensi, dan otomatisasi pipeline CI.
+Latihan di atas berfokus pada **loop dalam** — menulis, menguji, dan meninjau kode. Namun agen juga dapat menangani **loop luar** — alur kerja yang mengelilingi kode: keputusan arsitektur, orientasi pengembang (developer onboarding), audit dependensi, dan otomatisasi pipeline CI.
 
-Pada Bagian 1, Anda telah membangun blok bangunan: sub-agen untuk peran khusus, Conductor untuk pengembangan berbasis spesifikasi, dan pemeriksa kepatuhan untuk penegakan kebijakan. Bagian 2 menunjukkan cara mempromosikan pola-pola ini ke dalam alur kerja loop luar.
+Pada Bagian 1, Anda telah membangun blok-blok penyusun: sub-agen untuk peran khusus, Conductor untuk pengembangan berbasis spesifikasi, dan pemeriksa kepatuhan untuk penegakan mesin kebijakan. Bagian 2 menunjukkan cara mempromosikan pola-pola ini ke dalam alur kerja loop luar.
 
 ---
 
-### 2.1 — Pembuat ADR dengan Pengembangan Berbasis Sub-agen
+### 2.1 — Generator ADR dengan Pengembangan Berbasis Sub-agen
 
-Architecture Decision Records (ADR) menangkap *mengapa* sebuah pilihan teknis dibuat. Menulisnya secara manual cukup membosankan sehingga tim sering kali melewatkannya sama sekali. Dengan metodologi pengembangan berbasis sub-agen (SDD) dari [ekstensi superpowers](extensions-ecosystem.md#exercise-1-superpowers--methodology-as-extension), Anda dapat menghasilkan ADR secara otomatis dari perubahan kode.
+Architecture Decision Records (ADR) menangkap *mengapa* suatu pilihan teknis dibuat. Menulisnya secara manual cukup membosankan sehingga tim sering kali melewatkannya sama sekali. Dengan metodologi pengembangan berbasis sub-agen (SDD) dari [ekstensi superpowers](extensions-ecosystem.md#exercise-1-superpowers--methodology-as-extension), Anda dapat menghasilkan ADR secara otomatis dari perubahan kode.
 
 **Pengaturan:**
 
@@ -753,7 +753,7 @@ changes. The first subagent should draft the ADR. The second should review
 it for completeness — does it explain the *why*, not just the *what*?
 ```
 
-> **Mengapa ini penting:** ADR adalah salah satu artefak paling berharga yang dapat dihasilkan oleh sebuah tim — dan salah satu yang paling diabaikan. Sebuah agen yang menghasilkan draf ADR dari setiap PR mengurangi hambatan dari "menulis dokumen" menjadi "meninjau dokumen." Tim yang mengadopsi pola ini membangun sejarah arsitektur secara otomatis.
+> **Mengapa ini penting:** ADR adalah salah satu artefak paling berharga yang dapat dihasilkan oleh sebuah tim — dan salah satu yang paling diabaikan. Agen yang menghasilkan draf ADR dari setiap PR mengurangi hambatan dari "menulis dokumen" menjadi "meninjau dokumen." Tim yang mengadopsi pola ini membangun sejarah arsitektur secara otomatis.
 
 ---
 
@@ -806,13 +806,13 @@ and explain the patterns I should follow.
 pattern — which files do I create and in what order?
 ```
 
-> **Wawasan utama:** Bandingkan ini dengan membaca README dan berharap itu mutakhir. Agen melacak jalur kode yang sebenarnya, bukan dokumentasi yang mungkin telah menyimpang. Ini adalah pola `@codebase_investigator` dari Bagian 1 (§1.5) — tetapi dikhususkan untuk pertanyaan orientasi dan dipertahankan sebagai agen yang dapat digunakan kembali.
+> **Wawasan utama:** Bandingkan ini dengan membaca README dan berharap itu mutakhir. Agen menelusuri jalur kode yang sebenarnya, bukan dokumentasi yang mungkin sudah menyimpang. Ini adalah pola `@codebase_investigator` dari Bagian 1 (§1.5) — tetapi dikhususkan untuk pertanyaan orientasi dan dipertahankan sebagai agen yang dapat digunakan kembali.
 
 ---
 
-### 2.3 — Analisis Keamanan dalam Pipeline CI
+### 2.3 — Analisis Keamanan di Pipeline CI
 
-Pada Bagian 1, Anda menginstal [Ekstensi Keamanan](https://github.com/gemini-cli-extensions/security) untuk analisis lokal. Langkah selanjutnya adalah mempromosikannya ke dalam CI — analisis keamanan otomatis pada setiap pull request.
+Pada Bagian 1, Anda telah menginstal [Ekstensi Keamanan](https://github.com/gemini-cli-extensions/security) untuk analisis lokal. Langkah selanjutnya adalah mempromosikannya ke CI — analisis keamanan otomatis pada setiap pull request.
 
 #### Pola: Ekstensi Keamanan di GitHub Actions
 
@@ -824,37 +824,37 @@ cp $(gemini extensions path security)/.github/workflows/gemini-review.yml \
   .github/workflows/security-review.yml
 ```
 
-Atau rujuk [templat alur kerja resmi](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml) dan tambahkan secara manual. Alur kerja tersebut:
+Atau rujuk ke [templat alur kerja resmi](https://github.com/gemini-cli-extensions/security/blob/main/.github/workflows/gemini-review.yml) dan tambahkan secara manual. Alur kerja tersebut:
 
 1. Menginstal Ekstensi Keamanan ke dalam runner CI
 2. Menjalankan `/security:analyze` pada diff PR
 3. Menjalankan `/security:scan-deps` untuk kerentanan dependensi
 4. Memposting temuan sebagai komentar PR
 
-**Mengapa Ekstensi Keamanan mengalahkan prompt yang ditulis tangan:**
+**Mengapa Ekstensi Keamanan mengungguli prompt yang ditulis tangan:**
 
 | Prompt Audit Tulisan Tangan | Ekstensi Keamanan |
 |---|---|
 | Prompt bentuk bebas — hasil bervariasi setiap kali dijalankan | Mesin SAST dua tahap terstruktur dengan metodologi yang konsisten |
 | Tidak ada taksonomi kerentanan | 7 kategori, 20+ jenis kerentanan, rubrik tingkat keparahan (Kritis/Tinggi/Sedang/Rendah) |
 | Tidak ada pemindaian dependensi | OSV-Scanner terintegrasi terhadap basis data kerentanan Google |
-| Tidak ada alur kerja remediasi | Pembuatan PoC bawaan dan skill penambalan otomatis |
+| Tidak ada alur kerja remediasi | Pembuatan PoC bawaan dan skill penambalan otomatis (auto-patching) |
 | Tidak ada daftar izin (allowlisting) | `.gemini_security/vuln_allowlist.txt` persisten untuk risiko yang diterima |
 
-> **Ini adalah pola CI dari slide 18** tetapi menggunakan ekstensi tingkat produksi yang telah di-benchmark (presisi 90%, recall 93%) alih-alih prompt yang ditulis tangan. Perintah `/security:analyze` yang sama yang Anda jalankan secara lokal di §1.7 sekarang berjalan secara otomatis pada setiap PR.
+> **Ini adalah pola CI dari slide 18** tetapi menggunakan ekstensi tingkat produksi yang telah diuji tolok ukurnya (presisi 90%, recall 93%) alih-alih prompt yang ditulis tangan. Perintah `/security:analyze` yang sama yang Anda jalankan secara lokal di §1.7 sekarang berjalan secara otomatis pada setiap PR.
 
 ---
 
-### Menghubungkan Titik-titik
+### Menyatukan Semuanya
 
-Bagian 1 memberi Anda blok bangunan: sub-agen, Conductor, mesin kebijakan, hook. Bagian 2 menunjukkan cara mempromosikan pola-pola ini ke dalam loop luar:
+Bagian 1 memberi Anda blok-blok penyusun: sub-agen, Conductor, mesin kebijakan, hook. Bagian 2 menunjukkan cara mempromosikan pola-pola ini ke dalam loop luar:
 
-| Blok Bangunan (Bagian 1) | Aplikasi Loop Luar (Bagian 2) |
+| Blok Penyusun (Bagian 1) | Aplikasi Loop Luar (Bagian 2) |
 |---|---|
-| Sub-agen kustom (§1.5) | Penulis ADR, panduan orientasi |
+| sub-agen kustom (§1.5) | Penulis ADR, panduan orientasi |
 | Ekstensi Keamanan (§1.7) | Pipeline analisis keamanan CI |
-| Conductor spesifikasi-ke-kode (§1.4) | Pipeline PRD → ADR → implementasi |
-| Mode headless (direferensikan di UC3) | Otomatisasi GitHub Action |
+| Conductor spec-to-code (§1.4) | Pipeline PRD → ADR → implementasi |
+| mode headless (direferensikan di UC3) | Otomatisasi GitHub Action |
 
 Polanya selalu sama: **bangun secara lokal → validasi → promosikan ke CI/CD → skalakan ke seluruh organisasi.** Agen yang membantu satu pengembang menjadi otomatisasi yang membantu seluruh tim.
 
@@ -869,14 +869,14 @@ Polanya selalu sama: **bangun secara lokal → validasi → promosikan ke CI/CD 
 | **Conductor** | Pengembangan berbasis spesifikasi dengan rencana persisten dan pelacakan kemajuan |
 | **Ekstensi** | Paket skill, agen, hook, dan kebijakan yang dapat diinstal |
 | **Server MCP** | Terhubung ke alat eksternal (GitHub, BigQuery, Jira) |
-| **Mesin kebijakan** | Pagar pengaman sebagai kode dalam TOML — deny, allow, atau ask_user |
+| **Mesin kebijakan** | Pagar pengaman-sebagai-kode dalam TOML — deny, allow, atau ask_user |
 | **Hook** | Injeksi konteks yang ringan dan pengarahan model pada peristiwa siklus hidup agen |
-| **Sandboxing** | Eksekusi terisolasi untuk lingkungan yang tidak tepercaya |
+| **Sandbox** | Eksekusi terisolasi untuk lingkungan yang tidak tepercaya |
 | **Agen kustom** | Agen khusus untuk peninjauan, dokumentasi, catatan rilis — bukan hanya pengkodean |
 | **Ekstensi Keamanan** | SAST resmi + pemindaian dependensi dengan pembuatan PoC dan penambalan otomatis |
 | **Agen bawaan** | `generalist`, `codebase_investigator`, `cli_help` — pendelegasian tanpa pengaturan |
-| **Pembuatan ADR** | Catatan keputusan arsitektur (architecture decision records) yang digerakkan oleh sub-agen dari git diff |
-| **Agen onboarding** | Pemetaan basis kode untuk pengembang baru — melacak jalur kode yang sebenarnya |
+| **Pembuatan ADR** | Catatan keputusan arsitektur yang digerakkan oleh sub-agen dari git diff |
+| **Agen orientasi** | Pemetaan basis kode untuk pengembang baru — melacak jalur kode aktual |
 | **Pipeline keamanan CI** | Ekstensi Keamanan di GitHub Actions untuk analisis kerentanan otomatis |
 
 ---
@@ -886,4 +886,4 @@ Polanya selalu sama: **bangun secara lokal → validasi → promosikan ke CI/CD 
 
 → Jelajahi ekosistem ekstensi: **[Ekosistem Ekstensi](extensions-ecosystem.md)** — penemuan, instalasi, pembuatan, dan pola perusahaan
 
-→ Untuk pengguna mahir: **[Pola Lanjutan](advanced-patterns.md)** — keahlian prompting, loop verifikasi, rekayasa konteks, dan pengembangan paralel
+→ Untuk pengguna mahir: **[Pola Lanjutan](advanced-patterns.md)** — keahlian prompt, loop verifikasi, rekayasa konteks, dan pengembangan paralel

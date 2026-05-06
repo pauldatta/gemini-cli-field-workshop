@@ -1,15 +1,15 @@
 # Pola Lanjutan
 
 > **Durasi:** ~45 menit (mandiri)  
-> **Tujuan:** Menguasai disiplin prompting, loop verifikasi, rekayasa konteks, dan pengembangan paralel. Teknik-teknik ini berfungsi dengan alur kerja Gemini CLI apa pun.  
-> **Prasyarat:** Selesaikan setidaknya [Kasus Penggunaan 1: Produktivitas SDLC](sdlc-productivity.md) atau sudah familier dengan dasar-dasarnya.
+> **Tujuan:** Menguasai disiplin prompt, loop verifikasi, rekayasa konteks, dan pengembangan paralel. Teknik-teknik ini berfungsi dengan alur kerja Gemini CLI apa pun.  
+> **Prasyarat:** Menyelesaikan setidaknya [Kasus Penggunaan 1: Produktivitas SDLC](sdlc-productivity.md) atau sudah familier dengan dasar-dasarnya.
 >
 > *Terakhir diperbarui: 2026-05-05 · [Sumber diverifikasi terhadap repositori gemini-cli](https://github.com/google-gemini/gemini-cli)*
 
 ---
-## Keahlian Prompting: Tujuan vs. Instruksi
+## Seni Prompting: Tujuan vs. Instruksi
 
-Peningkatan terbesar tunggal yang dapat Anda lakukan pada kualitas keluaran AI adalah mengubah **cara Anda bertanya**.
+Peningkatan tunggal terbesar yang dapat Anda lakukan pada kualitas keluaran AI adalah mengubah **cara Anda bertanya**.
 
 ### Masalah
 
@@ -23,7 +23,7 @@ Then create a Redux slice.
 Then create the WishlistScreen component.
 ```
 
-Ini memaksa agen ke jalur tertentu — bahkan jika ada pendekatan yang lebih baik. Agen tidak dapat menolak, menunjukkan tradeoff, atau beradaptasi.
+Hal ini memaksa agen ke jalur tertentu — bahkan jika ada pendekatan yang lebih baik. Agen tidak dapat menolak, memunculkan tradeoff, atau beradaptasi.
 
 ### Solusi: Tujuan Deklaratif dengan Kriteria Keberhasilan
 
@@ -44,14 +44,14 @@ Say "WISHLIST_COMPLETE" when all criteria are verified.
 |---|---|
 | Menentukan detail implementasi | Menjelaskan hasil yang diinginkan |
 | Agen tidak dapat menolak atau menyarankan alternatif | Agen memilih pendekatan terbaik untuk basis kode |
-| Tidak ada verifikasi — Anda harus memeriksa secara manual | Loop verifikasi bawaan melalui kriteria keberhasilan |
+| Tidak ada verifikasi — Anda harus memeriksanya secara manual | Loop verifikasi bawaan melalui kriteria keberhasilan |
 | Satu jalur yang kaku | Agen beradaptasi dengan apa yang ditemukannya |
 
-> **Wawasan utama:** "Jangan beri tahu apa yang harus dilakukan — berikan kriteria keberhasilan dan biarkan ia bekerja." Agen sangat pandai melakukan perulangan hingga memenuhi tujuan tertentu. Kriteria yang lemah ("buat ini berfungsi") membutuhkan bimbingan terus-menerus. Kriteria yang kuat memungkinkannya berjalan secara mandiri.
+> **Wawasan utama:** "Jangan beri tahu apa yang harus dilakukan — berikan kriteria keberhasilan dan biarkan ia berjalan." Agen sangat pandai melakukan perulangan hingga memenuhi tujuan tertentu. Kriteria yang lemah ("buat agar berfungsi") membutuhkan bimbingan terus-menerus. Kriteria yang kuat memungkinkannya berjalan secara mandiri.
 
 ### Latihan
 
-Coba kedua pendekatan pada tugas yang sama dengan ProShop. Bandingkan:
+Cobalah kedua pendekatan pada tugas yang sama dengan ProShop. Bandingkan:
 1. Berapa banyak giliran yang dibutuhkan masing-masing?
 2. Apakah versi deklaratif menemukan pendekatan yang lebih baik?
 3. Mana yang menghasilkan kode yang lebih bersih?
@@ -59,16 +59,16 @@ Coba kedua pendekatan pada tugas yang sama dengan ProShop. Bandingkan:
 ---
 ## Disiplin Konteks
 
-Setiap token di jendela konteks agen membuat respons berikutnya menjadi sedikit kurang fokus. Konteks adalah sebuah anggaran — kelola seperti memori pada perangkat yang terbatas.
+Setiap token di dalam jendela konteks agen membuat respons berikutnya menjadi sedikit kurang fokus. Konteks adalah sebuah anggaran — kelola seperti memori pada perangkat yang terbatas.
 
 ### Gejala Kelebihan Beban Konteks
 
 - Agen mulai mengulangi dirinya sendiri
 - Halusinasi meningkat (merujuk pada file yang tidak ada)
-- Kualitas output menurun drastis setelah 15-20 giliran
+- Kualitas output menurun secara nyata setelah 15-20 giliran
 - Agen "lupa" instruksi sebelumnya
 
-### Toolkit
+### Perangkat Alat
 
 #### 1. Reset Strategis
 
@@ -78,7 +78,7 @@ Ketika kualitas output menurun:
 /clear
 ```
 
-Ini akan mereset konteks percakapan sambil menjaga GEMINI.md, memori, dan status file tetap utuh. Agen memulai ulang dengan segar tetapi dengan semua pengetahuan proyek Anda.
+Ini mereset konteks percakapan sambil menjaga GEMINI.md, memori, dan status file tetap utuh. Agen memulai ulang dengan segar tetapi dengan semua pengetahuan proyek Anda.
 
 #### 2. Simpan Sebelum Anda Membersihkan
 
@@ -91,7 +91,7 @@ cookieParser → authMiddleware → routes."
 
 Memori bertahan di seluruh sesi dan reset `/clear`. Simpan penemuan penting sebelum membersihkan.
 
-#### 3. Pelepasan Konteks
+#### 3. Pemindahan Konteks
 
 Pindahkan spesifikasi besar keluar dari percakapan dan ke dalam file:
 
@@ -103,7 +103,7 @@ echo "Your detailed spec..." > feature-spec.md
 # "Read @./feature-spec.md and implement it"
 ```
 
-Atau tambahkan sebagai impor di GEMINI.md Anda untuk konteks persisten:
+Atau tambahkan sebagai impor di GEMINI.md Anda untuk konteks yang persisten:
 
 ```markdown
 # GEMINI.md
@@ -128,16 +128,16 @@ Now refactor based on the investigator's findings
 
 ### Latihan
 
-1. Mulai sesi dan bangun tiga fitur secara berurutan (dengan sengaja mengumpulkan konteks)
-2. Perhatikan penurunan kualitas di sekitar giliran 15-20
+1. Mulai sesi dan bangun tiga fitur secara berurutan (sengaja menumpuk konteks)
+2. Perhatikan penurunan kualitas sekitar giliran 15-20
 3. Jalankan `/memory add` untuk menyimpan fakta-fakta kunci
 4. Jalankan `/clear` — amati peningkatan kualitas secara langsung
-5. Minta agen untuk melanjutkan dari tempat terakhirnya — agen akan melanjutkannya melalui memori + status file
+5. Minta agen untuk melanjutkan dari tempat ia tinggalkan — ia melanjutkannya melalui memori + status file
 
 ---
 ## Loop Verifikasi
 
-Cara paling andal untuk mendapatkan kode yang benar dari agen adalah dengan memberinya **loop umpan balik** — sebuah cara untuk memeriksa pekerjaannya sendiri dan memperbaiki kesalahan secara otomatis.
+Cara paling andal untuk mendapatkan kode yang benar dari sebuah agen adalah dengan memberikannya **loop umpan balik** — sebuah cara untuk memeriksa pekerjaannya sendiri dan memperbaiki kesalahan secara otomatis.
 
 ### Pola
 
@@ -157,13 +157,13 @@ Say "RATINGS_COMPLETE" when all 5 criteria are verified.
 
 Frasa "katakan X jika sudah selesai" memberikan agen:
 
-1. **Titik henti yang jelas** — agen tahu kapan harus berhenti bekerja
-2. **Insentif verifikasi mandiri** — agen memeriksa pekerjaannya sebelum menyatakannya selesai
-3. **Pemulihan iteratif** — jika pengujian gagal, agen memperbaiki dan menjalankan ulang daripada bertanya kepada Anda
+1. **Titik henti yang jelas** — ia tahu kapan harus berhenti bekerja
+2. **Insentif verifikasi mandiri** — ia memeriksa pekerjaannya sebelum menyatakan selesai
+3. **Pemulihan iteratif** — jika pengujian gagal, ia memperbaiki dan menjalankan ulang daripada bertanya kepada Anda
 
 ### Mengotomatiskan Loop
 
-Untuk tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan hook. Sebuah hook `AfterAgent` memeriksa apakah janji penyelesaian muncul di output. Jika tidak, hook tersebut mengatur ulang percakapan (mempertahankan perubahan file) dan menjalankan ulang dengan prompt asli + basis kode yang ditingkatkan:
+Untuk tugas-tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan hook. Sebuah hook `AfterAgent` memeriksa apakah janji penyelesaian muncul di output. Jika tidak, ia akan mereset percakapan (mempertahankan perubahan file) dan menjalankan ulang dengan prompt asli + basis kode yang telah ditingkatkan:
 
 ```json
 {
@@ -181,16 +181,16 @@ Untuk tugas besar, Anda dapat mengotomatiskan loop umpan balik menggunakan hook.
 
 ### Latihan
 
-Beri agen tugas refactoring dengan kriteria keberhasilan yang eksplisit dan janji penyelesaian. Perhatikan agen beriterasi melalui kegagalan pengujian hingga mencapai hijau.
+Beri agen tugas refactoring dengan kriteria keberhasilan yang eksplisit dan janji penyelesaian. Perhatikan ia beriterasi melalui kegagalan pengujian hingga mencapai hijau.
 
 ---
-## Pengembangan Paralel dengan Worktree
+## Pengembangan Paralel dengan worktree
 
-Jalankan beberapa sesi Gemini CLI secara bersamaan pada cabang yang berbeda — masing-masing dalam isolasi penuh.
+Jalankan beberapa sesi Gemini CLI secara bersamaan di cabang yang berbeda — masing-masing dalam isolasi penuh.
 
 ### Masalah
 
-Anda hanya dapat melakukan checkout pada satu cabang pada satu waktu. Jika Anda ingin mengerjakan fitur, perbaikan bug, dan refactor secara bersamaan dengan agen yang terpisah, mereka akan bertabrakan.
+Anda hanya dapat melakukan checkout pada satu cabang pada satu waktu. Jika Anda ingin mengerjakan sebuah fitur, perbaikan bug, dan refactor secara bersamaan dengan agen yang terpisah, mereka akan bertabrakan.
 
 ### Solusi
 
@@ -205,7 +205,7 @@ gemini --worktree fix-cart-rounding
 gemini --worktree update-api-docs
 ```
 
-Setiap agen bekerja di direktorinya sendiri, pada cabangnya sendiri, dengan konteksnya sendiri. Tidak ada konflik.
+Setiap agen bekerja di direktorinya sendiri, di cabangnya sendiri, dengan konteksnya sendiri. Tidak ada konflik.
 
 ### Alur Kerja
 
@@ -215,10 +215,10 @@ Setiap agen bekerja di direktorinya sendiri, pada cabangnya sendiri, dengan kont
 | **Konfigurasi** | Setiap worktree mendapatkan port server dev-nya sendiri untuk menghindari konflik |
 | **Eksekusi** | Luncurkan sesi Gemini CLI yang terpisah — setiap agen bekerja secara independen |
 | **Tinjauan** | Setiap agen melakukan commit ke cabangnya di dalam worktree-nya |
-| **Integrasi** | Gabungkan kembali cabang ke `main` melalui PR |
+| **Integrasi** | Gabungkan cabang kembali ke `main` melalui PR |
 | **Pembersihan** | `git worktree remove <path>` + `git worktree prune` |
 
-> **Perlakukan worktree sebagai sesuatu yang sekali pakai.** Mereka dioptimalkan untuk durasi satu tugas saja. Hapus setelah digabungkan.
+> **Perlakukan worktree sebagai sesuatu yang sekali pakai.** Mereka dioptimalkan untuk durasi satu tugas tunggal. Hapus setelah digabungkan.
 
 ### Latihan
 
@@ -231,11 +231,11 @@ Kedua agen bekerja secara bersamaan. Tidak ada yang melihat perubahan satu sama 
 ---
 ## Orkestrasi Multi-Agen
 
-Bagi tim yang mengelola puluhan agen di berbagai proyek, alat orkestrasi menyediakan isolasi, observabilitas, dan penskalaan tingkat perusahaan.
+Untuk tim yang mengelola puluhan agen di berbagai proyek, alat orkestrasi menyediakan isolasi, observabilitas, dan penskalaan tingkat perusahaan.
 
 ### Scion (Google Cloud Platform)
 
-**[Scion](https://github.com/GoogleCloudPlatform/scion)** adalah orkestrator multi-agen eksperimental yang menjalankan agen sebagai proses yang terisolasi dan bersamaan — masing-masing dalam kontainernya sendiri.
+**[Scion](https://github.com/GoogleCloudPlatform/scion)** adalah orkestrator multi-agen eksperimental yang menjalankan agen sebagai proses yang terisolasi dan bersamaan — masing-masing di dalam kontainernya sendiri.
 
 ```bash
 # Install
@@ -268,7 +268,7 @@ Jika Anda harus memberi tahu agen hal yang sama dua kali, itu harus berada di da
 
 ### Apa yang Ada di dalam Konstitusi
 
-`GEMINI.md` yang disusun dengan baik menyandikan standar rekayasa tim Anda sehingga agen mengikutinya secara otomatis:
+Sebuah `GEMINI.md` yang disusun dengan baik menyandikan standar rekayasa tim Anda sehingga agen mengikutinya secara otomatis:
 
 ```markdown
 # GEMINI.md
@@ -289,7 +289,7 @@ Jika Anda harus memberi tahu agen hal yang sama dua kali, itu harus berada di da
 
 ### Latihan
 
-1. Tulis sebuah `GEMINI.md` dengan 5 aturan untuk ProShop
+1. Tulis sebuah GEMINI.md dengan 5 aturan untuk ProShop
 2. Minta agen untuk menambahkan fitur **tanpa** file tersebut — perhatikan outputnya
 3. Minta hal yang sama **dengan** file tersebut
 4. Bandingkan: Apakah agen mengikuti konvensi? Apakah ia menanyakan pertanyaan klarifikasi yang sebelumnya dilewati?
@@ -297,41 +297,41 @@ Jika Anda harus memberi tahu agen hal yang sama dua kali, itu harus berada di da
 ---
 ## Penegakan Deterministik
 
-Meskipun Konstitusi Rekayasa (`GEMINI.md`) sangat baik untuk *memandu* agen (Rekayasa Prompt), hal itu tidak dapat menjamin kepatuhan 100%. Agen, seperti manusia, dapat membuat kesalahan atau berhalusinasi pola yang salah selama refaktor yang kompleks (sebuah fenomena yang dikenal sebagai *Prompt Drift*).
+Sebuah `GEMINI.md` sangat baik untuk *memandu* agen, tetapi tidak dapat menjamin kepatuhan 100%. Agen dapat berhalusinasi dengan pola yang salah selama refaktor kompleks — mengimpor model secara langsung di file rute meskipun konstitusi Anda melarangnya.
 
-Untuk membangun SDLC yang kuat, Anda harus memasangkan pembuatan AI dengan **Pagar Pengaman**—batasan deterministik yang membatasi apa yang dapat dilihat, dilakukan, dan dihasilkan oleh AI.
+Solusinya: pasangkan panduan berbasis prompt dengan **pagar pengaman deterministik** — batasan keras yang menangkap pelanggaran secara mekanis.
 
 ### Pagar Pengaman Input vs. Output
 
-Dalam SDLC perusahaan, pagar pengaman terbagi dalam dua kategori:
+| Lapisan | Kapan | Contoh |
+|---|---|---|
+| **Input** (pra-pembuatan) | Sebelum agen melihat konteks | `.geminiignore` membatasi akses file; `GEMINI.md` menetapkan ekspektasi arsitektur |
+| **Output** (pasca-pembuatan) | Setelah pembuatan, sebelum penggabungan | Linter menegakkan batasan; pemindai mendeteksi rahasia yang bocor; test suite memverifikasi perilaku |
 
-1. **Pagar Pengaman Input (Pra-pembuatan):** Melindungi agen dari input berbahaya atau membatasi konteksnya.
-   - *Contoh:* File `.geminiignore` mencegah agen membaca file yang tidak perlu.
-   - *Contoh:* `GEMINI.md` menetapkan ekspektasi arsitektur di awal.
-2. **Pagar Pengaman Output (Pasca-pembuatan):** Memverifikasi output agen *setelah* pembuatan tetapi *sebelum* digabungkan atau di-deploy.
-   - *Contoh:* Menegakkan batasan arsitektur menggunakan linter deterministik.
-   - *Contoh:* Menjalankan test suite atau pemindai untuk mendeteksi rahasia yang bocor.
+Pagar pengaman input mengurangi kesalahan. Pagar pengaman output *menangkapnya*.
 
-### Sinergi: "AI Mengusulkan, CI Menentukan"
+### Pola: "AI Mengusulkan, CI Menentukan"
 
-Daripada hanya mengandalkan LLM untuk mengawasi arsitekturnya sendiri, andalkan alat rekayasa perangkat lunak tradisional (Pagar Pengaman Output) untuk menegakkan aturan:
+Alih-alih mengandalkan LLM untuk mengawasi dirinya sendiri, gunakan alat rekayasa tradisional untuk menegakkan aturan:
 
-1. **Panduan (`GEMINI.md`):** Memberi tahu agen *cara* menulis kode dengan benar pada kali pertama (Input).
-2. **Penjaga (Linter/Analisis Statis):** Menangkap agen secara deterministik jika membuat kesalahan (Output).
-3. **Loop:** Jika alat penjaga gagal, output kesalahan diumpankan kembali ke agen (melalui loop verifikasi berkelanjutan menggunakan [Gemini CLI Hooks](https://geminicli.com/docs/hooks/)), dan agen secara otomatis memperbaiki kesalahannya sendiri berdasarkan umpan balik keras tersebut.
+1. **Panduan** (`GEMINI.md`) — memberi tahu agen cara menulis kode dengan benar sejak awal.
+2. **Penjaga** (linter, analisis statis) — menangkap pelanggaran secara deterministik.
+3. **Loop** — jika penjaga gagal, kesalahan diumpankan kembali ke agen melalui [hook `AfterAgent`](https://www.geminicli.com/docs/hooks/), memaksanya untuk mengoreksi diri. Ini adalah pola [Loop Verifikasi](#verification-loops) yang sama, yang diotomatisasi.
 
 ### Penegakan dalam Praktik
 
-Setiap alat deterministik yang dapat keluar dengan kode non-zero dapat berfungsi sebagai penegak. Anda dapat mengonfigurasi alat-alat ini untuk berjalan di pipeline CI/CD Anda, sebagai hook `pre-commit` Git, atau secara langsung melalui hook `AfterAgent` Gemini CLI.
+Alat apa pun yang keluar dengan nilai non-zero dapat berfungsi sebagai pagar pengaman. Hubungkan ke CI, hook `pre-commit` Git, atau event `AfterAgent` dari Gemini CLI:
 
-**Contoh Penegak Deterministik:**
-- **Linter Standar:** ESLint atau Ruff untuk menegakkan batas kompleksitas kode (misalnya, `max-lines-per-function` dalam file rute).
-- **Pemindai Keamanan:** Alat seperti `gitleaks` untuk memastikan agen tidak secara tidak sengaja melakukan hardcode pada kunci API.
-- **Linter Arsitektur:** Alat yang mengurai grafik dependensi untuk menegakkan batasan lapisan.
+| Penegak | Apa yang Ditangkapnya |
+|---|---|
+| **ESLint / Ruff** | Kompleksitas kode, pelanggaran gaya, API yang dilarang |
+| **gitleaks** | Kunci API yang di-hardcode, kredensial dalam sumber |
+| **dependency-cruiser** | Impor lintas lapisan ilegal (batasan arsitektur) |
+| **Test suite kustom** | Regresi perilaku |
 
-#### Contoh: Menegakkan Batasan dengan `dependency-cruiser`
+#### Contoh: Menegakkan Batasan Lapisan dengan `dependency-cruiser`
 
-Jika aturan `GEMINI.md` Anda menyatakan "Tidak ada logika bisnis dalam file rute", Anda dapat menegakkan ini dalam proyek JavaScript menggunakan [dependency-cruiser](https://github.com/sverweij/dependency-cruiser).
+Jika aturan `GEMINI.md` Anda menyatakan "Tidak boleh ada logika bisnis di file rute", tegakkan secara deterministik dengan [dependency-cruiser](https://github.com/sverweij/dependency-cruiser):
 
 ```javascript
 // .dependency-cruiser.js
@@ -348,48 +348,65 @@ module.exports = {
 };
 ```
 
-Untuk mengotomatiskan ini dalam alur kerja agen, Anda harus memformat output linter sebagai JSON agar Gemini CLI dapat memahaminya. Pertama, buat skrip hook yang menjalankan linter dan menangkap kesalahan:
+Buat skrip hook yang menjalankan linter dan mengembalikan JSON terstruktur saat gagal:
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
 # .gemini/hooks/check-architecture.sh
+input=$(cat)  # Read hook input from stdin (required)
+
 output=$(npx depcruise src --config .dependency-cruiser.js 2>&1)
 if [ $? -ne 0 ]; then
-  # Inject the linter error directly into the agent's context
-  jq -n --arg msg "$output" '{systemMessage: ("Architecture Violation Detected:\n" + $msg)}'
+  # Return a denial — AfterAgent treats this as a retry prompt
+  jq -n --arg msg "$output" '{
+    "decision": "deny",
+    "reason": ("Architecture violation detected. Fix the illegal import:\n" + $msg)
+  }'
 else
-  echo '{}'
+  echo '{"decision": "allow"}'
 fi
 ```
 
-Kemudian, daftarkan skrip ini sebagai hook `AfterAgent` di pengaturan Anda:
+> **Cara kerja percobaan ulang `AfterAgent`:** Saat hook mengembalikan `decision: "deny"`, Gemini CLI menolak respons agen dan mengirimkan teks `reason` kembali ke agen sebagai prompt baru. Agen kemudian mencoba memperbaiki pelanggaran secara otomatis. Lihat [Referensi Hook](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/reference.md) untuk skema lengkapnya.
+
+Daftarkan skrip di pengaturan Anda menggunakan skema konfigurasi hook standar:
+
+**`.gemini/settings.json`**
 
 ```json
-// .gemini/settings.json
 {
   "hooks": {
     "AfterAgent": [
       {
-        "name": "architecture-guard",
-        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh"
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh",
+            "name": "architecture-guard",
+            "description": "Enforces layer boundaries via dependency-cruiser after each agent turn"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-Sekarang, jika agen membuat impor ilegal, hook segera mengumpankan kesalahan linter kembali ke dalam percakapan, memaksa agen untuk menyelesaikan pelanggaran tersebut.
+Sekarang, jika agen membuat impor ilegal, hook menolak respons dan mengumpankan kesalahan linter kembali sebagai prompt percobaan ulang — agen memperbaiki pelanggarannya sendiri.
 
 ### Latihan
-1. Dalam sebuah proyek, buat file rute yang mengimpor model database secara langsung.
-2. Konfigurasikan penegak deterministik (seperti `dependency-cruiser` atau aturan ESLint kustom) untuk memblokir pola ini.
-3. Minta agen untuk "Menambahkan endpoint baru ke rute" dan amati apakah ia menyalin pola yang buruk atau memperbaikinya.
-4. Jalankan penegak, umpan balik kesalahan tersebut ke agen, dan minta ia untuk menyelesaikan pelanggaran tersebut.
+
+1. Dalam sebuah proyek, buat file rute yang mengimpor model database secara langsung
+2. Konfigurasikan `dependency-cruiser` (atau aturan ESLint kustom) untuk memblokir pola ini
+3. Daftarkan sebagai hook `AfterAgent` menggunakan konfigurasi di atas
+4. Minta agen untuk "Menambahkan endpoint baru ke rute" — amati apakah agen menyalin pola yang buruk tersebut
+5. Jika ya, perhatikan hook menolak respons dan agen mengoreksi diri
 
 ---
 ## Pengembangan Berbasis Skill
 
-Skill adalah file instruksi yang terstruktur dan dapat digunakan kembali (`SKILL.md`) yang menyandikan alur kerja insinyur senior secara langsung ke dalam agen. Tidak seperti prompt mentah, setiap skill mencakup proses langkah demi langkah, tabel anti-rasionalisasi (alasan umum yang mungkin digunakan agen untuk melewati langkah-langkah, dengan sanggahan yang didokumentasikan), tanda bahaya (red flags), dan gerbang verifikasi.
+Skill adalah file instruksi terstruktur dan dapat digunakan kembali (`SKILL.md`) yang menyandikan alur kerja insinyur senior secara langsung ke dalam agen. Tidak seperti prompt mentah, setiap skill mencakup proses langkah demi langkah, tabel anti-rasionalisasi (alasan umum yang mungkin digunakan agen untuk melewati langkah, dengan sanggahan yang didokumentasikan), tanda bahaya, dan gerbang verifikasi.
 
 ### Mengapa Skill Mengungguli Prompt Mentah
 
@@ -414,21 +431,21 @@ gemini skills install https://github.com/addyosmani/agent-skills.git --path skil
 
 Setelah diinstal, skill aktif sesuai permintaan saat agen mengenali tugas yang cocok. Membangun UI? Skill `frontend-ui-engineering` aktif secara otomatis. Men-debug kegagalan pengujian? `debugging-and-error-recovery` akan bekerja.
 
-### Perintah Garis Miring SDLC
+### Perintah Slash SDLC
 
-Paket skill menyediakan 7 perintah garis miring di bawah `.gemini/commands/` yang memetakan ke siklus hidup pengembangan:
+Paket skill menyediakan 7 perintah slash di bawah `.gemini/commands/` yang memetakan ke siklus hidup pengembangan:
 
 | Perintah | Fase | Apa yang Dilakukannya |
 |---|---|---|
-| `/spec` | Tentukan | Menulis PRD terstruktur sebelum menulis kode |
-| `/planning` | Rencanakan | Memecah pekerjaan menjadi tugas-tugas kecil yang dapat diverifikasi dengan kriteria penerimaan |
-| `/build` | Bangun | Mengimplementasikan tugas berikutnya sebagai irisan vertikal tipis |
-| `/test` | Verifikasi | Menjalankan alur kerja TDD — red, green, refactor |
+| `/spec` | Tentukan | Tulis PRD terstruktur sebelum menulis kode |
+| `/planning` | Rencanakan | Pecah pekerjaan menjadi tugas-tugas kecil yang dapat diverifikasi dengan kriteria penerimaan |
+| `/build` | Bangun | Implementasikan tugas berikutnya sebagai irisan vertikal tipis |
+| `/test` | Verifikasi | Jalankan alur kerja TDD — red, green, refactor |
 | `/review` | Tinjau | Tinjauan kode lima sumbu dengan label tingkat keparahan |
-| `/code-simplify` | Tinjau | Mengurangi kompleksitas tanpa mengubah perilaku (Chesterton's Fence) |
-| `/ship` | Kirim | Daftar periksa pra-peluncuran melalui fan-out persona paralel |
+| `/code-simplify` | Tinjau | Kurangi kompleksitas tanpa mengubah perilaku (Chesterton's Fence) |
+| `/ship` | Kirim | Daftar periksa pra-peluncuran melalui penyebaran (fan-out) persona paralel |
 
-> **Catatan:** Gunakan `/planning` alih-alih `/plan` — `/plan` bentrok dengan perintah Mode Perencanaan bawaan Gemini CLI.
+> **Catatan:** Gunakan `/planning` alih-alih `/plan` — `/plan` berkonflik dengan perintah Mode Perencanaan bawaan Gemini CLI.
 
 ### Skill vs GEMINI.md
 
@@ -440,14 +457,14 @@ Keduanya memengaruhi perilaku agen, tetapi melayani tujuan yang berbeda:
 | **Biaya token** | Minimal hingga diaktifkan | Overhead konstan |
 | **Terbaik untuk** | Alur kerja spesifik fase (TDD, tinjauan keamanan, pengiriman) | Konvensi proyek yang selalu aktif (tumpukan teknologi, standar pengkodean) |
 
-**Aturan praktis:** Jika Anda ingin itu aktif untuk *setiap* prompt, letakkan di GEMINI.md. Jika itu spesifik fase, instal sebagai skill.
+**Aturan praktis:** Jika Anda ingin ini aktif untuk *setiap* prompt, letakkan di GEMINI.md. Jika spesifik untuk fase tertentu, instal sebagai skill.
 
 ### Latihan
 
 1. Instal paket agent-skills ke dalam ruang kerja ProShop Anda
 2. Jalankan `/spec` — tulis spesifikasi untuk fitur "perbandingan produk"
 3. Jalankan `/build` — implementasikan irisan pertama secara bertahap
-4. Jalankan `/test` — perhatikan alur kerja TDD menegakkan red-green-refactor
+4. Jalankan `/test` — perhatikan alur kerja TDD menerapkan red-green-refactor
 5. Bandingkan: Bagaimana alur kerja terstruktur berbeda dari prompt mentah "tambahkan fitur perbandingan"?
 
 ---
@@ -466,7 +483,7 @@ Google menyediakan **50+ server MCP terkelola** yang memberikan agen Anda akses 
 
 ### Developer Knowledge MCP
 
-[Server MCP Developer Knowledge](https://developers.google.com/knowledge/mcp) mendasarkan agen Anda pada dokumentasi resmi Google — Firebase, Cloud, Android, Maps, dan banyak lagi. Daripada berhalusinasi tentang tanda tangan API, agen menanyakan korpus dokumentasi langsung.
+[Server MCP Developer Knowledge](https://developers.google.com/knowledge/mcp) mendasarkan agen Anda pada dokumentasi resmi Google — Firebase, Cloud, Android, Maps, dan lainnya. Daripada menghalusinasi tanda tangan API, agen menanyakan korpus dokumentasi langsung.
 
 **Instalasi satu baris (autentikasi kunci API):**
 
@@ -501,7 +518,7 @@ gemini mcp add -t http \
 
 | Alat | Tujuan |
 |---|---|
-| `search_documents` | Temukan potongan dokumentasi yang relevan untuk kueri |
+| `search_documents` | Temukan potongan dokumentasi yang relevan untuk sebuah kueri |
 | `get_documents` | Ambil konten halaman penuh untuk dokumen tertentu |
 | `answer_query` | Dapatkan jawaban yang disintesis dan berdasar dari korpus dokumentasi |
 
@@ -527,7 +544,7 @@ gemini mcp add -t http \
 ---
 ## Membangun Agen dengan agents-cli
 
-[`agents-cli`](https://github.com/google/agents-cli) adalah CLI dan paket skill yang mengajarkan agen pengkodean Anda cara membangun, mengevaluasi, dan men-deploy agen di [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) Google. Ini bukan pengganti untuk Gemini CLI — ini adalah alat *untuk* agen pengkodean.
+[`agents-cli`](https://github.com/google/agents-cli) adalah sebuah CLI dan paket skill yang mengajarkan agen pengkodean Anda cara membangun, mengevaluasi, dan men-deploy agen di [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) milik Google. Ini bukan pengganti untuk Gemini CLI — ini adalah alat *untuk* agen pengkodean.
 
 ### Pengaturan Cepat
 
@@ -547,11 +564,11 @@ npx skills add google/agents-cli
 |---|---|
 | `agents-cli scaffold <name>` | Membuat proyek agen ADK baru dengan struktur praktik terbaik |
 | `agents-cli scaffold enhance` | Menambahkan deployment, CI/CD, atau RAG ke proyek agen yang ada |
-| `agents-cli eval run` | Menjalankan evaluasi agen (LLM-sebagai-juri, penilaian lintasan) |
+| `agents-cli eval run` | Menjalankan evaluasi agen (LLM-as-judge, penilaian lintasan) |
 | `agents-cli deploy` | Men-deploy ke Google Cloud (Agent Runtime, Cloud Run, atau GKE) |
 | `agents-cli publish gemini-enterprise` | Mendaftarkan agen dengan Gemini Enterprise |
 
-### Skill yang Diinstalnya
+### Skill yang Diinstal
 
 Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen pengkodean Anda:
 
@@ -560,7 +577,7 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 | `google-agents-cli-workflow` | Siklus hidup pengembangan, aturan pelestarian kode, pemilihan model |
 | `google-agents-cli-adk-code` | API Python ADK — agen, alat, orkestrasi, callback, status |
 | `google-agents-cli-scaffold` | Scaffolding proyek — `create`, `enhance`, `upgrade` |
-| `google-agents-cli-eval` | Metodologi evaluasi — metrik, evalset, LLM-sebagai-juri |
+| `google-agents-cli-eval` | Metodologi evaluasi — metrik, evalset, LLM-as-judge |
 | `google-agents-cli-deploy` | Deployment — Agent Runtime, Cloud Run, GKE, CI/CD, rahasia |
 | `google-agents-cli-publish` | Pendaftaran Gemini Enterprise |
 | `google-agents-cli-observability` | Cloud Trace, logging, integrasi pihak ketiga |
@@ -570,7 +587,7 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 | Skenario | Alat |
 |---|---|
 | Membangun agen dari awal dengan praktik terbaik | `agents-cli scaffold` |
-| Menambahkan RAG atau deployment ke agen yang ada | `agents-cli scaffold enhance` |
+| Menambahkan RAG atau deployment ke agen yang sudah ada | `agents-cli scaffold enhance` |
 | Mengevaluasi kualitas agen dengan metrik terstruktur | `agents-cli eval run` |
 | Men-deploy secara manual dengan kontrol penuh | `adk deploy` secara langsung |
 | Menulis kode ADK tanpa scaffolding | ADK Mentah + agen pengkodean Anda |
@@ -586,11 +603,11 @@ Saat Anda menjalankan `agents-cli setup`, ini menginstal 7 skill ke dalam agen p
 ---
 ## Bacaan Lebih Lanjut
 
-| Sumber Daya | Keterangan |
+| Sumber Daya | Deskripsi |
 |---|---|
-| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 20 skill rekayasa tingkat produksi untuk agen pengkodean |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 20 skill rekayasa tingkat produksi untuk agen pengodean |
 | [google/agents-cli](https://github.com/google/agents-cli) | CLI + skill untuk membangun agen ADK di Google Cloud |
-| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | Mendasarkan agen pada dokumentasi resmi pengembang Google |
+| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | Mendasarkan agen pada dokumentasi pengembang resmi Google |
 | [Server MCP yang Dikelola Google](https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone) | 50+ server MCP perusahaan (Cloud Blog) |
 | [Produk MCP yang Didukung](https://docs.cloud.google.com/mcp/supported-products) | Katalog lengkap server MCP yang dikelola Google |
 | [GoogleCloudPlatform/scion](https://github.com/GoogleCloudPlatform/scion) | Orkestrasi multi-agen untuk tim |
