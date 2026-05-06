@@ -30,6 +30,7 @@ MANIFEST_PATH = TOOLS_DIR / ".translation-manifest.json"
 
 # The 7 workshop docs that get translated
 TRANSLATABLE_DOCS = [
+    "docs/README.md",
     "docs/setup.md",
     "docs/sdlc-productivity.md",
     "docs/legacy-modernization.md",

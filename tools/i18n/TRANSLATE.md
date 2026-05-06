@@ -96,18 +96,21 @@ directly — add rows, change translations, add notes in the third column.
 
 ## What Gets Translated
 
-Only the 6 core workshop docs:
+The 8 workshop docs plus a generated sidebar:
 
 | File | Content |
 |---|---|
+| `docs/README.md` | Landing page (Docsify home for each language) |
 | `docs/setup.md` | Environment setup instructions |
 | `docs/sdlc-productivity.md` | Use Case 1 |
 | `docs/legacy-modernization.md` | Use Case 2 |
 | `docs/devops-orchestration.md` | Use Case 3 |
 | `docs/advanced-patterns.md` | Advanced techniques |
+| `docs/extensions-ecosystem.md` | Extensions & ecosystem |
 | `docs/cheatsheet.md` | Quick reference |
+| `docs/{lang}/_sidebar.md` | Auto-generated from English sidebar |
 
-**Not translated:** README, facilitator guide, exercises, samples, agent configs.
+**Not translated:** facilitator guide, exercises, samples, agent configs.
 
 ## Drift Detection
 

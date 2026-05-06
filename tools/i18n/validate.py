@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 TOOLS_DIR = REPO_ROOT / "tools" / "i18n"
 
 TRANSLATABLE_DOCS = [
+    "docs/README.md",
     "docs/setup.md",
     "docs/sdlc-productivity.md",
     "docs/legacy-modernization.md",
