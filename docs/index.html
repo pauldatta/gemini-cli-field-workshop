@@ -82,12 +82,41 @@
     document.addEventListener('click', function(e) {
       var link = e.target.closest('a');
       if (!link) return;
+      
+      // Only intercept links from the navbar (language switcher)
+      if (!link.closest('.app-nav')) return;
+
       var href = link.getAttribute('href');
-      if (href && /^\/[a-z]{2}\/$/.test(href)) {
+      if (!href) return;
+      
+      // Match language links like #/ko/ or the English root #/
+      // Docsify might have already prefixed it with #
+      var cleanHref = href.replace(/^#/, '');
+
+      if (cleanHref === '/' || /^\/[a-z]{2}\/$/.test(cleanHref)) {
         e.preventDefault();
-        window.location.hash = '#' + href;
+        e.stopPropagation(); // Stop docsify from handling it
+        
+        // Get the current path without the hash
+        var currentPath = window.location.hash.replace(/^#/, '');
+        if (!currentPath) currentPath = '/';
+        
+        // Strip out any existing language prefix (e.g. /ko/) from the current path
+        var pathWithoutLang = currentPath.replace(/^\/[a-z]{2}\//, '/');
+        
+        // If switching to English (cleanHref === '/'), just use the path
+        // If switching to a language, prepend the language prefix
+        var newHash = cleanHref === '/' ? pathWithoutLang : cleanHref.replace(/\/$/, '') + pathWithoutLang;
+        
+        // Ensure we don't end up with duplicate slashes
+        newHash = newHash.replace(/\/\//g, '/');
+        
+        // Default to root if empty
+        if (!newHash) newHash = '/';
+
+        window.location.hash = '#' + newHash;
       }
-    });
+    }, true); // Use capture phase to run before docsify
   </script>
 </body>
 </html>
