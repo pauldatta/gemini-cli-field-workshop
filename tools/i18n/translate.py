@@ -111,7 +111,14 @@ def reinsert_code_blocks(text: str, blocks: list[str]) -> str:
 # ---------------------------------------------------------------------------
 
 def rewrite_links_for_lang(text: str) -> str:
-    """Adjust relative links for one level deeper (docs/ko/ instead of docs/)."""
+    """Adjust relative links for one level deeper (docs/ko/ instead of docs/).
+
+    Same-directory .md links that point to files NOT in TRANSLATABLE_DOCS
+    are rewritten to absolute Docsify paths (e.g. /facilitator-guide.md)
+    so they resolve against the English root instead of the lang directory.
+    """
+    # Build set of translated basenames for fast lookup
+    translated_basenames = {Path(f).name for f in TRANSLATABLE_DOCS}
 
     def rewrite(match):
         link_text = match.group(1)
@@ -122,7 +129,12 @@ def rewrite_links_for_lang(text: str) -> str:
         # Asset paths (relative within docs/)
         elif path.startswith("assets/"):
             path = "../" + path
-        # Same-directory doc links stay as-is (docsify resolves within ko/)
+        # Same-directory .md links: check if the target is translated
+        elif path.endswith(".md") and "/" not in path:
+            if path not in translated_basenames:
+                # Not translated — absolute link to English root
+                path = f"/{path}"
+        # Other same-directory doc links stay as-is (docsify resolves within lang/)
         return f"{link_text}({path})"
 
     return LINK_RE.sub(rewrite, text)
@@ -139,7 +151,9 @@ def build_system_prompt(glossary: dict, lang: str) -> str:
         f"  - {eng} → {kor}" for eng, kor in glossary["terms"].items()
     )
 
-    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese"}
+    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese (Simplified)",
+                  "th": "Thai", "vi": "Vietnamese", "id": "Indonesian",
+                  "ms": "Malay", "tl": "Filipino", "my": "Burmese", "km": "Khmer"}
     lang_name = lang_names.get(lang, lang)
 
     return f"""You are translating technical workshop documentation from English to {lang_name}.
@@ -276,17 +290,28 @@ def translate_file(
             pool.submit(_translate_one, idx, sec): idx
             for idx, sec in work_items
         }
-        for future in as_completed(futures):
-            idx = futures[future]
-            try:
-                idx, translated, elapsed, heading = future.result()
-                translated_sections[idx] = translated
-                print(f"     ✅ Section {idx + 1}/{len(sections)}{heading} ({elapsed:.1f}s)")
-            except Exception as e:
-                print(f"     ❌ Section {idx + 1} failed: {e}")
-                print(f"        Keeping English for this section.")
-                translated_sections[idx] = sections[idx]
-                failures += 1
+        try:
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    idx, translated, elapsed, heading = future.result()
+                    translated_sections[idx] = translated
+                    print(f"     ✅ Section {idx + 1}/{len(sections)}{heading} ({elapsed:.1f}s)")
+                except Exception as e:
+                    print(f"     ❌ Section {idx + 1} failed: {e}")
+                    print(f"        Keeping English for this section.")
+                    translated_sections[idx] = sections[idx]
+                    failures += 1
+        except KeyboardInterrupt:
+            print(f"\n     ⚠️  Interrupted — cancelling remaining sections...")
+            for f in futures:
+                f.cancel()
+            # Fill untranslated sections with English
+            for i, s in enumerate(translated_sections):
+                if s is None:
+                    translated_sections[i] = sections[i]
+                    failures += 1
+            raise  # Re-raise to be caught by the main loop
 
     # 4. Reassemble
     translated_text = "\n".join(translated_sections)
@@ -493,49 +518,67 @@ def main():
 
     total_start = time.time()
     results = []
+    interrupted = False
+    remaining_files = []
 
     print(f"  Parallel: {args.parallel} workers per file")
 
-    for i, f in enumerate(files, 1):
-        if not f.exists():
-            print(f"\n  ⚠️  Skipping {f} (not found)")
-            continue
-        stats = translate_file(
-            f, args.lang, glossary, args.model,
-            file_num=i, file_total=len(files),
-            max_workers=args.parallel,
-        )
-        results.append(stats)
-        update_manifest(args.lang, f)
+    try:
+        for i, f in enumerate(files, 1):
+            if not f.exists():
+                print(f"\n  ⚠️  Skipping {f} (not found)")
+                continue
+            stats = translate_file(
+                f, args.lang, glossary, args.model,
+                file_num=i, file_total=len(files),
+                max_workers=args.parallel,
+            )
+            results.append(stats)
+            update_manifest(args.lang, f)
+    except KeyboardInterrupt:
+        interrupted = True
+        remaining_files = [f.name for f in files[len(results):]]
+        print(f"\n\n{'─' * 56}")
+        print(f"  ⚠️  Interrupted by user (Ctrl+C)")
+        print(f"{'─' * 56}")
 
-    # Generate sidebar
-    print(f"\n{'─' * 56}")
-    print("  📑 Generating sidebar...")
-    generate_sidebar(args.lang, glossary)
+    if not interrupted:
+        # Generate sidebar only on full completion
+        print(f"\n{'─' * 56}")
+        print(f"  📑 Generating sidebar...")
+        generate_sidebar(args.lang, glossary)
 
-    # Summary
+    # Summary — always printed, even on interrupt
     total_elapsed = time.time() - total_start
     total_src = sum(r.get("src_lines", 0) for r in results)
     total_out = sum(r.get("out_lines", 0) for r in results)
     total_failures = sum(r.get("failures", 0) for r in results)
 
+    status = "⚠️  Translation Interrupted" if interrupted else "✅ Translation Complete"
     print(f"\n{'═' * 56}")
-    print(f"  ✅ Translation Complete")
+    print(f"  {status}")
     print(f"{'═' * 56}")
-    print(f"  {'File':<30} {'Source':>6} {'Output':>6} {'Time':>8}")
-    print(f"  {'─' * 52}")
-    for r in results:
-        print(f"  {r.get('file', '?'):<30} "
-              f"{r.get('src_lines', '?'):>6} "
-              f"{r.get('out_lines', '?'):>6} "
-              f"{format_duration(r.get('elapsed', 0)):>8}")
-    print(f"  {'─' * 52}")
-    print(f"  {'Total':<30} {total_src:>6} {total_out:>6} {format_duration(total_elapsed):>8}")
+    if results:
+        print(f"  {'File':<30} {'Source':>6} {'Output':>6} {'Time':>8}")
+        print(f"  {'─' * 52}")
+        for r in results:
+            print(f"  {r.get('file', '?'):<30} "
+                  f"{r.get('src_lines', '?'):>6} "
+                  f"{r.get('out_lines', '?'):>6} "
+                  f"{format_duration(r.get('elapsed', 0)):>8}")
+        print(f"  {'─' * 52}")
+        print(f"  {'Total':<30} {total_src:>6} {total_out:>6} {format_duration(total_elapsed):>8}")
+    else:
+        print(f"  No files were completed.")
 
     if total_failures > 0:
         print(f"\n  ⚠️  {total_failures} section(s) failed — English preserved for those sections.")
 
-    print(f"\n  Next: make translate-validate L={args.lang}")
+    if interrupted and remaining_files:
+        print(f"\n  📋 Not started: {', '.join(remaining_files)}")
+        print(f"  💡 Re-run to continue: make translate L={args.lang}")
+    elif not interrupted:
+        print(f"\n  Next: make translate-validate L={args.lang}")
 
 
 if __name__ == "__main__":

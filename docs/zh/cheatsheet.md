@@ -1,11 +1,11 @@
-# Gemini CLI 치트시트
+# Gemini CLI 速查表
 
-> 이 워크숍에서 다루는 모든 내용에 대한 빠른 참조 가이드입니다.
+> 涵盖本次工作坊所有内容的快速参考。
 >
-> *마지막 업데이트: 2026-05-05 · [gemini-cli 저장소에 대해 검증된 소스](https://github.com/google-gemini/gemini-cli)*
+> *最后更新：2026-05-05 · [来源已与 gemini-cli 仓库核对](https://github.com/google-gemini/gemini-cli)*
 
 ---
-## 설치
+## 安装
 
 ```bash
 npm install -g @google/gemini-cli
@@ -14,37 +14,37 @@ gemini --version           # Check version
 ```
 
 ---
-## 키보드 단축키
+## 键盘快捷键
 
-| 단축키 | 동작 |
+| 快捷键 | 操作 |
 |---|---|
-| `Tab` | 제안된 편집 수락 |
-| `Shift+Tab` | 옵션 순환 |
-| `Ctrl+G` | 외부 에디터 (프롬프트 또는 플랜 편집) |
-| `Ctrl+C` | 현재 작업 취소 |
-| `↑` / `↓` | 프롬프트 기록 탐색 |
+| `Tab` | 接受建议的编辑 |
+| `Shift+Tab` | 循环切换选项 |
+| `Ctrl+G` | 外部编辑器（编辑提示词或计划） |
+| `Ctrl+C` | 取消当前操作 |
+| `↑` / `↓` | 导航提示词历史记录 |
 
 ---
-## 슬래시 명령어
+## 斜杠命令
 
-| 명령어 | 설명 |
+| 命令 | 描述 |
 |---|---|
-| `/plan` | 플랜 모드 전환 (읽기 전용 조사) |
-| `/stats` | 토큰 사용량 및 모델 정보 표시 |
-| `/clear` | 컨텍스트 지우기 및 새로 시작 |
-| `/tools` | 사용 가능한 도구 목록 표시 |
-| `/resume` | 이전 세션 재개 |
-| `/rewind` | 이전 상태로 롤백 |
-| `/restore` | 체크포인트에서 복원 ([체크포인트 활성화](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md) 필요) |
-| `/memory show` | 저장된 메모리 표시 |
-| `/memory add "..."` | 메모리 추가 |
-| `/hooks panel` | 훅 실행 상태 표시 |
-| `/skills list` | 사용 가능한 스킬 목록 표시 |
-| `/extensions list` | 설치된 확장 프로그램 목록 표시 |
-| `/commands` | 사용자 정의 명령어 목록 표시 |
+| `/plan` | 切换计划模式（只读研究） |
+| `/stats` | 显示令牌使用情况和模型信息 |
+| `/clear` | 清除上下文并重新开始 |
+| `/tools` | 列出可用工具 |
+| `/resume` | 恢复之前的会话 |
+| `/rewind` | 回滚到之前的状态 |
+| `/restore` | 从检查点恢复（需要[启用检查点](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)） |
+| `/memory show` | 显示保存的记忆 |
+| `/memory add "..."` | 添加记忆 |
+| `/hooks panel` | 显示钩子执行状态 |
+| `/skills list` | 列出可用技能 |
+| `/extensions list` | 列出已安装的扩展 |
+| `/commands` | 列出自定义命令 |
 
 ---
-## 헤드리스 모드
+## 无头模式
 
 ```bash
 # Simple prompt
@@ -61,7 +61,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ```
 
 ---
-## GEMINI.md 계층 구조
+## GEMINI.md 层级结构
 
 ```
 ~/.gemini/GEMINI.md          # Global preferences
@@ -70,16 +70,16 @@ cat file.js | gemini -p "Review this code for bugs"
 ./frontend/GEMINI.md         # Subdirectory rules
 ```
 
-### 가져오기 구문
+### 导入语法
 ```markdown
 @./docs/coding-standards.md
 @./docs/architecture.md
 ```
 
-> 전체 구문은 [GEMINI.md 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)를 확인하세요.
+> 请参阅 [GEMINI.md 参考文档](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md) 获取完整语法。
 
 ---
-## 서브에이전트
+## 子代理
 
 ```
 # Built-in
@@ -89,7 +89,7 @@ cat file.js | gemini -p "Review this code for bugs"
 @security-scanner Review auth middleware for vulnerabilities
 ```
 
-### 서브에이전트 정의 (`.gemini/agents/my-agent.md`)
+### 子代理定义 (`.gemini/agents/my-agent.md`)
 ```markdown
 ---
 model: gemini-3.1-flash-lite-preview
@@ -101,7 +101,7 @@ You are a specialist in...
 ```
 
 ---
-## Conductor 확장 프로그램
+## Conductor 扩展
 
 ```bash
 # Install
@@ -118,7 +118,7 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 ```
 
 ---
-## 정책 엔진 (TOML)
+## 策略引擎 (TOML)
 
 ```toml
 # Deny reading secrets
@@ -143,12 +143,12 @@ decision = "ask_user"
 priority = 1
 ```
 
-> 전체 스키마는 [정책 엔진 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)를 확인하고, 실제 실습 가이드는 [정책 엔진으로 Gemini CLI 보호하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
+> 请参阅[策略引擎参考](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)以获取完整模式，以及参阅[使用策略引擎保护 Gemini CLI](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)以获取实战演练。
 
 ---
-## 훅
+## 钩子
 
-### settings.json 훅 설정
+### settings.json 钩子配置
 ```json
 {
   "hooks": {
@@ -165,7 +165,7 @@ priority = 1
 }
 ```
 
-### 훅 스크립트 템플릿
+### 钩子脚本模板
 ```bash
 #!/usr/bin/env bash
 input=$(cat)
@@ -181,17 +181,17 @@ echo '{"decision":"deny","reason":"Blocked because..."}'
 echo '{"systemMessage":"Remember to..."}'
 ```
 
-### 훅 이벤트
+### 钩子事件
 ```
 SessionStart → BeforeAgent → BeforeModel → BeforeToolSelection →
 AfterModel → BeforeTool → AfterTool → AfterAgent → PreCompress →
 Notification → SessionEnd
 ```
 
-> 전체 이벤트 수명 주기는 [훅 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md)를 확인하세요.
+> 请参阅 [钩子参考](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md) 了解完整的事件生命周期。
 
 ---
-## MCP 서버
+## MCP 服务器
 
 ```json
 {
@@ -217,7 +217,7 @@ Notification → SessionEnd
 ```
 
 ---
-## 인증 옵션
+## 身份验证选项
 
 ```bash
 # Personal (free tier)
@@ -229,7 +229,7 @@ gcloud auth application-default login
 ```
 
 ---
-## 유용한 패턴
+## 实用模式
 
 ```bash
 # Smart commit
@@ -246,7 +246,7 @@ for f in src/*.js; do gemini -p "Add TypeScript types" < "$f"; done
 ```
 
 ---
-## 확장 프로그램
+## 扩展
 
 ```bash
 # Install from GitHub
@@ -272,7 +272,7 @@ gemini extensions link .
 gemini extensions disable my-extension --scope workspace
 ```
 
-### 주목할 만한 커뮤니티 확장 프로그램
+### 知名社区扩展
 
 ```bash
 # Conductor (spec-driven development) — already in UC1
@@ -288,8 +288,8 @@ gemini extensions install https://github.com/Joonghyun-Lee-Frieren/oh-my-gemini-
 gemini extensions install https://github.com/googleworkspace/cli
 ```
 
-### 갤러리
+### 扩展库
 
-커뮤니티 확장 프로그램 둘러보기: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
+浏览社区扩展：[geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
 
-직접 게시하기: GitHub 저장소에 `gemini-cli-extension` 주제(topic)를 추가하고 릴리스를 태그하세요.
+发布您自己的扩展：将 `gemini-cli-extension` 主题添加到您的 GitHub 仓库，并标记一个发布版本。

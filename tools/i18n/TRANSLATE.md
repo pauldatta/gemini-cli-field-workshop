@@ -11,6 +11,9 @@ make translate-list
 # Translate all workshop docs to Korean
 make translate L=ko
 
+# Translate with more parallel workers (default: 4)
+make translate L=ko P=8
+
 # Translate a single file
 make translate-file FILE=docs/setup.md L=ko
 
@@ -39,8 +42,9 @@ cp tools/i18n/glossary-ko.md tools/i18n/glossary-ja.md
 # 2. Have a native speaker edit the glossary table
 #    (change Korean terms to target-language terms)
 
-# 3. Translate
+# 3. Translate (with optional parallel workers)
 make translate L=ja
+make translate L=ja P=8   # 8 workers for faster runs
 
 # 4. Validate
 make translate-validate L=ja

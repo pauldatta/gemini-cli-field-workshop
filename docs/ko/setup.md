@@ -1,11 +1,11 @@
 # 환경 설정
 
-> 사용 사례를 시작하기 전에 이 단계를 완료하세요. 약 15분이 소요됩니다.
+> 사용 사례를 시작하기 전에 이 과정을 완료하세요. 약 15분이 소요됩니다.
 >
-> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소를 기준으로 소스 확인됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
-## 시스템 요구 사항
+## 시스템 요구사항
 
 | 구성 요소      | 최소 사양 | 권장 사양                                               |
 | -------------- | --------- | ------------------------------------------------------- |
@@ -27,7 +27,7 @@ cd gemini-cli-field-workshop
 ---
 ## 2단계: 설정 스크립트 실행
 
-설정 스크립트가 Gemini CLI 설치, 데모 앱 체크아웃 및 구성을 포함한 모든 작업을 처리합니다:
+설정 스크립트가 Gemini CLI 설치, 데모 앱 체크아웃 및 구성 등 모든 것을 처리합니다:
 
 ```bash
 chmod +x setup.sh
@@ -51,7 +51,7 @@ chmod +x setup.sh
 
 ### 옵션 A: 개인 Google 계정 (무료 등급)
 
-워크숍 및 평가용으로 가장 적합합니다. GCP 프로젝트가 필요하지 않습니다.
+워크숍 및 평가에 가장 적합합니다. GCP 프로젝트가 필요하지 않습니다.
 
 ```bash
 cd demo-app
@@ -59,7 +59,7 @@ gemini
 # Follow the browser-based OAuth flow
 ```
 
-> **무료 등급 한도:** 개인 Google AI 등급은 워크숍 사용에 적합한 넉넉한 일일 한도를 제공합니다. [할당량 및 가격 책정](https://geminicli.com/docs/resources/quota-and-pricing/)을 참조하세요.
+> **무료 등급 한도:** 개인 Google AI 등급은 워크숍 사용에 적합한 넉넉한 일일 한도를 제공합니다. [할당량 및 가격](https://geminicli.com/docs/resources/quota-and-pricing/)을 참조하세요.
 
 ### 옵션 B: Vertex AI (엔터프라이즈)
 
@@ -73,7 +73,7 @@ gcloud config set project YOUR_PROJECT_ID
 gcloud auth application-default login
 ```
 
-Gemini CLI는 Vertex AI 자격 증명을 자동으로 감지합니다. 엔터프라이즈 인증 적용에 대해서는 [엔터프라이즈 가이드](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)를 참조하세요.
+Gemini CLI는 Vertex AI 자격 증명을 자동으로 감지합니다. 엔터프라이즈 적용 인증에 대한 자세한 내용은 [엔터프라이즈 가이드](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/enterprise.md)를 참조하세요.
 
 ---
 ## 4단계: 설치 확인
@@ -94,21 +94,21 @@ ls demo-app/.gemini/policies/  # Should contain team-guardrails.toml
 ---
 ## 문제 해결
 
-| 문제                                      | 해결 방법                                                                                                                                                                     |
+| 문제 | 해결 방법 |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm install -g` 명령이 `EACCES` 오류와 함께 실패함      | `sudo npm install -g @google/gemini-cli`를 사용하거나 npm 권한을 수정하세요: [npm docs](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) |
-| 설치 후 `gemini: command not found` 오류 발생 | 터미널을 다시 시작하거나 `source ~/.bashrc` / `source ~/.zshrc`를 실행하세요                                                                                                           |
-| OAuth 흐름에서 브라우저가 열리지 않음           | 터미널에서 URL을 복사하여 수동으로 여세요                                                                                                                           |
-| `git submodule update` 명령이 실패함              | `git submodule init && git submodule update --recursive`를 실행하세요                                                                                                                  |
-| 데모 앱 `npm install` 명령이 실패함              | Node.js 버전을 확인하세요(`node --version`). ProShop v2는 Node 18 이상이 필요합니다.                                                                        |
-| 워크숍 중 속도 제한(Rate limit) 오류 발생         | Vertex AI 인증으로 전환하거나 60초를 기다린 후 다시 시도하세요                                                                                              |
-| 훅이 실행되지 않음                       | `chmod +x demo-app/.gemini/hooks/*.sh`를 실행하세요                                                                                                                                    |
-| `jq: command not found` 오류 발생                  | jq를 설치하세요: `brew install jq` (macOS) 또는 `apt install jq` (Linux)                                                                                                     |
+| `npm install -g` 명령이 `EACCES` 오류와 함께 실패함 | `sudo npm install -g @google/gemini-cli`를 사용하거나 npm 권한을 수정하세요: [npm 문서](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) |
+| 설치 후 `gemini: command not found` 오류 발생 | 터미널을 다시 시작하거나 `source ~/.bashrc` / `source ~/.zshrc`를 실행하세요 |
+| OAuth 흐름에서 브라우저가 열리지 않음 | 터미널에서 URL을 복사하여 수동으로 엽니다 |
+| `git submodule update` 명령이 실패함 | `git submodule init && git submodule update --recursive`를 실행하세요 |
+| 데모 앱의 `npm install` 명령이 실패함 | Node.js 버전을 확인하세요(`node --version`). ProShop v2는 Node 18 이상이 필요합니다. |
+| 워크숍 진행 중 속도 제한(Rate limit) 오류 발생 | Vertex AI 인증으로 전환하거나 60초를 기다린 후 다시 시도하세요 |
+| 훅이 실행되지 않음 | `chmod +x demo-app/.gemini/hooks/*.sh`를 실행하세요 |
+| `jq: command not found` 오류 발생 | jq를 설치하세요: `brew install jq` (macOS) 또는 `apt install jq` (Linux) |
 
 ---
 ## 수동 설정 (setup.sh가 실패할 경우)
 
-시스템에서 설정 스크립트가 작동하지 않으면 다음 단계를 수동으로 실행하세요:
+시스템에서 설정 스크립트가 작동하지 않으면, 다음 단계를 수동으로 실행하세요:
 
 ```bash
 # 1. Install Gemini CLI

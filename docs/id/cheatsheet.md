@@ -1,11 +1,11 @@
-# Gemini CLI 치트시트
+# Lembar Contekan Gemini CLI
 
-> 이 워크숍에서 다루는 모든 내용에 대한 빠른 참조 가이드입니다.
+> Referensi cepat untuk semua yang dibahas dalam lokakarya ini.
 >
-> *마지막 업데이트: 2026-05-05 · [gemini-cli 저장소에 대해 검증된 소스](https://github.com/google-gemini/gemini-cli)*
+> *Terakhir diperbarui: 2026-05-05 · [Sumber diverifikasi terhadap repositori gemini-cli](https://github.com/google-gemini/gemini-cli)*
 
 ---
-## 설치
+## Instalasi
 
 ```bash
 npm install -g @google/gemini-cli
@@ -14,37 +14,37 @@ gemini --version           # Check version
 ```
 
 ---
-## 키보드 단축키
+## Pintasan Keyboard
 
-| 단축키 | 동작 |
+| Pintasan | Aksi |
 |---|---|
-| `Tab` | 제안된 편집 수락 |
-| `Shift+Tab` | 옵션 순환 |
-| `Ctrl+G` | 외부 에디터 (프롬프트 또는 플랜 편집) |
-| `Ctrl+C` | 현재 작업 취소 |
-| `↑` / `↓` | 프롬프트 기록 탐색 |
+| `Tab` | Terima saran pengeditan |
+| `Shift+Tab` | Beralih antar opsi |
+| `Ctrl+G` | Editor eksternal (edit prompt atau rencana) |
+| `Ctrl+C` | Batalkan operasi saat ini |
+| `↑` / `↓` | Navigasi riwayat prompt |
 
 ---
-## 슬래시 명령어
+## Perintah Slash
 
-| 명령어 | 설명 |
+| Perintah | Deskripsi |
 |---|---|
-| `/plan` | 플랜 모드 전환 (읽기 전용 조사) |
-| `/stats` | 토큰 사용량 및 모델 정보 표시 |
-| `/clear` | 컨텍스트 지우기 및 새로 시작 |
-| `/tools` | 사용 가능한 도구 목록 표시 |
-| `/resume` | 이전 세션 재개 |
-| `/rewind` | 이전 상태로 롤백 |
-| `/restore` | 체크포인트에서 복원 ([체크포인트 활성화](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md) 필요) |
-| `/memory show` | 저장된 메모리 표시 |
-| `/memory add "..."` | 메모리 추가 |
-| `/hooks panel` | 훅 실행 상태 표시 |
-| `/skills list` | 사용 가능한 스킬 목록 표시 |
-| `/extensions list` | 설치된 확장 프로그램 목록 표시 |
-| `/commands` | 사용자 정의 명령어 목록 표시 |
+| `/plan` | Alihkan Mode Perencanaan (penelitian hanya-baca) |
+| `/stats` | Tampilkan penggunaan token dan info model |
+| `/clear` | Bersihkan konteks dan mulai dari awal |
+| `/tools` | Tampilkan daftar alat yang tersedia |
+| `/resume` | Lanjutkan sesi sebelumnya |
+| `/rewind` | Kembalikan ke keadaan sebelumnya |
+| `/restore` | Pulihkan dari checkpoint (memerlukan [checkpoint diaktifkan](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
+| `/memory show` | Tampilkan memori yang disimpan |
+| `/memory add "..."` | Tambahkan memori |
+| `/hooks panel` | Tampilkan status eksekusi hook |
+| `/skills list` | Tampilkan daftar skill yang tersedia |
+| `/extensions list` | Tampilkan daftar ekstensi yang diinstal |
+| `/commands` | Tampilkan daftar perintah kustom |
 
 ---
-## 헤드리스 모드
+## Mode Headless
 
 ```bash
 # Simple prompt
@@ -61,7 +61,7 @@ cat file.js | gemini -p "Review this code for bugs"
 ```
 
 ---
-## GEMINI.md 계층 구조
+## Hierarki GEMINI.md
 
 ```
 ~/.gemini/GEMINI.md          # Global preferences
@@ -70,16 +70,16 @@ cat file.js | gemini -p "Review this code for bugs"
 ./frontend/GEMINI.md         # Subdirectory rules
 ```
 
-### 가져오기 구문
+### Sintaks impor
 ```markdown
 @./docs/coding-standards.md
 @./docs/architecture.md
 ```
 
-> 전체 구문은 [GEMINI.md 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)를 확인하세요.
+> Lihat [referensi GEMINI.md](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md) untuk sintaks lengkap.
 
 ---
-## 서브에이전트
+## Sub-agen
 
 ```
 # Built-in
@@ -89,7 +89,7 @@ cat file.js | gemini -p "Review this code for bugs"
 @security-scanner Review auth middleware for vulnerabilities
 ```
 
-### 서브에이전트 정의 (`.gemini/agents/my-agent.md`)
+### Definisi sub-agen (`.gemini/agents/my-agent.md`)
 ```markdown
 ---
 model: gemini-3.1-flash-lite-preview
@@ -101,7 +101,7 @@ You are a specialist in...
 ```
 
 ---
-## Conductor 확장 프로그램
+## Ekstensi Conductor
 
 ```bash
 # Install
@@ -118,7 +118,7 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 ```
 
 ---
-## 정책 엔진 (TOML)
+## Mesin Kebijakan (TOML)
 
 ```toml
 # Deny reading secrets
@@ -143,12 +143,12 @@ decision = "ask_user"
 priority = 1
 ```
 
-> 전체 스키마는 [정책 엔진 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)를 확인하고, 실제 실습 가이드는 [정책 엔진으로 Gemini CLI 보호하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
+> Lihat [referensi Mesin Kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) untuk skema lengkapnya dan [Mengamankan Gemini CLI dengan Mesin Kebijakan](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) untuk panduan praktis.
 
 ---
-## 훅
+## Hooks
 
-### settings.json 훅 설정
+### Konfigurasi hook settings.json
 ```json
 {
   "hooks": {
@@ -165,7 +165,7 @@ priority = 1
 }
 ```
 
-### 훅 스크립트 템플릿
+### Templat skrip hook
 ```bash
 #!/usr/bin/env bash
 input=$(cat)
@@ -181,17 +181,17 @@ echo '{"decision":"deny","reason":"Blocked because..."}'
 echo '{"systemMessage":"Remember to..."}'
 ```
 
-### 훅 이벤트
+### Peristiwa hook
 ```
 SessionStart → BeforeAgent → BeforeModel → BeforeToolSelection →
 AfterModel → BeforeTool → AfterTool → AfterAgent → PreCompress →
 Notification → SessionEnd
 ```
 
-> 전체 이벤트 수명 주기는 [훅 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md)를 확인하세요.
+> Lihat [Referensi Hooks](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md) untuk siklus hidup peristiwa yang lengkap.
 
 ---
-## MCP 서버
+## Server MCP
 
 ```json
 {
@@ -217,7 +217,7 @@ Notification → SessionEnd
 ```
 
 ---
-## 인증 옵션
+## Opsi Autentikasi
 
 ```bash
 # Personal (free tier)
@@ -229,7 +229,7 @@ gcloud auth application-default login
 ```
 
 ---
-## 유용한 패턴
+## Pola yang Berguna
 
 ```bash
 # Smart commit
@@ -246,7 +246,7 @@ for f in src/*.js; do gemini -p "Add TypeScript types" < "$f"; done
 ```
 
 ---
-## 확장 프로그램
+## Ekstensi
 
 ```bash
 # Install from GitHub
@@ -272,7 +272,7 @@ gemini extensions link .
 gemini extensions disable my-extension --scope workspace
 ```
 
-### 주목할 만한 커뮤니티 확장 프로그램
+### Ekstensi Komunitas Terkemuka
 
 ```bash
 # Conductor (spec-driven development) — already in UC1
@@ -288,8 +288,8 @@ gemini extensions install https://github.com/Joonghyun-Lee-Frieren/oh-my-gemini-
 gemini extensions install https://github.com/googleworkspace/cli
 ```
 
-### 갤러리
+### Galeri
 
-커뮤니티 확장 프로그램 둘러보기: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
+Jelajahi ekstensi komunitas: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
 
-직접 게시하기: GitHub 저장소에 `gemini-cli-extension` 주제(topic)를 추가하고 릴리스를 태그하세요.
+Publikasikan milik Anda sendiri: Tambahkan topik `gemini-cli-extension` ke repo GitHub Anda + tag sebuah rilis.

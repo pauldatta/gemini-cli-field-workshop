@@ -1,0 +1,513 @@
+# 高级模式
+
+> **时长：** 约 45 分钟（自定进度）  
+> **目标：** 掌握提示词规范、验证循环、上下文工程和并行开发。这些技术适用于任何 Gemini CLI 工作流。  
+> **先决条件：** 至少完成 [使用场景 1：SDLC 生产力提升](sdlc-productivity.md) 或熟悉基础知识。
+>
+> *最后更新：2026-05-05 · [已对照 gemini-cli 仓库验证源码](https://github.com/google-gemini/gemini-cli)*
+
+---
+## 提示词技巧：目标 vs. 指令
+
+对 AI 输出质量能做出的最大改进就是改变**你的提问方式**。
+
+### 问题所在
+
+大多数开发者会给出分步指令：
+
+```
+Create a wishlist model with userId and productId fields.
+Then create a controller with addToWishlist and getWishlist functions.
+Then add routes at /api/wishlist.
+Then create a Redux slice.
+Then create the WishlistScreen component.
+```
+
+这会迫使代理走上一条特定的路径——即使存在更好的方法。代理无法提出反对意见、展现权衡或进行适应性调整。
+
+### 解决方案：带有成功标准的声明式目标
+
+```
+Add a product wishlist feature. When you're done:
+1. A logged-in user can add/remove products from their wishlist
+2. The wishlist persists across sessions (stored in MongoDB)
+3. There's a /wishlist page accessible from the navbar
+4. All existing tests still pass (npm test)
+5. The code follows the conventions in GEMINI.md
+
+Say "WISHLIST_COMPLETE" when all criteria are verified.
+```
+
+### 为什么这行得通
+
+| 命令式 (❌) | 声明式 (✅) |
+|---|---|
+| 规定实现细节 | 描述期望的结果 |
+| 代理无法提出反对意见或建议替代方案 | 代理为代码库选择最佳方法 |
+| 没有验证——你必须手动检查 | 通过成功标准内置验证循环 |
+| 僵化的单一路径 | 代理根据发现的情况进行适应性调整 |
+
+> **核心洞察：**“不要告诉它该怎么做——给它成功标准，然后看它发挥。”代理非常擅长循环执行，直到满足特定目标。薄弱的标准（“让它能运行”）需要不断的指导。强大的标准让它能够独立运行。
+
+### 练习
+
+在 ProShop 的同一个任务上尝试这两种方法。比较：
+1. 每种方法花费了多少轮对话？
+2. 声明式版本是否找到了更好的方法？
+3. 哪种方法生成的代码更整洁？
+
+---
+## 上下文纪律
+
+代理的上下文窗口中的每一个令牌都会使下一次响应的焦点稍微降低。上下文是一种预算——要像管理受限设备上的内存一样管理它。
+
+### 上下文过载的症状
+
+- 代理开始重复自己的话
+- 幻觉增加（引用不存在的文件）
+- 在 15-20 轮对话后，输出质量明显下降
+- 代理“忘记”了早期的指令
+
+### 工具包
+
+#### 1. 战略性重置
+
+当输出质量下降时：
+
+```
+/clear
+```
+
+这会重置对话上下文，同时保持 GEMINI.md、记忆和文件状态完好无损。代理会重新开始，但保留了你所有的项目知识。
+
+#### 2. 在清除前保存
+
+```
+/memory add "The ProShop codebase uses a repository pattern for 
+data access. All MongoDB queries go through model methods, never 
+directly in controllers. Express middleware chain: cors → 
+cookieParser → authMiddleware → routes."
+```
+
+记忆在会话和 `/clear` 重置之间持久存在。在清除之前保存重要的发现。
+
+#### 3. 上下文卸载
+
+将大型规范移出对话并放入文件中：
+
+```bash
+# Instead of pasting a long spec into chat:
+echo "Your detailed spec..." > feature-spec.md
+
+# Then reference it in your prompt with @:
+# "Read @./feature-spec.md and implement it"
+```
+
+或者将其作为导入添加到你的 GEMINI.md 中，以实现持久的上下文：
+
+```markdown
+# GEMINI.md
+@./feature-spec.md
+```
+
+> 有关导入语法，请参阅 [GEMINI.md 参考](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)。
+
+#### 4. 通过代理委派进行隔离
+
+每个自定义代理都有自己的上下文窗口。战略性地使用这一点：
+
+```
+# Bad: one agent doing everything (context bloat)
+"Research the auth system, then refactor it, then write tests, then review"
+
+# Good: isolated phases (each gets clean context)
+@codebase_investigator Map the auth system
+Now refactor based on the investigator's findings
+@pr-reviewer Review the refactored auth code
+```
+
+### 练习
+
+1. 启动一个会话并按顺序构建三个功能（故意积累上下文）
+2. 注意在 15-20 轮对话左右质量下降
+3. 运行 `/memory add` 以保存关键事实
+4. 运行 `/clear` ——观察质量的立即提升
+5. 要求代理从它中断的地方继续——它会通过记忆 + 文件状态恢复进度
+
+---
+## 验证循环
+
+从代理获取正确代码的最可靠方法是为其提供一个**反馈循环**——一种检查自身工作并自动修复错误的方法。
+
+### 模式
+
+```
+Add product ratings to ProShop. When you're done:
+1. Users can rate products 1-5 stars
+2. Average rating displays on the product page
+3. Only authenticated users can rate
+4. A user can only rate a product once
+5. All existing tests pass AND new tests cover the rating logic
+
+Run `npm test` after each change. Fix any failures before moving on.
+Say "RATINGS_COMPLETE" when all 5 criteria are verified.
+```
+
+### 为什么完成承诺有效
+
+“完成后说 X”这句话赋予了代理：
+
+1. **明确的停止点**——它知道何时停止工作
+2. **自我验证的动机**——它在宣布完成之前会检查自己的工作
+3. **迭代恢复**——如果测试失败，它会修复并重新运行，而不是询问你
+
+### 自动化循环
+
+对于大型任务，你可以使用钩子来自动化反馈循环。一个 `AfterAgent` 钩子会检查输出中是否出现了完成承诺。如果没有，它会重置对话（保留文件更改），并使用原始提示词 + 改进后的代码库重新运行：
+
+```json
+{
+  "hooks": {
+    "AfterAgent": [{
+      "type": "command",
+      "command": "python3 check_completion.py",
+      "description": "Checks for completion promise and resets if not met"
+    }]
+  }
+}
+```
+
+> **安全提示：** 在运行自主循环时，务必配置工具限制。在你的 `settings.json` 或 `policy.toml` 中阻止破坏性操作（如 `git push --force`、`rm -rf`）。
+
+### 练习
+
+给代理分配一个重构任务，并提供明确的成功标准和完成承诺。观察它在测试失败中不断迭代，直到测试通过（变绿）。
+
+---
+## 使用工作树进行并行开发
+
+在不同分支上同时运行多个 Gemini CLI 会话——每个会话都完全隔离。
+
+### 问题
+
+一次只能检出一个分支。如果你想使用不同的代理同时处理新功能、错误修复和重构，它们将会发生冲突。
+
+### 解决方案
+
+```bash
+# Terminal 1: Feature work
+gemini --worktree feature-wishlist
+
+# Terminal 2: Bug fix
+gemini --worktree fix-cart-rounding
+
+# Terminal 3: Documentation
+gemini --worktree update-api-docs
+```
+
+每个代理在自己的目录、自己的分支、自己的上下文中工作。互不冲突。
+
+### 工作流
+
+| 阶段 | 操作 |
+|---|---|
+| **隔离** | 为每个任务/代理创建一个工作树 |
+| **配置** | 每个工作树获得自己的开发服务器端口以避免冲突 |
+| **执行** | 启动独立的 Gemini CLI 会话——每个代理独立工作 |
+| **审查** | 每个代理在其工作树内的分支上进行提交 |
+| **集成** | 通过 PR 将分支合并回 `main` |
+| **清理** | `git worktree remove <path>` + `git worktree prune` |
+
+> **将工作树视为一次性用品。** 它们是为单个任务的持续时间而优化的。合并后将其删除。
+
+### 练习
+
+打开两个终端窗口。使用工作树来：
+1. 在其中一个中添加心愿单功能
+2. 在另一个中修复购物车总价计算问题
+
+两个代理同时工作。双方都看不到对方的更改。通过 PR 合并两者。
+
+---
+## 多代理编排
+
+对于跨项目管理数十个代理的团队，编排工具提供了企业级的隔离性、可观测性和扩展性。
+
+### Scion (Google Cloud Platform)
+
+**[Scion](https://github.com/GoogleCloudPlatform/scion)** 是一个实验性的多代理编排器，它将代理作为隔离的并发进程运行——每个代理都在自己的容器中。
+
+```bash
+# Install
+go install github.com/GoogleCloudPlatform/scion/cmd/scion@latest
+
+# Start parallel agents with specialized roles
+scion start reviewer "Review all open PRs for security issues" --attach
+scion start implementer "Implement the wishlist feature" --attach
+scion start tester "Write integration tests for the order API" --attach
+
+# Manage
+scion list                              # See all running agents
+scion message reviewer "Focus on auth"  # Send instructions
+scion attach implementer                # Watch an agent work
+```
+
+| 概念 | 描述 |
+|---|---|
+| **代理** | 运行 Gemini CLI 的容器化进程 |
+| **Grove** | 项目命名空间——通常与 git 仓库 1:1 对应 |
+| **模板** | 代理蓝图：系统提示词 + 技能 + 工具权限 |
+| **运行时** | Docker、Podman、Apple Container 或 Kubernetes |
+
+> **何时使用 Scion：** 拥有 5 个以上并发代理任务的团队、需要在代理之间进行严格隔离的项目，或者在多个代码仓库中扩展由 AI 管理的开发的组织。
+
+---
+## 工程章程模式
+
+如果你必须向代理重复同一件事两次，那么它就应该被写进文件中。
+
+### 章程中应包含什么内容
+
+一个精心编写的 `GEMINI.md` 能够将团队的工程标准编码其中，以便代理自动遵循：
+
+```markdown
+# GEMINI.md
+
+## Coding Standards
+- All MongoDB queries go through model methods — never directly in controllers
+- Use asyncHandler wrapper for all route handlers
+- Error responses use the errorMiddleware pattern
+- API responses are JSON with consistent field naming (camelCase)
+
+## Behavioral Rules
+- Surface assumptions before implementing — ask if multiple interpretations exist
+- Prefer minimal changes over broad refactors
+- Every changed line must trace to the original request
+- Run tests after every file modification
+- Never modify files outside the scope of the current task
+```
+
+### 练习
+
+1. 为 ProShop 编写一个包含 5 条规则的 GEMINI.md
+2. 在**没有**该文件的情况下，要求代理添加一个功能 —— 观察输出结果
+3. 在**有**该文件的情况下，提出相同的要求
+4. 比较：代理是否遵循了约定？它是否提出了之前跳过的澄清问题？
+
+---
+## 基于技能的开发
+
+技能是结构化的、可重用的指令文件（`SKILL.md`），它们将高级工程师的工作流直接编码到代理中。与原始提示词不同，每项技能都包含分步流程、反合理化表格（代理可能用来跳过步骤的常见借口，以及记录在案的反驳）、危险信号和验证关卡。
+
+### 为什么技能优于原始提示词
+
+| 原始提示词 | 结构化技能 |
+|---|---|
+| "为此编写测试" | 激活红-绿-重构（Red-Green-Refactor）工作流以及测试金字塔目标（80/15/5） |
+| "审查此代码" | 运行带有严重性标签（Nit/Optional/FYI）和变更大小规范的五轴审查 |
+| "确保其安全性" | 触发带有三层边界系统的 OWASP Top 10 检查清单 |
+| 没有停止标准 | 内置验证关卡 — 代理必须在继续之前提供证据 |
+
+### 安装社区技能
+
+[agent-skills](https://github.com/addyosmani/agent-skills) 包提供了 20 个涵盖完整 SDLC 的生产级技能。使用一条命令即可安装它们：
+
+```bash
+# Install from GitHub (auto-discovers all SKILL.md files)
+gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
+
+# Verify installation
+/skills list
+```
+
+安装后，当代理识别出匹配的任务时，技能会按需激活。正在构建 UI？`frontend-ui-engineering` 技能会自动激活。正在调试测试失败？`debugging-and-error-recovery` 就会介入。
+
+### SDLC 斜杠命令
+
+该技能包在 `.gemini/commands/` 下附带了 7 个映射到开发生命周期的斜杠命令：
+
+| 命令 | 阶段 | 作用 |
+|---|---|---|
+| `/spec` | 定义 | 在编写代码之前编写结构化的 PRD |
+| `/planning` | 计划 | 将工作分解为带有验收标准的小型、可验证的任务 |
+| `/build` | 构建 | 将下一个任务实现为薄垂直切片 |
+| `/test` | 验证 | 运行 TDD 工作流 — 红、绿、重构 |
+| `/review` | 审查 | 带有严重性标签的五轴代码审查 |
+| `/code-simplify` | 审查 | 在不改变行为的情况下降低复杂性（切斯特顿栅栏） |
+| `/ship` | 发布 | 通过并行角色扇出（parallel persona fan-out）执行发布前检查清单 |
+
+> **注意：** 请使用 `/planning` 而不是 `/plan` — `/plan` 会与 Gemini CLI 内置的计划模式命令冲突。
+
+### 技能 vs GEMINI.md
+
+两者都会影响代理行为，但服务于不同的目的：
+
+| | 技能 | GEMINI.md |
+|---|---|---|
+| **加载方式** | 按需加载，当任务匹配时 | 每次提示词，始终加载 |
+| **令牌成本** | 在激活前极低 | 恒定开销 |
+| **最适用于** | 特定阶段的工作流（TDD、安全审查、发布） | 始终开启的项目约定（技术栈、编码标准） |
+
+**经验法则：** 如果您希望它在*每个*提示词中都处于激活状态，请将其放入 GEMINI.md 中。如果它是特定于阶段的，请将其作为技能安装。
+
+### 练习
+
+1. 将 agent-skills 包安装到您的 ProShop 工作区中
+2. 运行 `/spec` — 为“产品比较”功能编写规范
+3. 运行 `/build` — 增量实现第一个切片
+4. 运行 `/test` — 观察 TDD 工作流强制执行红-绿-重构
+5. 比较：结构化工作流与原始的“添加比较功能”提示词有何不同？
+
+---
+## Google 托管 MCP 服务器
+
+Google 提供了 **50 多个托管 MCP 服务器**，让您的代理能够直接、受控地访问 Google Cloud 服务、Workspace 应用和开发者工具——无需在本地安装服务器。
+
+### 为什么选择托管 MCP？
+
+| 关注点 | 托管 MCP 如何解决 |
+|---|---|
+| **安全性** | 用于工具级别访问控制的 IAM Deny 策略；用于防御提示词注入的 Model Armor |
+| **发现** | Agent Registry — 用于查找和管理 MCP 服务器的统一目录 |
+| **可观测性** | OTel 追踪 + Cloud Audit Logs 用于完整的操作取证 |
+| **互操作性** | 与 Gemini CLI、Claude Code、Cursor、VS Code、LangChain、ADK、CrewAI 兼容 |
+
+### Developer Knowledge MCP
+
+[Developer Knowledge MCP 服务器](https://developers.google.com/knowledge/mcp)使您的代理基于官方 Google 文档（Firebase、Cloud、Android、Maps 等）进行信息溯源。代理不会产生 API 签名的幻觉，而是查询实时的文档语料库。
+
+**单行安装命令（API 密钥认证）：**
+
+```bash
+gemini mcp add -t http \
+  -H "X-Goog-Api-Key: YOUR_API_KEY" \
+  google-developer-knowledge \
+  https://developerknowledge.googleapis.com/mcp --scope user
+```
+
+**或通过 `settings.json`（面向企业的 ADC 认证）：**
+
+```json
+{
+  "mcpServers": {
+    "google-developer-knowledge": {
+      "httpUrl": "https://developerknowledge.googleapis.com/mcp",
+      "authProviderType": "google_credentials",
+      "oauth": {
+        "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
+      },
+      "timeout": 30000,
+      "headers": {
+        "X-goog-user-project": "YOUR_PROJECT_ID"
+      }
+    }
+  }
+}
+```
+
+**可用工具：**
+
+| 工具 | 目的 |
+|---|---|
+| `search_documents` | 查找与查询相关的文档块 |
+| `get_documents` | 检索特定文档的完整页面内容 |
+| `answer_query` | 从文档语料库中获取综合的、有根据的答案 |
+
+### 按类别划分的高价值 MCP 服务器
+
+| 类别 | 服务器 | 示例使用场景 |
+|---|---|---|
+| **开发者文档** | Developer Knowledge API | “如何配置 Cloud Run 自动扩缩容？” → 带有来源引用的答案 |
+| **数据与分析** | BigQuery、Spanner、Firestore、AlloyDB | 直接从代理上下文中查询生产数据 |
+| **基础设施** | Cloud Run、GKE、Compute Engine | 通过自然语言配置、扩展和管理基础设施 |
+| **生产力** | Gmail、Drive、Calendar、Chat | 总结对话、起草文档、管理邀请 |
+| **安全性** | Security Operations、Model Armor | 调查威胁，实时阻止提示词注入 |
+
+> **治理：** 使用 [IAM Deny 策略](https://docs.cloud.google.com/mcp/control-mcp-use-iam#deny-all-mcp-tool-use)来限制代理可以调用哪些 MCP 工具。结合 [Model Armor](https://docs.cloud.google.com/model-armor/model-armor-mcp-google-cloud-integration) 来防御间接提示词注入和数据泄露。
+
+### 练习
+
+1. 从您的 Google Cloud 项目中获取 Developer Knowledge API 密钥
+2. 使用上面的单行命令将 Developer Knowledge MCP 服务器添加到您的 Gemini CLI 配置中
+3. 询问代理：*“如何使用自定义域名部署 Cloud Run 服务？”*
+4. 验证：回复是否引用了官方文档？与未连接 MCP 服务器时的答案进行比较
+
+---
+## 使用 agents-cli 构建代理
+
+[`agents-cli`](https://github.com/google/agents-cli) 是一个 CLI 和技能包，用于教导您的编码代理如何在 Google 的 [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) 上构建、评估和部署代理。它不是 Gemini CLI 的替代品 —— 它是*为*编码代理提供的一个工具。
+
+### 快速环境设置
+
+```bash
+# Install CLI + skills into all detected coding agents
+uvx google-agents-cli setup
+
+# Or install just the skills (your coding agent handles the rest)
+npx skills add google/agents-cli
+```
+
+> **先决条件：** Python 3.11+、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 Node.js。有关环境说明，请参阅 `setup.sh`。
+
+### 核心工作流
+
+| 命令 | 功能说明 |
+|---|---|
+| `agents-cli scaffold <name>` | 创建一个具有最佳实践结构的全新 ADK 代理项目 |
+| `agents-cli scaffold enhance` | 向现有代理项目添加部署、CI/CD 或 RAG 功能 |
+| `agents-cli eval run` | 运行代理评估（LLM 作为裁判、轨迹评分） |
+| `agents-cli deploy` | 部署到 Google Cloud（Agent Runtime、Cloud Run 或 GKE） |
+| `agents-cli publish gemini-enterprise` | 在 Gemini Enterprise 中注册代理 |
+
+### 它安装的技能
+
+当您运行 `agents-cli setup` 时，它会将 7 项技能安装到您的编码代理中：
+
+| 技能 | 您的编码代理学到的内容 |
+|---|---|
+| `google-agents-cli-workflow` | 开发生命周期、代码保留规则、模型选择 |
+| `google-agents-cli-adk-code` | ADK Python API —— 代理、工具、编排、回调、状态 |
+| `google-agents-cli-scaffold` | 项目脚手架 —— `create`、`enhance`、`upgrade` |
+| `google-agents-cli-eval` | 评估方法 —— 指标、评估集、LLM 作为裁判 |
+| `google-agents-cli-deploy` | 部署 —— Agent Runtime、Cloud Run、GKE、CI/CD、机密信息 |
+| `google-agents-cli-publish` | Gemini Enterprise 注册 |
+| `google-agents-cli-observability` | Cloud Trace、日志记录、第三方集成 |
+
+### 何时使用 agents-cli 与原生 ADK
+
+| 场景 | 工具 |
+|---|---|
+| 使用最佳实践从头开始构建代理 | `agents-cli scaffold` |
+| 向现有代理添加 RAG 或部署功能 | `agents-cli scaffold enhance` |
+| 使用结构化指标评估代理质量 | `agents-cli eval run` |
+| 具有完全控制权的手动部署 | 直接使用 `adk deploy` |
+| 在没有脚手架的情况下编写 ADK 代码 | 原生 ADK + 您的编码代理 |
+
+### 练习
+
+1. 安装 agents-cli：`uvx google-agents-cli setup`
+2. 搭建新代理的脚手架：`agents-cli scaffold my-review-bot`
+3. 在 Gemini CLI 中打开搭建好脚手架的项目并提问：*“使用 Cloud Storage 为此代理增强 RAG 功能”*
+4. 运行评估：`agents-cli eval run`
+5. 观察安装的技能如何引导 Gemini CLI 掌握它原本不知道的特定于 ADK 的模式
+
+---
+## 延伸阅读
+
+| 资源 | 说明 |
+|---|---|
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 为编码代理提供的 20 个生产级工程技能 |
+| [google/agents-cli](https://github.com/google/agents-cli) | 用于在 Google Cloud 上构建 ADK 代理的 CLI + 技能 |
+| [Developer Knowledge MCP](https://developers.google.com/knowledge/mcp) | 将代理建立在官方 Google 开发者文档的基础上 |
+| [Google 托管的 MCP 服务器](https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone) | 50 多个企业级 MCP 服务器 (Cloud 博客) |
+| [支持的 MCP 产品](https://docs.cloud.google.com/mcp/supported-products) | Google 托管的 MCP 服务器的完整目录 |
+| [GoogleCloudPlatform/scion](https://github.com/GoogleCloudPlatform/scion) | 面向团队的多代理编排 |
+| [pauldatta/gemini-cli-field-workshop](https://github.com/pauldatta/gemini-cli-field-workshop) | 本研讨会的源代码仓库 |
+| [Gemini CLI 文档](https://geminicli.com) | 官方文档 |
+
+---
+## 下一步
+
+→ 返回 **[使用场景 1：SDLC 生产力提升](sdlc-productivity.md)** 了解核心功能
+
+→ 继续前往 **[使用场景 2：遗留代码现代化](legacy-modernization.md)** 了解棕地工作流

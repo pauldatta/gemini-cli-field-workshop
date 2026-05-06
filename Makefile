@@ -175,11 +175,15 @@ test-ci:  ## Check GitHub Actions workflow status (needs gh CLI)
 # Translation Pipeline — multi-language support
 # ───────────────────────────────────────────────────────────
 # Usage: make translate L=ko
+#        make translate L=ko P=8          (8 parallel workers)
 #        make translate-file FILE=docs/setup.md L=ko
 #        make translate-validate L=ko
 #        make translate-drift L=ko
 #        make translate-list
 # See: tools/i18n/TRANSLATE.md for the full guide.
+
+# Parallel workers (default: 4)
+P ?= 4
 
 # Auto-discover available languages from glossary files
 AVAILABLE_LANGS := $(sort $(patsubst tools/i18n/glossary-%.md,%,$(wildcard tools/i18n/glossary-*.md)))
@@ -221,9 +225,9 @@ translate-list:  ## Show available languages and translation status
 	@echo "  Validate:  make translate-validate L=xx"
 	@echo "  Drift:     make translate-drift L=xx"
 
-translate:  ## Translate all workshop docs (requires L=xx)
+translate:  ## Translate all workshop docs (requires L=xx, optional P=N)
 	$(check_lang)
-	@python3 tools/i18n/translate.py --all --lang $(L)
+	@python3 tools/i18n/translate.py --all --lang $(L) --parallel $(P)
 
 translate-file:  ## Translate one file (requires L=xx FILE=path)
 	$(check_lang)

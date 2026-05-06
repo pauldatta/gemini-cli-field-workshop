@@ -1,17 +1,17 @@
 # 사용 사례 3: 에이전트 기반 DevOps 오케스트레이션
 
 > **소요 시간:** 약 45분  
-> **목표:** 파이프라인 실패를 진단하고, 수정 사항을 생성하며, PR을 제출하고, 팀에 알림을 보내는 CI/CD 자동화를 구축합니다. — 이 모든 것을 헤드리스 모드, 훅, 그리고 GitHub Actions를 통해 수행합니다.  
+> **목표:** 파이프라인 실패를 진단하고, 수정 사항을 생성하며, PR을 제출하고, 팀에 알림을 보내는 CI/CD 자동화를 구축합니다. 이 모든 작업은 헤드리스 모드, 훅 및 GitHub Actions를 통해 수행됩니다.  
 > **실습 PRD:** [CI/CD 파이프라인 상태 모니터](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
 >
-> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소 기준 검증됨](https://github.com/google-gemini/gemini-cli)*
+> *최종 업데이트: 2026-05-05 · [gemini-cli 저장소를 기준으로 소스 확인됨](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 3.1 — 헤드리스 모드: CLI 없는 CLI (15분)
 
 ### 헤드리스 모드란 무엇인가요?
 
-헤드리스 모드는 Gemini CLI를 비대화형으로 실행하므로 스크립트, CI/CD 파이프라인 및 자동화에 적합합니다. 사람의 개입이 필요하지 않습니다.
+헤드리스 모드는 Gemini CLI를 비대화형으로 실행하며, 스크립트, CI/CD 파이프라인 및 자동화에 완벽하게 적합합니다. 사람의 개입이 필요하지 않습니다.
 
 ### 기본 헤드리스 사용법
 
@@ -28,9 +28,9 @@ echo "Exit code: $?"
 # 0 = success, 1 = error, 2 = safety block
 ```
 
-### Gemini를 통해 빌드 로그 전달하기
+### Gemini를 통해 빌드 로그 파이핑하기
 
-이것은 핵심 DevOps 패턴입니다. 빌드가 실패하면 진단을 위해 로그를 Gemini로 전달합니다:
+이것은 핵심 DevOps 패턴입니다. 빌드가 실패하면 진단을 위해 로그를 Gemini로 파이핑합니다:
 
 ```bash
 # Simulate a build failure
@@ -102,20 +102,20 @@ done
 
 ![훅 아키텍처](../assets/hooks-architecture.png)
 
-### 워크샵 훅
+### 워크숍 훅
 
-이 워크샵에 설정된 4개의 훅을 검토합니다:
+이 워크숍에 구성된 4개의 훅을 검토해 보세요:
 
 | 훅 | 이벤트 | 목적 | 지연 시간 |
 |---|---|---|---|
-| `session-context.sh` | SessionStart | 브랜치 이름, 변경된 파일 수를 세션에 주입합니다. | <200ms |
-| `secret-scanner.sh` | BeforeTool | 하드코딩된 자격 증명을 차단하고 환경 변수를 사용하도록 모델 스티어링을 수행합니다. | <50ms |
-| `git-context-injector.sh` | BeforeTool | 대상 파일의 최근 git 기록을 주입합니다. | <100ms |
-| `test-nudge.sh` | AfterTool | 소스 변경 후 에이전트가 테스트 실행을 고려하도록 상기시킵니다. | <10ms |
+| `session-context.sh` | SessionStart | 브랜치 이름, 변경된(dirty) 파일 수를 세션에 주입합니다 | <200ms |
+| `secret-scanner.sh` | BeforeTool | 하드코딩된 자격 증명을 차단하고 환경 변수를 사용하도록 유도합니다 | <50ms |
+| `git-context-injector.sh` | BeforeTool | 대상 파일에 대한 최근 git 기록을 주입합니다 | <100ms |
+| `test-nudge.sh` | AfterTool | 소스 변경 후 에이전트에게 테스트 실행을 고려하도록 상기시킵니다 | <10ms |
 
-> **설계 원칙:** 훅은 무거운 연산이 아니라 **컨텍스트 주입기 및 모델 스티어링 도구**여야 합니다. 200ms 미만으로 유지하세요. 인지할 수 있는 지연 시간을 추가하지 않으면서 에이전트의 결정을 개선합니다.
+> **설계 원칙:** 훅은 무거운 연산이 아닌 **컨텍스트 주입기 및 모델 스티어링 역할**을 해야 합니다. 200ms 미만으로 유지하세요. 인지할 수 있는 지연 시간을 추가하지 않으면서 에이전트의 결정을 개선합니다.
 
-### 나만의 훅 작성하기
+### 사용자 정의 훅 작성하기
 
 JSON-over-stdin/stdout 계약:
 
@@ -140,11 +140,11 @@ echo '{"systemMessage":"Additional context for the agent..."}'
 ```
 
 **중요 규칙:**
-- `stdout`은 **JSON 전용**입니다. 절대 디버그 텍스트를 `stdout`으로 출력하지 마세요.
+- `stdout`은 **JSON 전용**입니다. 디버그 텍스트를 stdout으로 출력하지 마세요.
 - 로깅에는 `stderr`를 사용하세요: `echo "debug info" >&2`
 - 단지 `{}`일지라도 항상 유효한 JSON을 반환하세요.
-- 엄격한 시간 제한을 사용하세요 (최대 2~5초).
-- 매처(matcher)를 사용하여 모든 도구 호출에서 실행되지 않도록 하세요.
+- 짧은 시간 제한을 사용하세요(최대 2~5초).
+- 모든 도구 호출에서 실행되지 않도록 매처(matcher)를 사용하세요.
 
 ### 알림 훅
 
@@ -155,15 +155,17 @@ echo '{"systemMessage":"Additional context for the agent..."}'
 # Notification hook — forward to Slack
 input=$(cat)
 message=$(echo "$input" | jq -r '.message // ""')
-title=$(echo "$input" | jq -r '.title // "Gemini CLI"')
+notification_type=$(echo "$input" | jq -r '.notification_type // "unknown"')
 
 if [ -n "$SLACK_WEBHOOK_URL" ]; then
   curl -s -X POST "$SLACK_WEBHOOK_URL" \
     -H 'Content-Type: application/json' \
-    -d "{\"text\":\"*${title}*\n${message}\"}" >&2
+    -d "{\"text\":\"*${notification_type}*\n${message}\"}" >&2
 fi
 echo '{}'
 ```
+
+> 각 훅 이벤트에 대한 전체 입력/출력 스키마는 [훅 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/reference.md)를 확인하세요.
 
 ---
 ## 3.3 — GitHub Actions 통합 (10분)
@@ -211,7 +213,7 @@ jobs:
             line references and actionable suggestions.
 ```
 
-### 워크로드 아이덴티티 페더레이션 (WIF)
+### 워크로드 아이덴티티 페더레이션(WIF)
 
 엔터프라이즈 배포의 경우 API 키 대신 WIF를 사용하세요:
 
@@ -223,7 +225,7 @@ gcloud iam workload-identity-pools create gemini-cli-pool \
   --display-name="Gemini CLI CI/CD"
 ```
 
-> **엔터프라이즈 가치:** WIF는 저장된 자격 증명이 없음을 의미합니다. GitHub는 OIDC 토큰을 통해 GCP에 자신의 ID를 증명합니다. 교체할 API 키가 없으며, 유출될 비밀 정보도 없습니다.
+> **엔터프라이즈 가치:** WIF는 저장된 자격 증명이 없음을 의미합니다. GitHub는 OIDC 토큰을 통해 GCP에 자신의 신원을 증명합니다. 교체할 API 키가 없으며, 유출될 비밀 정보도 없습니다.
 
 ### 빌드 실패 진단 파이프라인
 
@@ -274,13 +276,13 @@ jobs:
 
 ### 자동 메모리 🔬
 
-> **실험적 기능:** 자동 메모리는 현재 실험적이며, `settings.json`에서 `autoMemory: true`로 활성화해야 합니다.
-
-여러 세션에 걸쳐 에이전트와 작업한 후, 자동 메모리는 패턴을 추출하여 스킬로 저장합니다:
+여러 세션에 걸쳐 에이전트와 작업한 후, 자동 메모리는 패턴을 추출하여 메모리로 저장합니다:
 
 ```
 /memory show
 ```
+
+> **실험적 기능:** 자동 메모리를 사용하려면 [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md)에서 `experimental.autoMemory`를 활성화해야 합니다.
 
 자동 학습된 메모리 예시:
 - "ProShop은 모든 비동기 라우트 핸들러에 asyncHandler를 사용합니다"
@@ -291,7 +293,7 @@ jobs:
 
 ### 일괄 작업
 
-강력한 일괄 작업을 위해 헤드리스 모드와 셸 스크립팅을 결합하세요:
+헤드리스 모드와 셸 스크립팅을 결합하여 강력한 일괄 작업을 수행할 수 있습니다:
 
 ```bash
 # Generate API documentation for every route file
@@ -317,45 +319,44 @@ gemini --list-sessions
 # Resume a specific session by ID
 gemini --resume SESSION_ID
 
-# Continue where you left off
+# Or use /resume interactively to browse sessions
 ```
 
 ---
 ## 실습
 
-**CI/CD 파이프라인 상태 모니터 PRD**를 열고 다음을 빌드하세요:
+**CI/CD Pipeline Health Monitor PRD**를 열고 다음을 빌드하세요:
 
 1. 진단을 위해 빌드 로그를 Gemini로 파이프하는 **헤드리스 모드** 스크립트
 2. 실패 알림을 웹훅으로 전달하는 **훅**
 3. PR 이벤트에서 실행되는 **GitHub Actions 워크플로우**
 4. 전체 API에 대한 문서를 생성하는 **배치 스크립트**
-5. 실습 중 **Auto Memory**가 캡처한 내용 검토
+5. 실습 중에 **Auto Memory**가 캡처한 내용 검토
 
 ---
 
-> **CI 파이프라인에 보안 분석 추가:** 공식 [Security Extension](https://github.com/gemini-cli-extensions/security)에는 자동화된 PR 보안 리뷰를 위한 즉시 사용 가능한 GitHub Actions 워크플로가 포함되어 있습니다. 모든 풀 리퀘스트에서 `/security:analyze`(SAST) 및 `/security:scan-deps`(종속성 CVE 스캔)를 실행합니다. `gemini extensions install https://github.com/gemini-cli-extensions/security`로 로컬 설치한 후 CI 워크플로를 저장소에 복사하세요. 전체 설정 방법은 [SDLC 생산성 향상 §2.3](sdlc-productivity.md) 및 [확장 프로그램 생태계 — 실습 4](extensions-ecosystem.md)를 참조하세요.
+> **CI 파이프라인에 보안 분석 추가:** 공식 [Security Extension](https://github.com/gemini-cli-extensions/security)은 자동화된 PR 보안 리뷰를 위해 즉시 사용 가능한 GitHub Actions 워크플로우를 제공합니다. 이 워크플로우는 모든 PR에 대해 `/security:analyze`(SAST) 및 `/security:scan-deps`(종속성 CVE 스캔)를 실행합니다. `gemini extensions install https://github.com/gemini-cli-extensions/security`를 사용하여 로컬에 설치한 다음, 해당 CI 워크플로우를 리포지토리에 복사하세요. 전체 설정 세부 정보는 [SDLC 생산성 향상 §2.3](sdlc-productivity.md) 및 [확장 프로그램 생태계 — 연습 4](extensions-ecosystem.md)를 참조하세요.
 
 ---
-
-## 요약: 배운 내용
+## 요약: 학습한 내용
 
 | 기능 | 설명 |
 |---|---|
 | **헤드리스 모드** | 스크립트 및 CI/CD에서 비대화형으로 Gemini CLI 실행 |
 | **구조화된 출력** | 기계가 읽을 수 있는 응답을 위한 `--output-format json` |
-| **스마트 커밋** | diff에서 conventional 커밋 메시지 생성 |
-| **훅** | 수명 주기 이벤트에서의 경량 컨텍스트 주입 및 모델 스티어링 |
+| **스마트 커밋** | diff에서 관례적인(conventional) 커밋 메시지 생성 |
+| **훅** | 수명 주기 이벤트에서 가벼운 컨텍스트 주입 및 모델 스티어링 |
 | **GitHub Actions** | CI/CD를 위한 퍼스트 파티 `run-gemini-cli@v1` 액션 |
 | **WIF 인증** | Workload Identity Federation을 통한 무비밀(Zero-secret) 인증 |
 | **자동 메모리** | 에이전트가 세션 전반에 걸쳐 패턴을 학습 |
-| **일괄 처리** | 헤드리스 모드에서 파일/작업 반복 처리 |
-| **CI 보안** | 자동화된 PR 취약점 분석을 위한 공식 Security Extension |
+| **일괄 처리** | 헤드리스 모드에서 파일/작업을 반복 처리 |
+| **CI 보안** | 자동화된 PR 취약점 분석을 위한 공식 보안 확장 프로그램 |
 
 ---
 ## 워크숍 완료! 🎉
 
-3가지 사용 사례를 모두 완료했습니다. 다룬 모든 내용을 빠르게 참조하려면 **[치트시트](cheatsheet.md)**를 확인하세요.
+3가지 사용 사례를 모두 완료했습니다. 지금까지 다룬 모든 내용을 빠르게 참고하려면 **[치트시트](cheatsheet.md)**를 확인하세요.
 
-→ 더 많은 것을 원하시나요? **[고급 패턴](advanced-patterns.md)**에서는 프롬프트 작성 기술, 검증 루프, 컨텍스트 엔지니어링 및 병렬 개발을 다룹니다.
+→ 더 많은 것을 배울 준비가 되셨나요? **[고급 패턴](advanced-patterns.md)**에서는 프롬프트 작성 기술, 검증 루프, 컨텍스트 엔지니어링 및 병렬 개발을 다룹니다.
 
-강사용: 진행 팁과 맞춤설정 옵션은 **[진행자 가이드](../facilitator-guide.md)**를 참조하세요.
+강사용: 진행 팁과 맞춤 설정 옵션은 **[진행자 가이드](/facilitator-guide.md)**를 참조하세요.

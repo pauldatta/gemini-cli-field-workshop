@@ -199,10 +199,17 @@ def check_glossary(translated: str, glossary: dict) -> list[str]:
 
 
 def check_link_integrity(translated: str, translated_path: Path) -> list[str]:
-    """Verify link targets resolve from the translated file's location."""
+    """Verify link targets resolve from the translated file's location.
+
+    Handles three cases:
+    - Relative paths: resolved from the translated file's directory
+    - Absolute Docsify routes (/file.md): resolved from docs/ root
+    - Asset paths: resolved from the translated file's directory
+    """
     errors = []
     links = extract_links(translated)
     parent = translated_path.parent
+    docs_root = REPO_ROOT / "docs"
 
     for link in links:
         # Strip anchors
@@ -210,7 +217,12 @@ def check_link_integrity(translated: str, translated_path: Path) -> list[str]:
         if not path:
             continue
 
-        target = (parent / path).resolve()
+        # Absolute Docsify route — resolve from docs/ root
+        if path.startswith("/"):
+            target = (docs_root / path.lstrip("/")).resolve()
+        else:
+            target = (parent / path).resolve()
+
         if not target.exists():
             errors.append(f"Broken link: {link} (resolves to {target})")
 
