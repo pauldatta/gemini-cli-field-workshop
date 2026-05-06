@@ -302,6 +302,99 @@ A well-crafted `GEMINI.md` encodes your team's engineering standards so the agen
 
 ---
 
+## Deterministic Enforcement
+
+While an Engineering Constitution (`GEMINI.md`) is excellent for *guiding* an agent (Prompt Engineering), it cannot guarantee 100% compliance. Agents, like humans, can make mistakes or hallucinate incorrect patterns during a complex refactor (a phenomenon known as *Prompt Drift*).
+
+To build a robust SDLC, you must pair AI generation with **Guardrails**—deterministic boundaries that restrict what an AI can see, do, and generate.
+
+### Input vs. Output Guardrails
+
+In an enterprise SDLC, guardrails fall into two categories:
+
+1. **Input Guardrails (Pre-generation):** Protecting the agent from malicious inputs or restricting its context.
+   - *Example:* The `.geminiignore` file prevents the agent from reading unnecessary files.
+   - *Example:* `GEMINI.md` sets the architectural expectations upfront.
+2. **Output Guardrails (Post-generation):** Verifying the agent's output *after* generation but *before* it is merged or deployed.
+   - *Example:* Enforcing architectural boundaries using deterministic linters.
+   - *Example:* Running a test suite or a scanner to detect leaked secrets.
+
+### The Synergy: "AI Proposes, CI Disposes"
+
+Instead of relying solely on the LLM to self-police its architecture, rely on traditional software engineering tools (Output Guardrails) to enforce the rules:
+
+1. **The Guide (`GEMINI.md`):** Tells the agent *how* to write the code correctly the first time (Input).
+2. **The Guard (Linters/Static Analysis):** Catches the agent deterministically if it makes a mistake (Output).
+3. **The Loop:** If a guard tool fails, the error output is fed back to the agent (via a continuous verification loop using [Gemini CLI Hooks](https://geminicli.com/docs/hooks/)), and the agent automatically fixes its own mistake based on the hard feedback.
+
+### Enforcement in Practice
+
+Any deterministic tool that can exit with a non-zero code can serve as an enforcer. You can configure these tools to run in your CI/CD pipeline, as a Git `pre-commit` hook, or directly via Gemini CLI's `AfterAgent` hook.
+
+**Examples of Deterministic Enforcers:**
+- **Standard Linters:** ESLint or Ruff to enforce code complexity limits (e.g., `max-lines-per-function` in route files).
+- **Security Scanners:** Tools like `gitleaks` to ensure the agent didn't accidentally hardcode an API key.
+- **Architecture Linters:** Tools that parse the dependency graph to enforce layer boundaries.
+
+#### Example: Enforcing Boundaries with `dependency-cruiser`
+
+If your `GEMINI.md` rule states "No business logic in route files", you can enforce this in a JavaScript project using [dependency-cruiser](https://github.com/sverweij/dependency-cruiser). 
+
+```javascript
+// .dependency-cruiser.js
+module.exports = {
+  forbidden: [
+    {
+      name: 'no-business-logic-in-routes',
+      comment: 'Routes should only delegate to controllers. Never import models directly.',
+      severity: 'error',
+      from: { path: '^src/routes/' },
+      to: { path: '^src/models/' }
+    }
+  ]
+};
+```
+
+To automate this within the agent's workflow, you must format the linter's output as JSON so the Gemini CLI can understand it. First, create a hook script that runs the linter and captures errors:
+
+```bash
+#!/bin/bash
+# .gemini/hooks/check-architecture.sh
+output=$(npx depcruise src --config .dependency-cruiser.js 2>&1)
+if [ $? -ne 0 ]; then
+  # Inject the linter error directly into the agent's context
+  jq -n --arg msg "$output" '{systemMessage: ("Architecture Violation Detected:\n" + $msg)}'
+else
+  echo '{}'
+fi
+```
+
+Then, register this script as an `AfterAgent` hook in your settings:
+
+```json
+// .gemini/settings.json
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "name": "architecture-guard",
+        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/check-architecture.sh"
+      }
+    ]
+  }
+}
+```
+
+Now, if the agent creates an illegal import, the hook immediately feeds the linter error back into the conversation, forcing the agent to resolve the violation.
+
+### Exercise
+1. In a project, create a route file that imports a database model directly.
+2. Configure a deterministic enforcer (like `dependency-cruiser` or a custom ESLint rule) to block this pattern.
+3. Ask the agent to "Add a new endpoint to the route" and observe if it copies the bad pattern or fixes it.
+4. Run the enforcer, feed the error back to the agent, and ask it to resolve the violation.
+
+---
+
 ## Skills-Based Development
 
 Skills are structured, reusable instruction files (`SKILL.md`) that encode senior-engineer workflows directly into the agent. Unlike raw prompts, each skill includes a step-by-step process, anti-rationalization tables (common excuses the agent might use to skip steps, with documented rebuttals), red flags, and verification gates.
