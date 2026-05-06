@@ -19,8 +19,10 @@ Hands-on enablement for enterprise developers — master agentic coding, legacy 
 
 ## Quick Start
 
+📖 **Workshop Site:** [pauldatta.github.io/gemini-cli-field-workshop](https://pauldatta.github.io/gemini-cli-field-workshop/)
+
 ```bash
-git clone https://github.com/pauldatta/gemini-cli-field-workshop.git
+git clone --recurse-submodules https://github.com/pauldatta/gemini-cli-field-workshop.git
 cd gemini-cli-field-workshop
 ./setup.sh
 cd demo-app && gemini

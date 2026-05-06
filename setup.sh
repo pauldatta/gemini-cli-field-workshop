@@ -25,12 +25,9 @@ echo "📂 Setting up demo app (proshop-v2)..."
 git submodule update --init --recursive
 if [ -d "demo-app" ]; then
   cd demo-app && npm install && cd ..
-elif [ -d "submodules/proshop-v2" ]; then
-  # Fallback if submodule is at a different path
-  ln -sf submodules/proshop-v2 demo-app
-  cd demo-app && npm install && cd ..
 else
-  echo "⚠️  Demo app submodule not found. Run: git submodule add https://github.com/bradtraversy/proshop-v2.git demo-app"
+  echo "❌ Demo app submodule not found. Please re-clone with: git clone --recurse-submodules"
+  exit 1
 fi
 echo ""
 
