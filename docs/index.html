@@ -269,15 +269,102 @@
       color: var(--text-color) !important;
       border-color: var(--code-border) !important;
     }
+    .search input::placeholder {
+      color: var(--blockquote-text) !important;
+    }
     .search .matching-post {
       border-bottom-color: var(--sidebar-border) !important;
+    }
+    /* Search result titles */
+    .search .matching-post h2 {
+      color: var(--heading-color) !important;
+    }
+    .search .matching-post h2 a {
+      color: var(--link-color) !important;
+    }
+    /* Search result body text */
+    .search .matching-post p {
+      color: var(--text-color) !important;
+    }
+    /* Keyword highlights in search results */
+    .search .matching-post p em,
+    .sidebar .search .matching-post em {
+      color: #ffffff !important;
+      background: var(--theme-color) !important;
+      font-style: normal !important;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    /* Search clear button */
+    .search .clear-button {
+      color: var(--text-color) !important;
+    }
+    /* Search panel background */
+    .search {
+      background: var(--sidebar-bg) !important;
+      border-bottom: 1px solid var(--sidebar-border) !important;
+    }
+
+    /* ── Sidebar overrides ──────────────────────────────── */
+    .sidebar-nav {
+      background: var(--sidebar-bg) !important;
+    }
+    .sidebar-nav li {
+      color: var(--text-color) !important;
+    }
+    .sidebar-nav > ul > li > p {
+      color: var(--heading-color) !important;
+      font-weight: 600;
+    }
+    /* Active sidebar item */
+    .sidebar-nav li.active > a {
+      color: var(--theme-color) !important;
+      font-weight: 600;
+      border-right: 3px solid var(--theme-color);
+    }
+
+    /* ── Horizontal rules ───────────────────────────────── */
+    .markdown-section hr {
+      border-color: var(--sidebar-border) !important;
+    }
+
+    /* ── GitHub corner (top-right) ──────────────────────── */
+    [data-theme="dark"] .github-corner svg {
+      fill: var(--sidebar-bg) !important;
+      color: var(--bg-color) !important;
+    }
+    [data-theme="dark"] .github-corner .octo-body,
+    [data-theme="dark"] .github-corner .octo-arm {
+      fill: var(--text-color) !important;
+    }
+
+    /* ── Inline mark/highlight ──────────────────────────── */
+    [data-theme="dark"] mark,
+    [data-theme="dark"] .markdown-section mark {
+      background: #3b2e00 !important;
+      color: #ffd866 !important;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* ── List markers ───────────────────────────────────── */
+    .markdown-section ul li,
+    .markdown-section ol li {
+      color: var(--text-color) !important;
+    }
+
+    /* ── Paragraph text (ensure no dark-on-dark) ────────── */
+    .markdown-section p {
+      color: var(--text-color) !important;
     }
 
     /* ── Transition smoothing ────────────────────────────── */
     body, .sidebar, .markdown-section, .app-nav,
     .markdown-section pre, .markdown-section code,
     .markdown-section blockquote, .markdown-section table,
-    .markdown-section th, .markdown-section td {
+    .markdown-section th, .markdown-section td,
+    .search, .search input {
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
   </style>
