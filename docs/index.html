@@ -110,17 +110,23 @@
       border-bottom: 1px solid var(--sidebar-border);
       padding-bottom: 0.25em;
     }
-    /* Dark mode headings — extra bright for contrast */
-    [data-theme="dark"] .markdown-section h1,
-    [data-theme="dark"] .markdown-section h2,
-    [data-theme="dark"] .markdown-section h3,
-    [data-theme="dark"] .markdown-section h4,
-    [data-theme="dark"] .markdown-section h5,
-    [data-theme="dark"] .markdown-section h6 {
+    /* Dark mode headings — maximum specificity override */
+    html[data-theme="dark"] .markdown-section h1,
+    html[data-theme="dark"] .markdown-section h2 {
       color: #f0f6fc !important;
     }
-    [data-theme="dark"] .markdown-section h3 {
+    html[data-theme="dark"] .markdown-section h3 {
       color: #d2a8ff !important;
+    }
+    html[data-theme="dark"] .markdown-section h4,
+    html[data-theme="dark"] .markdown-section h5,
+    html[data-theme="dark"] .markdown-section h6 {
+      color: #f0f6fc !important;
+    }
+    /* Force content area background in dark mode */
+    html[data-theme="dark"] section.content,
+    html[data-theme="dark"] .content {
+      background: #0d1117 !important;
     }
 
     /* Links */
@@ -262,27 +268,33 @@
       background: var(--blockquote-bg);
     }
 
-    /* ── Copy button — kill slide animation, swap in place ── */
-    .docsify-copy-code-button {
-      font-size: 12px !important;
-      border-radius: 4px !important;
-      transition: background 0.2s, color 0.2s !important;
-      transform: none !important;
+    /* ── Custom copy button ───────────────────────────────── */
+    .copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--code-bg);
+      color: var(--blockquote-text);
+      border: 1px solid var(--code-border);
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 1;
+      font-family: inherit;
     }
-    .docsify-copy-code-button,
-    .docsify-copy-code-button span {
-      transition: none !important;
-      transform: none !important;
+    .copy-btn:hover {
+      color: var(--theme-color);
+      border-color: var(--theme-color);
     }
-    .docsify-copy-code-button .label,
-    .docsify-copy-code-button .error {
-      transition: none !important;
-      transform: none !important;
-      position: static !important;
+    .copy-btn.copied {
+      color: #34a853;
+      border-color: #34a853;
     }
-    .docsify-copy-code-button::after {
-      transition: none !important;
-      transform: none !important;
+    pre:hover .copy-btn {
+      opacity: 1;
     }
 
     /* ── Scrollbar (dark mode) ──────────────────────────── */
@@ -423,10 +435,6 @@
       auto2top: true,
       coverpage: false,
       notFoundPage: true,
-      copyCode: {
-        buttonText: 'Copy',
-        successText: 'Copied!'
-      },
       plugins: [
         // i18n link rewriter
         function(hook, vm) {
@@ -462,6 +470,31 @@
             });
             nav.appendChild(btn);
           });
+        },
+        // Copy button — custom, no animation
+        function(hook) {
+          hook.doneEach(function() {
+            document.querySelectorAll('pre:not(.copy-ready)').forEach(function(pre) {
+              pre.classList.add('copy-ready');
+              pre.style.position = 'relative';
+              var btn = document.createElement('button');
+              btn.className = 'copy-btn';
+              btn.textContent = 'Copy';
+              btn.addEventListener('click', function() {
+                var code = pre.querySelector('code');
+                if (!code) return;
+                navigator.clipboard.writeText(code.textContent).then(function() {
+                  btn.textContent = 'Copied!';
+                  btn.classList.add('copied');
+                  setTimeout(function() {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                  }, 2000);
+                });
+              });
+              pre.appendChild(btn);
+            });
+          });
         }
       ]
     };
@@ -483,7 +516,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-toml.min.js"></script>
