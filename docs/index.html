@@ -97,7 +97,9 @@
     .markdown-section h1,
     .markdown-section h2,
     .markdown-section h3,
-    .markdown-section h4 {
+    .markdown-section h4,
+    .markdown-section h5,
+    .markdown-section h6 {
       color: var(--heading-color) !important;
     }
     .markdown-section h1 {
@@ -107,6 +109,18 @@
     .markdown-section h2 {
       border-bottom: 1px solid var(--sidebar-border);
       padding-bottom: 0.25em;
+    }
+    /* Dark mode headings — extra bright for contrast */
+    [data-theme="dark"] .markdown-section h1,
+    [data-theme="dark"] .markdown-section h2,
+    [data-theme="dark"] .markdown-section h3,
+    [data-theme="dark"] .markdown-section h4,
+    [data-theme="dark"] .markdown-section h5,
+    [data-theme="dark"] .markdown-section h6 {
+      color: #f0f6fc !important;
+    }
+    [data-theme="dark"] .markdown-section h3 {
+      color: #d2a8ff !important;
     }
 
     /* Links */
