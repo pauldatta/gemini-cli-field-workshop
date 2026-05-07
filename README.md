@@ -6,7 +6,7 @@
 
 Hands-on enablement for enterprise developers — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI.
 
-**🌐 Language:** English · [한국어 (Korean)](docs/ko/) · [Bahasa Indonesia](docs/id/) · [简体中文 (Chinese)](docs/zh/)
+**🌐 Language:** English · [한국어 (Korean)](https://pauldatta.github.io/gemini-cli-field-workshop/#/ko/) · [Bahasa Indonesia](https://pauldatta.github.io/gemini-cli-field-workshop/#/id/) · [简体中文 (Chinese)](https://pauldatta.github.io/gemini-cli-field-workshop/#/zh/)
 
 ## Workshop Delivery Order
 
