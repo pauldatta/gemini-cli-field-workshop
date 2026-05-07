@@ -262,10 +262,27 @@
       background: var(--blockquote-bg);
     }
 
-    /* ── Copy button polish ─────────────────────────────── */
+    /* ── Copy button — kill slide animation, swap in place ── */
     .docsify-copy-code-button {
       font-size: 12px !important;
       border-radius: 4px !important;
+      transition: background 0.2s, color 0.2s !important;
+      transform: none !important;
+    }
+    .docsify-copy-code-button,
+    .docsify-copy-code-button span {
+      transition: none !important;
+      transform: none !important;
+    }
+    .docsify-copy-code-button .label,
+    .docsify-copy-code-button .error {
+      transition: none !important;
+      transform: none !important;
+      position: static !important;
+    }
+    .docsify-copy-code-button::after {
+      transition: none !important;
+      transform: none !important;
     }
 
     /* ── Scrollbar (dark mode) ──────────────────────────── */
