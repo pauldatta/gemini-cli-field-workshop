@@ -4,6 +4,8 @@
 >
 > *최종 업데이트: 2026-05-05 · [gemini-cli 저장소를 통해 소스 검증됨](https://github.com/google-gemini/gemini-cli)*
 
+**🌐 언어:** [English](../) · 한국어 · [Bahasa Indonesia](../id/) · [简体中文](../zh/)
+
 ---
 ## 워크숍 흐름
 

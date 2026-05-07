@@ -4,6 +4,8 @@
 >
 > *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
+**🌐 Language:** English · [한국어 (Korean)](ko/) · [Bahasa Indonesia](id/) · [简体中文 (Chinese)](zh/)
+
 ---
 
 ## Workshop Flow

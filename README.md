@@ -6,6 +6,8 @@
 
 Hands-on enablement for enterprise developers — master agentic coding, legacy modernization, and DevOps automation with Gemini CLI.
 
+**🌐 Language:** English · [한국어 (Korean)](docs/ko/) · [Bahasa Indonesia](docs/id/) · [简体中文 (Chinese)](docs/zh/)
+
 ## Workshop Delivery Order
 
 | # | Use Case | Duration | Key Features |

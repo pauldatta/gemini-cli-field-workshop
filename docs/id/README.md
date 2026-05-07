@@ -4,6 +4,8 @@
 >
 > *Terakhir diperbarui: 2026-05-05 · [Sumber diverifikasi terhadap repositori gemini-cli](https://github.com/google-gemini/gemini-cli)*
 
+**🌐 Bahasa:** [English](../) · [한국어](../ko/) · Bahasa Indonesia · [简体中文](../zh/)
+
 ---
 ## Alur Workshop
 
