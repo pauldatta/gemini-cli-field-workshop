@@ -5,11 +5,13 @@
   <title>Gemini CLI Workshop</title>
   <meta name="description" content="Hands-on workshop for enterprise developers to master Gemini CLI for agentic coding, modernization, and DevOps automation.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/themes/vue.css">
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
+    title="docsify-darklight-theme"
+    type="text/css"
+  />
   <style>
-    :root {
-      --theme-color: #4285f4;
-    }
     .sidebar-nav li a {
       font-size: 14px;
     }
@@ -26,7 +28,7 @@
   <div id="app"></div>
   <script>
     window.$docsify = {
-      name: '🤖 Gemini CLI Workshop',
+      name: 'Gemini CLI Workshop',
       repo: 'pauldatta/gemini-cli-field-workshop',
       loadSidebar: true,
       loadNavbar: true,
@@ -47,6 +49,42 @@
       auto2top: true,
       coverpage: false,
       notFoundPage: true,
+      darklightTheme: {
+        defaultTheme: 'light',
+        siteFont: 'Source Sans Pro, Helvetica Neue, Arial, sans-serif',
+        codeFontFamily: 'Roboto Mono, Monaco, courier, monospace',
+        bodyFontSize: '15px',
+        dark: {
+          accent: '#8ab4f8',
+          textColor: '#c9d1d9',
+          toogleBackground: '#1a1a2e',
+          background: '#0d1117',
+          codeBackground: '#161b22',
+          codeTextColor: '#c9d1d9',
+          borderColor: '#30363d',
+          blockQuoteColor: '#8b949e',
+          highlightColor: '#58a6ff',
+          sidebarSublink: '#8b949e',
+          codeTypeColor: '#8ab4f8',
+          coverBackground: 'linear-gradient(to left bottom, hsl(220, 60%, 20%), hsl(220, 40%, 10%))',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)'
+        },
+        light: {
+          accent: '#4285f4',
+          textColor: '#2c3e50',
+          toogleBackground: '#e8eaed',
+          background: '#ffffff',
+          codeBackground: '#f6f8fa',
+          codeTextColor: '#36464e',
+          borderColor: '#e1e4e8',
+          blockQuoteColor: '#6a737d',
+          highlightColor: '#1a73e8',
+          sidebarSublink: '#505d68',
+          codeTypeColor: '#4285f4',
+          coverBackground: 'linear-gradient(to left bottom, hsl(220, 60%, 92%), hsl(220, 40%, 98%))',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)'
+        }
+      },
       plugins: [
         function(hook, vm) {
           hook.beforeEach(function(content) {
@@ -69,6 +107,7 @@
       ]
     }
   </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
