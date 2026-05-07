@@ -4,8 +4,6 @@
 >
 > *最后更新：2026-05-05 · [来源已根据 gemini-cli 仓库进行验证](https://github.com/google-gemini/gemini-cli)*
 
-**🌐 语言：** [English](/) · [한국어](/ko/) · [Bahasa Indonesia](/id/) · 简体中文
-
 ---
 ## 研讨会流程
 
