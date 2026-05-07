@@ -129,14 +129,35 @@
       background: #0d1117 !important;
     }
 
+    /* Heading anchor links — inherit heading color, no decoration */
+    .markdown-section h1 a,
+    .markdown-section h2 a,
+    .markdown-section h3 a,
+    .markdown-section h4 a,
+    .markdown-section h5 a,
+    .markdown-section h6 a {
+      color: inherit !important;
+      text-decoration: none !important;
+      border-bottom: none !important;
+    }
+    .markdown-section h1 a:hover,
+    .markdown-section h2 a:hover,
+    .markdown-section h3 a:hover,
+    .markdown-section h4 a:hover,
+    .markdown-section h5 a:hover,
+    .markdown-section h6 a:hover {
+      text-decoration: none !important;
+      border-bottom: none !important;
+    }
+
     /* Links */
-    .markdown-section a {
+    .markdown-section a:not(h1 a):not(h2 a):not(h3 a):not(h4 a) {
       color: var(--link-color) !important;
       text-decoration: none;
       border-bottom: 1px solid transparent;
       transition: border-color 0.2s;
     }
-    .markdown-section a:hover {
+    .markdown-section a:not(h1 a):not(h2 a):not(h3 a):not(h4 a):hover {
       color: var(--link-hover) !important;
       border-bottom-color: var(--link-hover);
     }
