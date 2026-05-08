@@ -2,7 +2,7 @@
 
 > 涵盖本次工作坊所有内容的快速参考。
 >
-> *最后更新：2026-05-05 · [来源已与 gemini-cli 仓库核对](https://github.com/google-gemini/gemini-cli)*
+> *最后更新：2026-05-05 · [来源已根据 gemini-cli 仓库进行验证](https://github.com/google-gemini/gemini-cli)*
 
 ---
 ## 安装
@@ -19,10 +19,10 @@ gemini --version           # Check version
 | 快捷键 | 操作 |
 |---|---|
 | `Tab` | 接受建议的编辑 |
-| `Shift+Tab` | 循环切换选项 |
+| `Shift+Tab` | 在选项之间循环切换 |
 | `Ctrl+G` | 外部编辑器（编辑提示词或计划） |
 | `Ctrl+C` | 取消当前操作 |
-| `↑` / `↓` | 导航提示词历史记录 |
+| `↑` / `↓` | 浏览提示词历史记录 |
 
 ---
 ## 斜杠命令
@@ -37,7 +37,10 @@ gemini --version           # Check version
 | `/rewind` | 回滚到之前的状态 |
 | `/restore` | 从检查点恢复（需要[启用检查点](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)） |
 | `/memory show` | 显示保存的记忆 |
-| `/memory add "..."` | 添加记忆 |
+| `/memory reload` | 从源文件重新加载记忆 |
+| `/memory list` | 列出所有正在使用的 GEMINI.md 文件 |
+| `/memory inbox` | 审查自动提取的记忆候选（需要 `experimental.autoMemory: true`） |
+| ~~`/memory add "..."`~~ | ~~添加记忆~~ — **在 v0.41.1 中已移除**，请改用自然语言：*“记住...”*（[详情](../../CHANGELOG.md)） |
 | `/hooks panel` | 显示钩子执行状态 |
 | `/skills list` | 列出可用技能 |
 | `/extensions list` | 列出已安装的扩展 |
@@ -143,12 +146,12 @@ decision = "ask_user"
 priority = 1
 ```
 
-> 请参阅[策略引擎参考](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)以获取完整模式，以及参阅[使用策略引擎保护 Gemini CLI](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)以获取实战演练。
+> 请参阅 [策略引擎参考](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) 获取完整架构，以及参阅 [使用策略引擎保护 Gemini CLI](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) 获取实战演练指南。
 
 ---
 ## 钩子
 
-### settings.json 钩子配置
+### Settings.json 钩子配置
 ```json
 {
   "hooks": {
@@ -272,7 +275,7 @@ gemini extensions link .
 gemini extensions disable my-extension --scope workspace
 ```
 
-### 知名社区扩展
+### 值得关注的社区扩展
 
 ```bash
 # Conductor (spec-driven development) — already in UC1
@@ -292,4 +295,4 @@ gemini extensions install https://github.com/googleworkspace/cli
 
 浏览社区扩展：[geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
 
-发布您自己的扩展：将 `gemini-cli-extension` 主题添加到您的 GitHub 仓库，并标记一个发布版本。
+发布您自己的扩展：将 `gemini-cli-extension` 主题添加到您的 GitHub 仓库并标记一个发布版本。

@@ -18,8 +18,8 @@ gemini --version           # Check version
 
 | Pintasan | Aksi |
 |---|---|
-| `Tab` | Terima saran pengeditan |
-| `Shift+Tab` | Beralih antar opsi |
+| `Tab` | Terima edit yang disarankan |
+| `Shift+Tab` | Telusuri opsi |
 | `Ctrl+G` | Editor eksternal (edit prompt atau rencana) |
 | `Ctrl+C` | Batalkan operasi saat ini |
 | `↑` / `↓` | Navigasi riwayat prompt |
@@ -32,16 +32,19 @@ gemini --version           # Check version
 | `/plan` | Alihkan Mode Perencanaan (penelitian hanya-baca) |
 | `/stats` | Tampilkan penggunaan token dan info model |
 | `/clear` | Bersihkan konteks dan mulai dari awal |
-| `/tools` | Tampilkan daftar alat yang tersedia |
+| `/tools` | Daftar alat yang tersedia |
 | `/resume` | Lanjutkan sesi sebelumnya |
-| `/rewind` | Kembalikan ke keadaan sebelumnya |
-| `/restore` | Pulihkan dari checkpoint (memerlukan [checkpoint diaktifkan](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
+| `/rewind` | Kembalikan ke status sebelumnya |
+| `/restore` | Pulihkan dari checkpoint (memerlukan [checkpointing diaktifkan](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
 | `/memory show` | Tampilkan memori yang disimpan |
-| `/memory add "..."` | Tambahkan memori |
+| `/memory reload` | Muat ulang memori dari file sumber |
+| `/memory list` | Daftar semua file GEMINI.md yang digunakan |
+| `/memory inbox` | Tinjau kandidat memori yang diekstrak secara otomatis (memerlukan `experimental.autoMemory: true`) |
+| ~~`/memory add "..."`~~ | ~~Tambahkan memori~~ — **dihapus pada v0.41.1**, gunakan bahasa alami sebagai gantinya: *"Ingat bahwa..."* ([detail](../../CHANGELOG.md)) |
 | `/hooks panel` | Tampilkan status eksekusi hook |
-| `/skills list` | Tampilkan daftar skill yang tersedia |
-| `/extensions list` | Tampilkan daftar ekstensi yang diinstal |
-| `/commands` | Tampilkan daftar perintah kustom |
+| `/skills list` | Daftar skill yang tersedia |
+| `/extensions list` | Daftar ekstensi yang diinstal |
+| `/commands` | Daftar perintah kustom |
 
 ---
 ## Mode Headless
@@ -101,7 +104,7 @@ You are a specialist in...
 ```
 
 ---
-## Ekstensi Conductor
+## Conductor Extension
 
 ```bash
 # Install
@@ -118,6 +121,8 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 ```
 
 ---
+
+
 ## Mesin Kebijakan (TOML)
 
 ```toml
@@ -143,7 +148,7 @@ decision = "ask_user"
 priority = 1
 ```
 
-> Lihat [referensi Mesin Kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) untuk skema lengkapnya dan [Mengamankan Gemini CLI dengan Mesin Kebijakan](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) untuk panduan praktis.
+> Lihat [referensi Mesin Kebijakan](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md) untuk skema lengkap dan [Amankan Gemini CLI dengan Mesin Kebijakan](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy) untuk panduan praktis.
 
 ---
 ## Hooks
@@ -181,14 +186,14 @@ echo '{"decision":"deny","reason":"Blocked because..."}'
 echo '{"systemMessage":"Remember to..."}'
 ```
 
-### Peristiwa hook
+### Event hook
 ```
 SessionStart → BeforeAgent → BeforeModel → BeforeToolSelection →
 AfterModel → BeforeTool → AfterTool → AfterAgent → PreCompress →
 Notification → SessionEnd
 ```
 
-> Lihat [Referensi Hooks](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md) untuk siklus hidup peristiwa yang lengkap.
+> Lihat [Referensi hook](https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md) untuk siklus hidup event yang lengkap.
 
 ---
 ## Server MCP
@@ -292,4 +297,4 @@ gemini extensions install https://github.com/googleworkspace/cli
 
 Jelajahi ekstensi komunitas: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
 
-Publikasikan milik Anda sendiri: Tambahkan topik `gemini-cli-extension` ke repo GitHub Anda + tag sebuah rilis.
+Publikasikan milik Anda sendiri: Tambahkan topik `gemini-cli-extension` ke repositori GitHub Anda + tag sebuah rilis.

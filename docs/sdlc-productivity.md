@@ -106,15 +106,28 @@ The agent can remember things across sessions:
 /memory show
 ```
 
-Add project-specific knowledge:
+Add project-specific knowledge by telling the agent directly:
 
 ```
-/memory add "The ProShop app uses port 5000 for the backend API 
-and port 3000 for the React dev server. MongoDB runs on default 
-port 27017. Test database is 'proshop_test'."
+Remember that the ProShop backend runs on port 5000, the React dev server 
+on port 3000, MongoDB on port 27017, and the test database is 'proshop_test'.
 ```
 
-The agent can also save memories itself using the `save_memory` tool — either when you explicitly ask it to remember something, or automatically if you enable `experimental.autoMemory` in [settings.json](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/auto-memory.md).
+The agent will update your `GEMINI.md` file directly using `write_file` or `edit` — no slash command needed.
+
+> ⚠️ **Note:** `/memory add` was removed in Gemini CLI v0.41.1 as part of the Memory V2 update. The underlying `save_memory` tool is no longer registered by default. Use natural language instead — the result is identical. See [CHANGELOG.md](../CHANGELOG.md) and [upstream issue #26563](https://github.com/google-gemini/gemini-cli/issues/26563) for details.
+
+To have the agent mine past sessions automatically and propose memory updates for your review, enable Auto Memory in `~/.gemini/settings.json`:
+
+```json
+{
+  "experimental": {
+    "autoMemory": true
+  }
+}
+```
+
+Then use `/memory inbox` to review and approve extracted facts before they're committed.
 
 ### The .geminiignore File
 

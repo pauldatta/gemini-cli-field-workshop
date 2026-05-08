@@ -40,7 +40,10 @@ gemini --version           # Check version
 | `/rewind` | Roll back to a previous state |
 | `/restore` | Restore from a checkpoint (requires [checkpointing enabled](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
 | `/memory show` | Show saved memories |
-| `/memory add "..."` | Add a memory |
+| `/memory reload` | Reload memory from source files |
+| `/memory list` | List all GEMINI.md files in use |
+| `/memory inbox` | Review auto-extracted memory candidates (requires `experimental.autoMemory: true`) |
+| ~~`/memory add "..."`~~ | ~~Add a memory~~ — **removed in v0.41.1**, use natural language instead: *"Remember that..."* ([details](../CHANGELOG.md)) |
 | `/hooks panel` | Show hook execution status |
 | `/skills list` | List available skills |
 | `/extensions list` | List installed extensions |

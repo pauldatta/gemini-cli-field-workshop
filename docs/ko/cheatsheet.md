@@ -1,6 +1,6 @@
 # Gemini CLI 치트시트
 
-> 이 워크숍에서 다루는 모든 내용에 대한 빠른 참조 가이드입니다.
+> 이 워크숍에서 다룬 모든 내용에 대한 빠른 참조 가이드입니다.
 >
 > *마지막 업데이트: 2026-05-05 · [gemini-cli 저장소에 대해 검증된 소스](https://github.com/google-gemini/gemini-cli)*
 
@@ -18,32 +18,37 @@ gemini --version           # Check version
 
 | 단축키 | 동작 |
 |---|---|
-| `Tab` | 제안된 편집 수락 |
+| `Tab` | 제안된 수정 사항 수락 |
 | `Shift+Tab` | 옵션 순환 |
-| `Ctrl+G` | 외부 에디터 (프롬프트 또는 플랜 편집) |
+| `Ctrl+G` | 외부 편집기 (프롬프트 또는 플랜 편집) |
 | `Ctrl+C` | 현재 작업 취소 |
 | `↑` / `↓` | 프롬프트 기록 탐색 |
 
 ---
-## 슬래시 명령어
+## Slash Commands
 
-| 명령어 | 설명 |
+| Command | Description |
 |---|---|
-| `/plan` | 플랜 모드 전환 (읽기 전용 조사) |
-| `/stats` | 토큰 사용량 및 모델 정보 표시 |
-| `/clear` | 컨텍스트 지우기 및 새로 시작 |
-| `/tools` | 사용 가능한 도구 목록 표시 |
-| `/resume` | 이전 세션 재개 |
-| `/rewind` | 이전 상태로 롤백 |
-| `/restore` | 체크포인트에서 복원 ([체크포인트 활성화](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md) 필요) |
-| `/memory show` | 저장된 메모리 표시 |
-| `/memory add "..."` | 메모리 추가 |
-| `/hooks panel` | 훅 실행 상태 표시 |
-| `/skills list` | 사용 가능한 스킬 목록 표시 |
-| `/extensions list` | 설치된 확장 프로그램 목록 표시 |
-| `/commands` | 사용자 정의 명령어 목록 표시 |
+| `/plan` | Toggle Plan Mode (read-only research) |
+| `/stats` | Show token usage and model info |
+| `/clear` | Clear context and start fresh |
+| `/tools` | List available tools |
+| `/resume` | Resume a previous session |
+| `/rewind` | Roll back to a previous state |
+| `/restore` | Restore from a checkpoint (requires [checkpointing enabled](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/checkpointing.md)) |
+| `/memory show` | Show saved memories |
+| `/memory reload` | Reload memory from source files |
+| `/memory list` | List all GEMINI.md files in use |
+| `/memory inbox` | Review auto-extracted memory candidates (requires `experimental.autoMemory: true`) |
+| ~~`/memory add "..."`~~ | ~~Add a memory~~ — **removed in v0.41.1**, use natural language instead: *"Remember that..."* ([details](../../CHANGELOG.md)) |
+| `/hooks panel` | Show hook execution status |
+| `/skills list` | List available skills |
+| `/extensions list` | List installed extensions |
+| `/commands` | List custom commands |
 
 ---
+
+
 ## 헤드리스 모드
 
 ```bash
@@ -76,7 +81,7 @@ cat file.js | gemini -p "Review this code for bugs"
 @./docs/architecture.md
 ```
 
-> 전체 구문은 [GEMINI.md 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)를 확인하세요.
+> 전체 구문은 [GEMINI.md 레퍼런스](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md)를 참조하세요.
 
 ---
 ## 서브에이전트
@@ -143,12 +148,12 @@ decision = "ask_user"
 priority = 1
 ```
 
-> 전체 스키마는 [정책 엔진 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)를 확인하고, 실제 실습 가이드는 [정책 엔진으로 Gemini CLI 보호하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
+> 전체 스키마에 대해서는 [정책 엔진 참조](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/policy-engine.md)를 참조하고, 실용적인 연습에 대해서는 [정책 엔진으로 Gemini CLI 보호하기](https://aipositive.substack.com/p/secure-gemini-cli-with-the-policy)를 참조하세요.
 
 ---
 ## 훅
 
-### settings.json 훅 설정
+### Settings.json 훅 설정
 ```json
 {
   "hooks": {
@@ -290,6 +295,6 @@ gemini extensions install https://github.com/googleworkspace/cli
 
 ### 갤러리
 
-커뮤니티 확장 프로그램 둘러보기: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
+커뮤니티 확장 프로그램 찾아보기: [geminicli.com/extensions/browse](https://geminicli.com/extensions/browse/)
 
-직접 게시하기: GitHub 저장소에 `gemini-cli-extension` 주제(topic)를 추가하고 릴리스를 태그하세요.
+직접 게시하기: GitHub 저장소에 `gemini-cli-extension` 주제를 추가하고 릴리스를 태그하세요.
