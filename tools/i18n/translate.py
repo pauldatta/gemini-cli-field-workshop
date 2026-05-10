@@ -30,7 +30,7 @@ MANIFEST_PATH = TOOLS_DIR / ".translation-manifest.json"
 
 # The 7 workshop docs that get translated
 TRANSLATABLE_DOCS = [
-    "docs/README.md",
+    "docs/index.md",
     "docs/setup.md",
     "docs/sdlc-productivity.md",
     "docs/legacy-modernization.md",
@@ -115,8 +115,8 @@ def rewrite_links_for_lang(text: str) -> str:
     """Adjust relative links for one level deeper (docs/ko/ instead of docs/).
 
     Same-directory .md links that point to files NOT in TRANSLATABLE_DOCS
-    are rewritten to absolute Docsify paths (e.g. /facilitator-guide.md)
-    so they resolve against the English root instead of the lang directory.
+    are rewritten to relative paths that resolve against the English root
+    instead of the language directory.
     """
     # Build set of translated basenames for fast lookup
     translated_basenames = {Path(f).name for f in TRANSLATABLE_DOCS}
@@ -347,79 +347,6 @@ def translate_file(
 
 
 # ---------------------------------------------------------------------------
-# Sidebar generation
-# ---------------------------------------------------------------------------
-
-def generate_sidebar(lang: str, glossary: dict):
-    """Generate a translated _sidebar.md for the language.
-
-    Only translates the display text inside [...], never the link targets
-    inside (...). Uses absolute paths so Docsify routes correctly:
-    - Translated files:   /{lang}/file.md
-    - Untranslated files: /file.md  (falls back to English)
-    """
-    source = REPO_ROOT / "docs" / "_sidebar.md"
-    if not source.exists():
-        print("  ⚠️  No _sidebar.md found, skipping sidebar generation")
-        return
-
-    lines = source.read_text(encoding="utf-8").splitlines()
-    out_lines = []
-
-    # Files that exist in the translated directory
-    translated_dir = REPO_ROOT / "docs" / lang
-    translated_files = {f.name for f in translated_dir.glob("*.md")} if translated_dir.exists() else set()
-
-    for line in lines:
-        # Check if line has a link to a .md file
-        link_match = re.search(r'\(([^)]+\.md)\)', line)
-        untranslated = False
-        if link_match:
-            target = link_match.group(1)
-            if target not in translated_files and target != '/':
-                untranslated = True
-
-        # Only translate display text inside [...], rewrite link targets
-        def translate_display(m):
-            display = m.group(1)
-            target = m.group(2)
-            for eng, translated in glossary["terms"].items():
-                display = display.replace(eng, translated)
-            # Rewrite link targets to absolute Docsify routes
-            if target == '/':
-                # Home link stays in the language context
-                target = f"/{lang}/"
-            elif target.endswith('.md'):
-                if untranslated:
-                    # Untranslated: link to English root
-                    target = f"/{target}"
-                else:
-                    # Translated: link within language directory
-                    target = f"/{lang}/{target}"
-            return f"[{display}]({target})"
-
-        line = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', translate_display, line)
-
-        # Translate bold text like **Use Cases**
-        for eng, translated in glossary["terms"].items():
-            if f"**{eng}**" in line:
-                line = line.replace(f"**{eng}**", f"**{translated}**")
-
-        out_lines.append(line)
-
-    # Add language switch link
-    out_lines.append("")
-    out_lines.append("* [🇺🇸 English](/)")
-    out_lines.append("")
-
-    content = "\n".join(out_lines)
-    output = REPO_ROOT / "docs" / lang / "_sidebar.md"
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(content, encoding="utf-8")
-    print(f"  → docs/{lang}/_sidebar.md")
-
-
-# ---------------------------------------------------------------------------
 # Manifest management
 # ---------------------------------------------------------------------------
 
@@ -542,12 +469,6 @@ def main():
         print(f"\n\n{'─' * 56}")
         print(f"  ⚠️  Interrupted by user (Ctrl+C)")
         print(f"{'─' * 56}")
-
-    if not interrupted:
-        # Generate sidebar only on full completion
-        print(f"\n{'─' * 56}")
-        print(f"  📑 Generating sidebar...")
-        generate_sidebar(args.lang, glossary)
 
     # Summary — always printed, even on interrupt
     total_elapsed = time.time() - total_start

@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "📋 Checking required files..."
           errors=0
-          for f in setup.sh README.md docs/index.html docs/_sidebar.md \
+          for f in setup.sh README.md mkdocs.yml docs/index.md \
                    samples/config/settings.json samples/config/policy.toml; do
             if [ -f "$f" ]; then
               echo "  ✅ $f"
@@ -62,19 +62,12 @@ jobs:
             fi
           done
 
-      - name: Validate sidebar ↔ doc files
+      - name: Validate mkdocs.yml nav ↔ doc files
         run: |
-          echo "📋 Checking sidebar alignment..."
-          errors=0
-          grep -oE '\([a-zA-Z0-9_-]+\.md\)' docs/_sidebar.md | tr -d '()' | while read -r f; do
-            if [ -f "docs/$f" ]; then
-              echo "  ✅ docs/$f"
-            else
-              echo "  ❌ Sidebar references $f but docs/$f not found"
-              errors=$((errors + 1))
-            fi
-          done
-          if [ "$errors" -gt 0 ]; then exit 1; fi
+          echo "📋 Checking nav alignment..."
+          pip install -r requirements-docs.txt -q
+          mkdocs build --strict
+          echo "  ✅ MkDocs build (strict) passed"
 
   code-blocks:
     name: Code Block Validation

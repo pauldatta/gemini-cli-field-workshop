@@ -20,6 +20,7 @@ Thumbs.db
 coverage/
 dist/
 build/
+site/
 *.log
 .venv
 __pycache__/

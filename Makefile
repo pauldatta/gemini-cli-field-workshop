@@ -9,7 +9,8 @@
 #   make test-drift       Check for doc ↔ code drift (local only)
 #   make test-drift-full  Check drift including upstream CLI docs (needs network)
 #   make test-links       Check for dead links (needs network + npx)
-#   make test-docsify     Smoke test Docsify site renders
+#   make test-build       Build site with strict mode (catches broken refs)
+#   make serve            Start MkDocs dev server
 #   make test-live        Run live Gemini CLI smoke tests (needs GEMINI_API_KEY)
 #   make lint-md          Lint markdown files
 #   make test-ci          Check GitHub Actions workflow status (needs gh CLI)
@@ -17,7 +18,7 @@
 # See: .gemini/AGENTS.md for documentation on this testing infrastructure.
 
 .PHONY: test test-structure test-blocks test-drift test-drift-full \
-        test-links test-docsify test-live lint-md test-ci help \
+        test-links test-build serve test-live lint-md test-ci help \
         translate translate-file translate-validate translate-drift translate-list
 
 # Default: run all offline tests
@@ -39,10 +40,10 @@ test-structure:  ## Validate file structure and config syntax
 	@echo "  ✅ setup.sh exists"
 	@test -f README.md || (echo "❌ Missing README.md" && exit 1)
 	@echo "  ✅ README.md exists"
-	@test -f docs/index.html || (echo "❌ Missing docs/index.html (Docsify)" && exit 1)
-	@echo "  ✅ docs/index.html exists"
-	@test -f docs/_sidebar.md || (echo "❌ Missing docs/_sidebar.md" && exit 1)
-	@echo "  ✅ docs/_sidebar.md exists"
+	@test -f mkdocs.yml || (echo "❌ Missing mkdocs.yml" && exit 1)
+	@echo "  ✅ mkdocs.yml exists"
+	@test -f docs/index.md || (echo "❌ Missing docs/index.md" && exit 1)
+	@echo "  ✅ docs/index.md exists"
 	@echo ""
 	@# --- Config file syntax ---
 	@echo "  Validating config syntax..."
@@ -101,28 +102,16 @@ test-links:  ## Check for dead links (needs network)
 	@echo "✅ Link checks passed"
 
 # ───────────────────────────────────────────────────────────
-# Docsify Smoke Test — verify the site renders
+# MkDocs Build Test — strict mode catches broken refs
 # ───────────────────────────────────────────────────────────
 
-test-docsify:  ## Smoke test Docsify site (starts server, curls pages)
-	@echo "🌐 Starting Docsify server..."
-	@npx -y docsify-cli serve docs/ --port 4173 & \
-		DOCSIFY_PID=$$!; \
-		sleep 3; \
-		FAILED=0; \
-		for page in "" "setup" "sdlc-productivity" "legacy-modernization" \
-		            "devops-orchestration" "advanced-patterns" "extensions-ecosystem" "cheatsheet"; do \
-			STATUS=$$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4173/#/$${page}"); \
-			if [ "$$STATUS" = "200" ]; then \
-				echo "  ✅ /$${page} → $$STATUS"; \
-			else \
-				echo "  ❌ /$${page} → $$STATUS"; \
-				FAILED=$$((FAILED + 1)); \
-			fi; \
-		done; \
-		kill $$DOCSIFY_PID 2>/dev/null || true; \
-		if [ "$$FAILED" -gt 0 ]; then exit 1; fi
-	@echo "✅ Docsify smoke test passed"
+test-build:  ## Build site with mkdocs --strict (catches broken refs)
+	@echo "🏗️  Building MkDocs site (strict mode)..."
+	@mkdocs build --strict
+	@echo "✅ MkDocs build passed"
+
+serve:  ## Start MkDocs dev server
+	@mkdocs serve
 
 # ───────────────────────────────────────────────────────────
 # Markdown Lint — style and structure validation

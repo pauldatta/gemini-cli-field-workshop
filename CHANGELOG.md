@@ -4,6 +4,32 @@ Content-specific changes to workshop materials — CLI breakages, deprecated com
 
 ---
 
+## 2026-05-10
+
+### 🔄 Migrated from Docsify to MkDocs Material
+
+**Affects:** All documentation pages, CI/CD, translation pipeline, contributor workflow
+
+The workshop site engine has been replaced:
+- **Before:** Docsify (client-side SPA, 584-line custom `index.html`)
+- **After:** MkDocs Material (static site with build-time validation)
+
+**What changed:**
+- `docs/index.html`, `docs/_sidebar.md`, `docs/_navbar.md`, `docs/.nojekyll` — deleted
+- `docs/README.md` → `docs/index.md` (same for all language directories)
+- New files: `mkdocs.yml`, `requirements-docs.txt`, `.github/workflows/deploy.yml`
+- `make test-docsify` → `make test-build` (uses `mkdocs build --strict`)
+- `make serve` starts the MkDocs dev server (replaces `npx docsify-cli serve`)
+- Translation pipeline (`translate.py`) no longer generates per-language `_sidebar.md`
+- GitHub Pages source switches from `/docs` on `main` to `gh-pages` branch (automated via `gh api`)
+
+**What didn't change:**
+- All English and translated content preserved as-is
+- Translation pipeline, glossaries, manifests, drift detection — all functional
+- All structural tests, code block validation, link checking — all functional
+
+---
+
 ## 2026-05-08
 
 ### ⚠️ `/memory add` command removed (Gemini CLI ≥ v0.41.1)

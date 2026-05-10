@@ -4,20 +4,18 @@
   // Docs: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
 
   "config": {
-    // Disable rules that conflict with Docsify's rendering expectations
-    "MD013": false,         // Line length — our tables are wide, Docsify handles wrapping
+    // Disable rules that conflict with MkDocs Material's rendering expectations
+    "MD013": false,         // Line length — our tables are wide, MkDocs handles wrapping
     "MD033": false,         // Inline HTML — we use <p align="center"> for banners, <details> blocks
-    "MD041": false,         // First line heading — Docsify pages may start with frontmatter or HTML
     "MD024": false,         // No duplicate headings — our workshop repeats "Example" and "Try it" headings
     "MD046": false,         // Code block style — we mix fenced and indented in different contexts
     "MD040": false,         // Fenced code language — some blocks are intentionally untagged prompts
-    "MD060": false,         // Table column style — our compact tables render fine in Docsify
-    "MD032": false,         // Blanks around lists — Docsify handles tight lists fine
+    "MD060": false,         // Table column style — our compact tables render fine in MkDocs
+    "MD032": false,         // Blanks around lists — MkDocs handles tight lists fine
     "MD028": false,         // Blanks in blockquote — we use blockquotes for callout patterns
     "MD022": false,         // Blanks around headings — compact workshop format is intentional
     "MD058": false,         // Blanks around tables — compact layout for facilitator guide
     "MD031": false,         // Blanks around fences — code blocks inside <details> are compact
-    "MD051": false,         // Link fragments — Docsify uses virtual routes (/ko/) not heading anchors
 
     // Keep these enabled — they catch real rendering bugs
     "MD001": true,          // Heading increment — no jumping from # to ###
@@ -27,7 +25,9 @@
     "MD018": true,          // Space after hash in headings
     "MD019": true,          // No multiple spaces after hash
     "MD023": true,          // Headings must start at beginning of line
-    "MD025": true,          // Single h1 per document (important for Docsify sidebar)
+    "MD025": true,          // Single h1 per document
+    "MD041": true,          // First line must be a heading (MkDocs pages start with headings)
+    "MD051": true,          // Link fragments must be valid heading anchors
     "MD037": true,          // No spaces inside emphasis markers
     "MD038": true,          // No spaces inside code spans
     "MD039": true,          // No spaces inside link text

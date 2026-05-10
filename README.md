@@ -34,19 +34,20 @@ cd demo-app && gemini
 
 ## Workshop Site
 
-The `docs/` folder is a [Docsify](https://docsify.js.org) site. View locally:
+The `docs/` folder is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). View locally:
 
 ```bash
-npx -y docsify-cli serve docs/ --port 4000
+pip install -r requirements-docs.txt
+mkdocs serve
 ```
 
-Or deploy to GitHub Pages (Settings → Pages → Source: `/docs` on `main` branch).
+Deployed to GitHub Pages via the `gh-pages` branch (auto-deployed on push to `main`).
 
 ## Repository Structure
 
 | Directory | Contents |
 |---|---|
-| `docs/` | Docsify workshop site — modules, cheatsheet, facilitator guide, i18n translations |
+| `docs/` | MkDocs workshop site — modules, cheatsheet, facilitator guide, i18n translations |
 | `exercises/` | Hands-on PRDs for each use case |
 | `samples/` | Ready-to-use configs (`settings.json`, `policy.toml`), hooks, subagents, GEMINI.md examples |
 | `demo-app/` | Git submodule — [ProShop v2](https://github.com/bradtraversy/proshop-v2) (MERN stack) |

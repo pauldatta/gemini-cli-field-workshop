@@ -103,15 +103,16 @@ if [ -f "samples/config/settings.json" ]; then
   done
 fi
 
-# --- 5. Sidebar entries should have matching doc files ---
-log_section "  Checking sidebar ↔ doc file alignment..."
+# --- 5. Nav entries in mkdocs.yml should have matching doc files ---
+log_section "  Checking mkdocs.yml nav ↔ doc file alignment..."
 
-if [ -f "docs/_sidebar.md" ]; then
-  grep -oE '\([a-zA-Z0-9_-]+\.md\)' docs/_sidebar.md | tr -d '()' | while read -r sidebar_file; do
-    if [ -f "docs/${sidebar_file}" ]; then
-      log_ok "Sidebar entry '${sidebar_file}' exists"
+if [ -f "mkdocs.yml" ]; then
+  # Extract only nav entries (lines like "  - Label: filename.md")
+  grep -E ':\s+[a-zA-Z0-9_-]+\.md\s*$' mkdocs.yml | grep -oE '[a-zA-Z0-9_-]+\.md' | sort -u | while read -r nav_file; do
+    if [ -f "docs/${nav_file}" ]; then
+      log_ok "Nav entry '${nav_file}' exists"
     else
-      log_fail "Sidebar references '${sidebar_file}' but docs/${sidebar_file} not found"
+      log_fail "mkdocs.yml references '${nav_file}' but docs/${nav_file} not found"
     fi
   done
 fi

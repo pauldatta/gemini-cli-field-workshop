@@ -35,7 +35,8 @@ make test-blocks      # Validate code blocks in docs/*.md
 make test-drift       # Check doc ↔ code alignment
 make test-drift-full  # + upstream Gemini CLI docs (needs network)
 make test-links       # Dead URL detection (needs network)
-make test-docsify     # Serve + curl every page
+make test-build       # mkdocs build --strict (catches broken refs)
+make serve            # Start MkDocs dev server
 make lint-md          # markdownlint-cli2
 make test-live        # Headless Gemini CLI (needs GEMINI_API_KEY)
 make test-ci          # GitHub Actions status via gh CLI
@@ -48,7 +49,7 @@ make help             # Show all targets
 **Files:** `Makefile` (inline)
 
 Validates that the workshop's physical structure is intact:
-- Required files exist: `setup.sh`, `README.md`, `docs/index.html`, `docs/_sidebar.md`
+- Required files exist: `setup.sh`, `README.md`, `mkdocs.yml`, `docs/index.md`
 - `samples/config/settings.json` is valid JSON (parsed with `jq`)
 - `samples/config/policy.toml` is valid TOML (parsed with `tomllib`)
 - `setup.sh` and all `samples/hooks/*.sh` pass `bash -n` (syntax check)
@@ -95,7 +96,7 @@ Checks five alignment surfaces:
    in `docs/`.
 4. **settings.json ↔ hooks:** Hook scripts referenced in `settings.json` should exist
    in `samples/hooks/`.
-5. **Sidebar ↔ doc files:** Every `.md` file listed in `docs/_sidebar.md` should
+5. **Nav ↔ doc files:** Every `.md` file listed in `mkdocs.yml` nav should
    exist in `docs/`.
 
 **With `--upstream` flag:** Also fetches the Gemini CLI reference from
@@ -119,10 +120,9 @@ Cloud docs page) or you have a backtick-contaminated URL.
 ### `lint-md` — Markdown Lint
 **Files:** `.markdownlint-cli2.jsonc`
 
-Runs `markdownlint-cli2` with a config tuned for Docsify. Key disabled rules:
+Runs `markdownlint-cli2` with a config tuned for MkDocs Material. Key disabled rules:
 - `MD013` (line length) — our tables are wide
 - `MD033` (inline HTML) — we use `<p align="center">` and `<details>`
-- `MD041` (first line heading) — Docsify pages may start with HTML
 - `MD024` (duplicate headings) — we repeat "Example" headings intentionally
 
 Key enabled rules that catch rendering bugs:
@@ -134,14 +134,17 @@ Key enabled rules that catch rendering bugs:
 ├── .gemini/
 │   └── AGENTS.md              ← You are here
 ├── .github/workflows/
-│   ├── issue-triage.yml       ← Existing: Gemini-powered issue triage
-│   ├── workshop-links.yml     ← NEW: Lychee link checker
-│   └── workshop-structural.yml ← NEW: Structure + blocks + drift + lint
-├── .markdownlint-cli2.jsonc   ← NEW: Markdown lint config
-├── Makefile                   ← NEW: Local test harness
+│   ├── deploy.yml             ← MkDocs gh-deploy on push to main
+│   ├── issue-triage.yml       ← Gemini-powered issue triage
+│   ├── workshop-links.yml     ← Lychee link checker
+│   └── workshop-structural.yml ← Structure + blocks + drift + lint
+├── mkdocs.yml                 ← MkDocs Material configuration
+├── requirements-docs.txt      ← MkDocs pip dependencies
+├── .markdownlint-cli2.jsonc   ← Markdown lint config
+├── Makefile                   ← Local test harness
 └── scripts/
-    ├── validate-code-blocks.sh ← NEW: Code block extractor + validator
-    └── detect-drift.sh         ← NEW: Doc ↔ code drift detector
+    ├── validate-code-blocks.sh ← Code block extractor + validator
+    └── detect-drift.sh         ← Doc ↔ code drift detector
 ├── tools/i18n/                ← Translation pipeline (see TRANSLATE.md)
 │   ├── TRANSLATE.md           ← Human guide for language maintainers
 │   ├── translate.py           ← Gemini-powered translation script
@@ -150,8 +153,7 @@ Key enabled rules that catch rendering bugs:
 │   ├── glossary-ko.md         ← Korean glossary (human-reviewed)
 │   ├── requirements.txt       ← Python deps (google-genai, mistune)
 │   └── .translation-manifest.json ← Auto-generated source hash tracking
-├── docs/ko/                   ← Generated Korean translations (never edit directly)
-└── docs/_navbar.md            ← Language switcher
+└── docs/ko/                   ← Generated Korean translations (never edit directly)
 ```
 
 ## Rules for Modifying Workshop Content
@@ -160,8 +162,8 @@ When you change workshop content, follow these rules to keep CI green:
 
 ### Adding a new doc page
 1. Create `docs/new-page.md`
-2. Add entry to `docs/_sidebar.md`
-3. Run `make test-drift` to verify sidebar alignment
+2. Add entry to `nav:` section in `mkdocs.yml`
+3. Run `make test-build` to verify nav alignment
 
 ### Adding a new agent definition
 1. Create `samples/agents/agent-name.md` with YAML frontmatter (`---` header)

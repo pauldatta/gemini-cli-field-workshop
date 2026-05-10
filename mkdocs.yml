@@ -1,0 +1,116 @@
+site_name: "Gemini CLI Field Workshop"
+site_description: "Hands-on enablement for enterprise developers — agentic coding, modernization, and DevOps with Gemini CLI"
+site_url: "https://pauldatta.github.io/gemini-cli-field-workshop/"
+repo_url: "https://github.com/pauldatta/gemini-cli-field-workshop"
+repo_name: "pauldatta/gemini-cli-field-workshop"
+
+# Allow relative links to files outside docs/ (../CHANGELOG.md, ../samples/, etc.)
+validation:
+  links:
+    not_found: info
+    absolute_links: info
+    unrecognized_links: info
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+nav:
+  - Home: index.md
+  - "⚙️ Setup":
+      - Environment Setup: setup.md
+  - "🛠️ Use Cases":
+      - "1. SDLC Productivity": sdlc-productivity.md
+      - "2. Legacy Modernization": legacy-modernization.md
+      - "3. DevOps Orchestration": devops-orchestration.md
+  - "🚀 Advanced":
+      - Advanced Patterns: advanced-patterns.md
+      - Extensions Ecosystem: extensions-ecosystem.md
+  - "📋 Resources":
+      - Cheatsheet: cheatsheet.md
+      - Facilitator Guide: facilitator-guide.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.mark
+  - pymdownx.critic
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: ko
+          name: 한국어
+          build: true
+        - locale: id
+          name: Bahasa Indonesia
+          build: true
+        - locale: zh
+          name: 简体中文
+          build: true
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pauldatta/gemini-cli-field-workshop
+  generator: false
+
+extra_css:
+  - assets/custom.css

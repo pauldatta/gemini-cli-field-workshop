@@ -1,0 +1,33 @@
+name: '🚀 Deploy'
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Build and deploy
+        run: mkdocs gh-deploy --force
+
+      - name: Ensure Pages source points to gh-pages
+        run: |
+          gh api --method PATCH repos/${{ github.repository }}/pages \
+            -f source[branch]=gh-pages -f source[path]=/ || true

@@ -64,7 +64,7 @@ All issues are automatically triaged with type, area, and priority labels.
    ```bash
    make test                        # Structure, code blocks, drift (~5s)
    make translate-validate L=ko     # Check translation integrity
-   npx docsify-cli serve docs       # Preview the site
+   mkdocs serve                     # Preview the site
    ```
 5. **Submit a PR** — reference any related issue numbers
 6. **Gemini reviews your PR** — the CI pipeline runs a custom [Gemini CLI code review](.github/workflows/gemini-code-review.yml) that checks workshop content quality, i18n impact, and security

@@ -49,13 +49,16 @@ make translate L=ja P=8   # 8 workers for faster runs
 # 4. Validate
 make translate-validate L=ja
 
-# 5. Add to the language switcher
-#    Edit docs/_navbar.md and add:  * [日本語](/ja/)
+# 5. Add to the language switcher in mkdocs.yml
+#    Under plugins.i18n.languages, add:
+#    - locale: ja
+#      name: 日本語
+#      build: true
 
 # 6. Verify it appears
 make translate-list
 
-# Done. No config changes needed.
+# Done.
 ```
 
 ### Supported Language Codes
@@ -100,7 +103,7 @@ The 8 workshop docs plus a generated sidebar:
 
 | File | Content |
 |---|---|
-| `docs/README.md` | Landing page (Docsify home for each language) |
+| `docs/index.md` | Landing page (MkDocs homepage for each language) |
 | `docs/setup.md` | Environment setup instructions |
 | `docs/sdlc-productivity.md` | Use Case 1 |
 | `docs/legacy-modernization.md` | Use Case 2 |
@@ -108,7 +111,6 @@ The 8 workshop docs plus a generated sidebar:
 | `docs/advanced-patterns.md` | Advanced techniques |
 | `docs/extensions-ecosystem.md` | Extensions & ecosystem |
 | `docs/cheatsheet.md` | Quick reference |
-| `docs/{lang}/_sidebar.md` | Auto-generated from English sidebar |
 
 **Not translated:** facilitator guide, exercises, samples, agent configs.
 

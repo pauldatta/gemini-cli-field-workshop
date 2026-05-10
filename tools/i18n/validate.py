@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 TOOLS_DIR = REPO_ROOT / "tools" / "i18n"
 
 TRANSLATABLE_DOCS = [
-    "docs/README.md",
+    "docs/index.md",
     "docs/setup.md",
     "docs/sdlc-productivity.md",
     "docs/legacy-modernization.md",
@@ -204,7 +204,7 @@ def check_link_integrity(translated: str, translated_path: Path) -> list[str]:
 
     Handles three cases:
     - Relative paths: resolved from the translated file's directory
-    - Absolute Docsify routes (/file.md): resolved from docs/ root
+    - Absolute paths (/file.md): resolved from docs/ root
     - Asset paths: resolved from the translated file's directory
     """
     errors = []
@@ -218,7 +218,7 @@ def check_link_integrity(translated: str, translated_path: Path) -> list[str]:
         if not path:
             continue
 
-        # Absolute Docsify route — resolve from docs/ root
+        # Absolute route — resolve from docs/ root
         if path.startswith("/"):
             target = (docs_root / path.lstrip("/")).resolve()
         else:
