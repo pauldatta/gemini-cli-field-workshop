@@ -121,8 +121,6 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor
 ```
 
 ---
-
-
 ## Mesin Kebijakan (TOML)
 
 ```toml

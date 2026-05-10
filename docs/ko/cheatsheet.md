@@ -47,8 +47,6 @@ gemini --version           # Check version
 | `/commands` | List custom commands |
 
 ---
-
-
 ## 헤드리스 모드
 
 ```bash

@@ -16,6 +16,8 @@
     "MD022": false,         // Blanks around headings — compact workshop format is intentional
     "MD058": false,         // Blanks around tables — compact layout for facilitator guide
     "MD031": false,         // Blanks around fences — code blocks inside <details> are compact
+    "MD041": false,         // First line heading — README.md starts with <p align="center"> banner
+    "MD051": false,         // Link fragments — translated docs use English anchors that don't match translated headings
 
     // Keep these enabled — they catch real rendering bugs
     "MD001": true,          // Heading increment — no jumping from # to ###
@@ -26,8 +28,6 @@
     "MD019": true,          // No multiple spaces after hash
     "MD023": true,          // Headings must start at beginning of line
     "MD025": true,          // Single h1 per document
-    "MD041": true,          // First line must be a heading (MkDocs pages start with headings)
-    "MD051": true,          // Link fragments must be valid heading anchors
     "MD037": true,          // No spaces inside emphasis markers
     "MD038": true,          // No spaces inside code spans
     "MD039": true,          // No spaces inside link text

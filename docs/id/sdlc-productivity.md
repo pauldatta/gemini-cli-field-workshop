@@ -872,8 +872,6 @@ Part 1 gave you the building blocks: subagents, Conductor, policy engine, hooks.
 The pattern is always the same: **build locally → validate → promote to CI/CD → scale across the org.** The agent that helps one developer becomes the automation that helps the entire team.
 
 ---
-
-
 ## Ringkasan: Apa yang Telah Anda Pelajari
 
 | Fitur | Apa yang Dilakukannya |
