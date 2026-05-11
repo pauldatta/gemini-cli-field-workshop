@@ -4,7 +4,7 @@
 > **Goal:** Build CI/CD automation that diagnoses pipeline failures, creates fixes, submits PRs, and notifies teams — all from headless mode, hooks, and GitHub Actions.  
 > **Exercise PRD:** [CI/CD Pipeline Health Monitor](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_cicd_monitor.md)
 >
-> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
+> *Last updated: 2026-05-11 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -110,10 +110,10 @@ Review the 4 hooks configured in this workshop:
 
 | Hook | Event | Purpose | Latency |
 |---|---|---|---|
-| `session-context.sh` | SessionStart | Injects branch name, dirty file count into session | <200ms |
-| `secret-scanner.sh` | BeforeTool | Blocks hardcoded credentials, steers toward env vars | <50ms |
-| `git-context-injector.sh` | BeforeTool | Injects recent git history for the target file | <100ms |
-| `test-nudge.sh` | AfterTool | Reminds agent to consider running tests after source changes | <10ms |
+| [`session-context.sh`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/session-context.sh) | SessionStart | Injects branch name, dirty file count into session | <200ms |
+| [`secret-scanner.sh`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/secret-scanner.sh) | BeforeTool | Blocks hardcoded credentials, steers toward env vars | <50ms |
+| [`git-context-injector.sh`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/git-context-injector.sh) | BeforeTool | Injects recent git history for the target file | <100ms |
+| [`test-nudge.sh`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/test-nudge.sh) | AfterTool | Reminds agent to consider running tests after source changes | <10ms |
 
 > **Design principle:** Hooks should be **context injectors and model steerers** — not heavy computation. Keep them under 200ms. They improve the agent's decisions without adding perceptible latency.
 
