@@ -4,7 +4,7 @@
 > **Goal:** Build an enterprise-grade developer workflow from first install through context engineering, spec-driven development with Conductor, and governance guardrails.  
 > **Exercise PRD:** [Product Wishlist Feature](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/exercises/prd_sdlc_productivity.md)
 >
-> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
+> *Last updated: 2026-05-11 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -280,7 +280,7 @@ You can restrict which MCP tools a subagent can access:
 
 ### The Policy Engine
 
-Policies are guardrails-as-code written in TOML:
+Policies are guardrails-as-code written in TOML (see [`policy.toml`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/config/policy.toml)):
 
 ```bash
 cat .gemini/policies/team-guardrails.toml
@@ -316,12 +316,12 @@ An admin policy (set at the system level) overrides everything else. This is how
 
 ### Hooks in Action
 
-The hooks configured in `settings.json` are already active:
+The hooks configured in [`settings.json`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/config/settings.json) are already active:
 
-1. **SessionStart → session-context**: Injected your branch name and dirty file count at the start of this session
-2. **BeforeTool → secret-scanner**: Watching every file write for hardcoded credentials
-3. **BeforeTool → git-context**: Injecting recent git history before file modifications
-4. **AfterTool → test-nudge**: Reminding the agent to consider running tests
+1. **SessionStart → [`session-context`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/session-context.sh)**: Injected your branch name and dirty file count at the start of this session
+2. **BeforeTool → [`secret-scanner`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/secret-scanner.sh)**: Watching every file write for hardcoded credentials
+3. **BeforeTool → [`git-context`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/git-context-injector.sh)**: Injecting recent git history before file modifications
+4. **AfterTool → [`test-nudge`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/hooks/test-nudge.sh)**: Reminding the agent to consider running tests
 
 Check hook status:
 
@@ -503,7 +503,7 @@ The examples below show that Gemini CLI isn't just a code generator — it's a *
 
 ---
 
-### Agent 1: The PR Reviewer
+### Agent 1: The PR Reviewer ([source](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/agents/pr-reviewer.md))
 
 A read-only agent that reviews code changes for quality, bugs, and style violations.
 
@@ -553,7 +553,7 @@ Keep feedback constructive. Acknowledge good patterns when you see them.
 
 ---
 
-### Agent 2: The Doc Writer
+### Agent 2: The Doc Writer ([source](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/agents/doc-writer.md))
 
 Generates API documentation, READMEs, and code comments from source code. Read-only — it can never modify your files.
 
@@ -630,7 +630,7 @@ This uses [OSV-Scanner](https://github.com/google/osv-scanner) to cross-referenc
 
 ---
 
-### Agent 4: The Release Notes Drafter
+### Agent 4: The Release Notes Drafter ([source](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/agents/release-notes-drafter.md))
 
 Reads git history and changed files to produce structured, stakeholder-friendly release notes.
 

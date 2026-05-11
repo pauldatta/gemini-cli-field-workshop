@@ -2,7 +2,7 @@
 
 > Complete this before starting any use case. Takes ~15 minutes.
 >
-> *Last updated: 2026-05-05 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
+> *Last updated: 2026-05-11 · [Source verified against gemini-cli repository](https://github.com/google-gemini/gemini-cli)*
 
 ---
 
@@ -42,11 +42,11 @@ chmod +x setup.sh
 1. Verifies Node.js, npm, and Git are installed
 2. Installs/updates Gemini CLI globally (`npm install -g @google/gemini-cli`)
 3. Initializes the `demo-app/` submodule (ProShop v2) and runs `npm install`
-4. Copies sample configurations into the demo app:
-   - `GEMINI.md` context hierarchy
-   - Hook scripts (secret scanner, auto-test, session logger, path guard)
-   - Policy engine rules
-   - Custom subagent definitions
+4. Copies [sample configurations](https://github.com/pauldatta/gemini-cli-field-workshop/tree/main/samples) into the demo app:
+   - [`GEMINI.md`](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/gemini-md/project-gemini.md) context hierarchy
+   - [Hook scripts](https://github.com/pauldatta/gemini-cli-field-workshop/tree/main/samples/hooks) (secret scanner, auto-test, session logger, path guard)
+   - [Policy engine rules](https://github.com/pauldatta/gemini-cli-field-workshop/blob/main/samples/config/policy.toml)
+   - [Custom subagent definitions](https://github.com/pauldatta/gemini-cli-field-workshop/tree/main/samples/agents)
 5. Verifies Gemini CLI authentication
 
 ---
