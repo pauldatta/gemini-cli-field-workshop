@@ -126,7 +126,7 @@ jobs:
             - area/hooks: Hook samples, settings.json, policy.toml configurations
             - area/facilitator: Facilitator guide, delivery timing, audience targeting
             - area/cicd: GitHub Actions workflows, headless mode examples
-            - area/docsify: Docsify site rendering, navigation, search, index.html
+            - area/mkdocs: MkDocs Material site rendering, navigation, search, theming
             - area/i18n: Translations, Korean content in ko/ directory, language parity
             - area/unknown: Does not clearly fit any other area
 
@@ -177,7 +177,7 @@ jobs:
             }
 
             const validTypes = ['type/bug', 'type/improvement', 'type/feedback', 'type/question'];
-            const validAreas = ['area/setup', 'area/content', 'area/hooks', 'area/facilitator', 'area/cicd', 'area/docsify', 'area/i18n', 'area/unknown'];
+            const validAreas = ['area/setup', 'area/content', 'area/hooks', 'area/facilitator', 'area/cicd', 'area/mkdocs', 'area/i18n', 'area/unknown'];
             const validPriorities = ['priority/high', 'priority/medium', 'priority/low'];
 
             const typeLabel = validTypes.includes(parsed.type) ? parsed.type : 'type/question';
