@@ -8,11 +8,12 @@
 These terms must appear in English exactly as written — they are product names,
 CLI commands, file paths, or technical identifiers:
 
-Gemini CLI, GEMINI.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
-OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json,
+Gemini CLI, Antigravity CLI, agy, GEMINI.md, AGENTS.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
+OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json, mcp_config.json,
 .env, Express.js, React, Redux, MongoDB, ProShop, GitHub, BigQuery, Cloud Run,
 Flash, Pro, Docsify, Docker, macOS, RTK Query, Entity Framework, MERN,
-OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
+OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH,
+Antigravity 2.0, Google I/O, Apache 2.0, AI Studio, Vertex AI, Gemini Code Assist
 
 ## Term Translations
 
@@ -59,3 +60,15 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | Advanced Patterns | 高级模式 | Sidebar navigation |
 | Cheatsheet | 速查表 | Sidebar navigation |
 | Extensions Ecosystem | 扩展生态系统 | Sidebar navigation |
+| Migration Guide | 迁移指南 | Sidebar navigation |
+| migration | 迁移 | |
+| plugin | 插件 | Antigravity CLI context |
+| deadline | 截止日期 | |
+| rate limit | 请求频率限制 | |
+| free tier | 免费层 | |
+| enterprise | 企业级 | |
+| open source | 开源 | |
+| closed source | 闭源 | |
+| binary | 二进制文件 | |
+| asynchronous | 异步 | |
+| unified architecture | 统一架构 | |

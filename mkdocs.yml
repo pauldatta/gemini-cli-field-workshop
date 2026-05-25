@@ -1,5 +1,5 @@
-site_name: "Gemini CLI Field Workshop"
-site_description: "Hands-on enablement for enterprise developers — agentic coding, modernization, and DevOps with Gemini CLI"
+site_name: "AGY CLI Field Workshop (formerly Gemini CLI)"
+site_description: "Hands-on enablement for enterprise developers — agentic coding, modernization, and DevOps with Antigravity CLI (AGY CLI). Includes migration guide from Gemini CLI."
 site_url: "https://pauldatta.github.io/gemini-cli-field-workshop/"
 repo_url: "https://github.com/pauldatta/gemini-cli-field-workshop"
 repo_name: "pauldatta/gemini-cli-field-workshop"
@@ -58,6 +58,7 @@ nav:
       - Advanced Patterns: advanced-patterns.md
       - Extensions Ecosystem: extensions-ecosystem.md
   - "📋 Resources":
+      - "⚠️ Migration Guide: Gemini CLI → AGY CLI": migration-guide.md
       - Cheatsheet: cheatsheet.md
       - Facilitator Guide: facilitator-guide.md
 

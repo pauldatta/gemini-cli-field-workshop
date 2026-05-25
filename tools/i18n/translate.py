@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # public-workshop/
 TOOLS_DIR = REPO_ROOT / "tools" / "i18n"
 MANIFEST_PATH = TOOLS_DIR / ".translation-manifest.json"
 
-# The 7 workshop docs that get translated
+# The translatable workshop docs
 TRANSLATABLE_DOCS = [
     "docs/index.md",
     "docs/setup.md",
@@ -38,6 +38,7 @@ TRANSLATABLE_DOCS = [
     "docs/advanced-patterns.md",
     "docs/extensions-ecosystem.md",
     "docs/cheatsheet.md",
+    "docs/migration-guide.md",  # M09: Gemini CLI → Antigravity CLI (added 2026-05-25)
 ]
 
 # Regex for fenced code blocks (``` with optional language tag)
@@ -429,7 +430,7 @@ def main():
     lang_name = lang_names.get(args.lang, args.lang)
 
     print(f"{'═' * 56}")
-    print(f"  🌐 Gemini CLI Workshop — Translation Pipeline")
+    print(f"  🌐 AGY CLI Workshop — Translation Pipeline")
     print(f"{'═' * 56}")
     print(f"  Target:   {lang_name} ({args.lang})")
     print(f"  Model:    {args.model}")

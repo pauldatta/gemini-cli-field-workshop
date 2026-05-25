@@ -31,6 +31,10 @@
     "docs/README.md": {
       "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
       "translated_at": "2026-05-06T06:41:57.979292+00:00"
+    },
+    "docs/migration-guide.md": {
+      "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
+      "translated_at": "2026-05-25T02:25:12.759065+00:00"
     }
   },
   "id": {
@@ -65,6 +69,10 @@
     "docs/README.md": {
       "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
       "translated_at": "2026-05-06T02:43:53.283276+00:00"
+    },
+    "docs/migration-guide.md": {
+      "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
+      "translated_at": "2026-05-25T02:26:39.357862+00:00"
     }
   },
   "zh": {
@@ -99,6 +107,10 @@
     "docs/README.md": {
       "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
       "translated_at": "2026-05-06T02:44:15.759446+00:00"
+    },
+    "docs/migration-guide.md": {
+      "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
+      "translated_at": "2026-05-25T02:26:06.462466+00:00"
     }
   }
 }

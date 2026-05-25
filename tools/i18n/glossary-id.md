@@ -8,11 +8,12 @@
 These terms must appear in English exactly as written — they are product names,
 CLI commands, file paths, or technical identifiers:
 
-Gemini CLI, GEMINI.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
-OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json,
+Gemini CLI, Antigravity CLI, agy, GEMINI.md, AGENTS.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
+OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json, mcp_config.json,
 .env, Express.js, React, Redux, MongoDB, ProShop, GitHub, BigQuery, Cloud Run,
 Flash, Pro, Docsify, Docker, macOS, RTK Query, Entity Framework, MERN,
-OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
+OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH,
+Antigravity 2.0, Google I/O, Apache 2.0, AI Studio, Vertex AI, Gemini Code Assist
 
 ## Term Translations
 
@@ -59,3 +60,15 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | Advanced Patterns | Pola Lanjutan | Sidebar navigation |
 | Cheatsheet | Lembar Contekan | Sidebar navigation |
 | Extensions Ecosystem | Ekosistem Ekstensi | Sidebar navigation |
+| Migration Guide | Panduan Migrasi | Sidebar navigation |
+| migration | migrasi | |
+| plugin | plugin | Retained as loanword |
+| deadline | batas waktu | |
+| rate limit | batas permintaan | |
+| free tier | paket gratis | |
+| enterprise | enterprise | Retained as loanword |
+| open source | sumber terbuka | |
+| closed source | sumber tertutup | |
+| binary | berkas biner | |
+| asynchronous | asinkronus | |
+| unified architecture | arsitektur terpadu | |

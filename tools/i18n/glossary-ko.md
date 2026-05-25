@@ -8,11 +8,12 @@
 These terms must appear in English exactly as written — they are product names,
 CLI commands, file paths, or technical identifiers:
 
-Gemini CLI, GEMINI.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
-OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json,
+Gemini CLI, Antigravity CLI, agy, GEMINI.md, AGENTS.md, .geminiignore, Conductor, MCP, TOML, YAML, JSON, JWT,
+OAuth, npm, npx, git, curl, cat, ls, cd, mkdir, cp, package.json, settings.json, mcp_config.json,
 .env, Express.js, React, Redux, MongoDB, ProShop, GitHub, BigQuery, Cloud Run,
 Flash, Pro, Docsify, Docker, macOS, RTK Query, Entity Framework, MERN,
-OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
+OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH,
+Antigravity 2.0, Google I/O, Apache 2.0, AI Studio, Vertex AI, Gemini Code Assist
 
 ## Term Translations
 
@@ -59,3 +60,15 @@ OWASP, CVE, API, REST, GraphQL, CI/CD, PR, CLI, TUI, UI, URL, SSH
 | Advanced Patterns | 고급 패턴 | Sidebar navigation (capitalized) |
 | Cheatsheet | 치트시트 | Sidebar navigation (capitalized) |
 | Extensions Ecosystem | 확장 프로그램 생태계 | Sidebar navigation |
+| Migration Guide | 마이그레이션 가이드 | Sidebar navigation |
+| migration | 마이그레이션 | |
+| plugin | 플러그인 | Antigravity CLI context |
+| deadline | 기한 | |
+| rate limit | 요청 제한 | |
+| free tier | 무료 플랜 | |
+| enterprise | 엔터프라이즈 | |
+| open source | 오픈 소스 | |
+| closed source | 비공개 소스 | |
+| binary | 바이너리 | |
+| asynchronous | 비동기 | |
+| unified architecture | 통합 아키텍처 | |
