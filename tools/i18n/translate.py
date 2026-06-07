@@ -6,6 +6,7 @@ Usage:
     python tools/i18n/translate.py docs/setup.md --lang ko
     python tools/i18n/translate.py --all --lang ko
     python tools/i18n/translate.py docs/setup.md --lang ko --dry-run
+    python tools/i18n/translate.py --all --langs ko,zh,id --file-parallel 3
 """
 
 import argparse
@@ -17,28 +18,44 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 import time
+import warnings
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Suppress google-genai SDK warnings about thinking model thought_signature parts.
+# We only use response.text — the thinking trace is not analyzed.
+warnings.filterwarnings("ignore", message=".*non-text parts.*")
+logging.getLogger("google_genai").setLevel(logging.ERROR)
+# Suppress Python 3.9 EOL and LibreSSL warnings — not actionable during translation.
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", message=".*NotOpenSSLWarning.*")
+warnings.filterwarnings("ignore", message=".*urllib3.*OpenSSL.*")
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # public-workshop/
-TOOLS_DIR = REPO_ROOT / "tools" / "i18n"
+# Allow an external caller (e.g. agy-cli-field-workshop) to override the repo
+# root via an env var so the script can locate source files correctly.
+import os as _os
+_env_root = _os.environ.get("AGY_REPO_ROOT")
+REPO_ROOT = Path(_env_root).resolve() if _env_root else Path(__file__).resolve().parent.parent.parent
+TOOLS_DIR = Path(__file__).resolve().parent  # always the i18n tools dir
 MANIFEST_PATH = TOOLS_DIR / ".translation-manifest.json"
 
-# The translatable workshop docs
+# The translatable workshop docs (must match actual files in docs/)
 TRANSLATABLE_DOCS = [
     "docs/index.md",
     "docs/setup.md",
     "docs/sdlc-productivity.md",
+    "docs/plugin-ecosystem.md",
+    "docs/devops-automation.md",
+    "docs/multi-agent-advanced.md",
     "docs/legacy-modernization.md",
-    "docs/devops-orchestration.md",
-    "docs/advanced-patterns.md",
-    "docs/extensions-ecosystem.md",
+    "docs/agy-sdk.md",
     "docs/cheatsheet.md",
-    "docs/migration-guide.md",  # M09: Gemini CLI → Antigravity CLI (added 2026-05-25)
+    "docs/facilitator-guide.md",
 ]
 
 # Regex for fenced code blocks (``` with optional language tag)
@@ -401,16 +418,142 @@ def format_duration(seconds: float) -> str:
     return f"{minutes}m {secs:.0f}s"
 
 
+def _translate_one_file(file_path, lang, glossary, model_name, file_num, file_total, max_workers):
+    """Wrapper for translate_file that handles errors gracefully.
+    Used by both sequential and parallel execution paths."""
+    try:
+        stats = translate_file(
+            file_path, lang, glossary, model_name,
+            file_num=file_num, file_total=file_total,
+            max_workers=max_workers,
+        )
+        update_manifest(lang, file_path)
+        return stats
+    except Exception as e:
+        print(f"  ❌ {file_path.name} failed: {e}")
+        return {"file": file_path.name, "status": "error", "error": str(e)}
+
+
+def translate_lang(lang, files, model_name, dry_run, max_section_workers, max_file_workers):
+    """Translate all files for a single language.
+    Supports file-level parallelism via max_file_workers > 1."""
+
+    glossary = load_glossary(lang)
+    _, auth_mode = get_client()
+
+    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese",
+                  "th": "Thai", "vi": "Vietnamese", "id": "Indonesian",
+                  "ms": "Malay", "tl": "Filipino", "my": "Burmese", "km": "Khmer"}
+    lang_name = lang_names.get(lang, lang)
+
+    print(f"\n{'═' * 56}")
+    print(f"  🌐 AGY CLI Workshop — Translation Pipeline")
+    print(f"{'═' * 56}")
+    print(f"  Target:   {lang_name} ({lang})")
+    print(f"  Model:    {model_name}")
+    print(f"  Auth:     {auth_mode}")
+    print(f"  Files:    {len(files)}")
+    print(f"  Glossary: {len(glossary['never_translate'])} protected, "
+          f"{len(glossary['terms'])} translated terms")
+    print(f"  Workers:  {max_section_workers}/section, {max_file_workers}/file")
+
+    if dry_run:
+        print(f"\n🔍 Dry run — no API calls will be made:\n")
+        for f in files:
+            translate_file(f, lang, glossary, model_name, dry_run=True)
+        return []
+
+    total_start = time.time()
+    valid_files = [(i, f) for i, f in enumerate(files, 1) if f.exists()]
+    for _, f in [(i, f) for i, f in enumerate(files, 1) if not f.exists()]:
+        print(f"\n  ⚠️  Skipping {f} (not found)")
+
+    results = []
+    interrupted = False
+
+    try:
+        if max_file_workers > 1 and len(valid_files) > 1:
+            # File-level parallelism: translate multiple files concurrently
+            with ThreadPoolExecutor(max_workers=min(max_file_workers, len(valid_files))) as pool:
+                futures = {
+                    pool.submit(
+                        _translate_one_file, f, lang, glossary, model_name,
+                        i, len(files), max_section_workers
+                    ): f.name
+                    for i, f in valid_files
+                }
+                for future in as_completed(futures):
+                    stats = future.result()
+                    if stats:
+                        results.append(stats)
+        else:
+            # Sequential: one file at a time
+            for i, f in valid_files:
+                stats = _translate_one_file(
+                    f, lang, glossary, model_name,
+                    i, len(files), max_section_workers
+                )
+                results.append(stats)
+    except KeyboardInterrupt:
+        interrupted = True
+        print(f"\n\n{'─' * 56}")
+        print(f"  ⚠️  Interrupted by user (Ctrl+C)")
+        print(f"{'─' * 56}")
+
+    # Summary
+    total_elapsed = time.time() - total_start
+    total_src = sum(r.get("src_lines", 0) for r in results)
+    total_out = sum(r.get("out_lines", 0) for r in results)
+    total_failures = sum(r.get("failures", 0) for r in results)
+
+    status = "⚠️  Translation Interrupted" if interrupted else "✅ Translation Complete"
+    print(f"\n{'═' * 56}")
+    print(f"  {status} — {lang_name}")
+    print(f"{'═' * 56}")
+    if results:
+        print(f"  {'File':<30} {'Source':>6} {'Output':>6} {'Time':>8}")
+        print(f"  {'─' * 52}")
+        for r in results:
+            elapsed = r.get('elapsed', 0)
+            print(f"  {r.get('file', '?'):<30} "
+                  f"{r.get('src_lines', '-'):>6} "
+                  f"{r.get('out_lines', '-'):>6} "
+                  f"{format_duration(elapsed) if elapsed else '-':>8}")
+        print(f"  {'─' * 52}")
+        print(f"  {'Total':<30} {total_src:>6} {total_out:>6} {format_duration(total_elapsed):>8}")
+    else:
+        print(f"  No files were completed.")
+
+    if total_failures > 0:
+        print(f"\n  ⚠️  {total_failures} section(s) failed — English preserved.")
+
+    print(f"\n  ℹ️  Run: make post-translate L={lang}  to normalize lint")
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser(description="Translate workshop docs")
     parser.add_argument("files", nargs="*", help="Source files to translate")
-    parser.add_argument("--lang", required=True, help="Target language code (e.g., ko)")
+    parser.add_argument("--lang", help="Target language code (e.g., ko)")
+    parser.add_argument("--langs", help="Comma-separated language codes for multi-lang parallel (e.g., ko,zh,id)")
     parser.add_argument("--all", action="store_true", help="Translate all workshop docs")
     parser.add_argument("--model", default="gemini-3.1-pro-preview", help="Gemini model")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be translated")
     parser.add_argument("--parallel", type=int, default=4,
-                        help="Max parallel API calls per file (default: 4)")
+                        help="Max parallel API calls per file section (default: 4)")
+    parser.add_argument("--file-parallel", type=int, default=1,
+                        help="Max files to translate concurrently per language (default: 1, sequential)")
     args = parser.parse_args()
+
+    # Validate language args
+    if not args.lang and not args.langs:
+        parser.error("Specify --lang or --langs")
+
+    # Determine languages
+    if args.langs:
+        languages = [l.strip() for l in args.langs.split(",") if l.strip()]
+    else:
+        languages = [args.lang]
 
     # Determine files
     if args.all:
@@ -420,88 +563,68 @@ def main():
     else:
         parser.error("Specify files or use --all")
 
-    # Load glossary and init client
-    glossary = load_glossary(args.lang)
-    _, auth_mode = get_client()
+    # Multi-language: run each language as a subprocess for true parallelism
+    if len(languages) > 1:
+        import multiprocessing
+        print(f"{'═' * 56}")
+        print(f"  🌐 Multi-Language Parallel Translation")
+        print(f"{'═' * 56}")
+        print(f"  Languages: {', '.join(languages)}")
+        print(f"  Files:     {len(files)}")
+        print(f"  Strategy:  {len(languages)} language processes × "
+              f"{args.file_parallel} file workers × {args.parallel} section workers")
+        print(f"{'═' * 56}")
 
-    lang_names = {"ko": "Korean", "ja": "Japanese", "zh": "Chinese",
-                  "th": "Thai", "vi": "Vietnamese", "id": "Indonesian",
-                  "ms": "Malay", "tl": "Filipino", "my": "Burmese", "km": "Khmer"}
-    lang_name = lang_names.get(args.lang, args.lang)
+        total_start = time.time()
+        procs = []
+        for lang in languages:
+            cmd = [
+                sys.executable, str(Path(__file__).resolve()),
+                "--lang", lang,
+                "--model", args.model,
+                "--parallel", str(args.parallel),
+                "--file-parallel", str(args.file_parallel),
+            ]
+            if args.all:
+                cmd.append("--all")
+            else:
+                cmd.extend(str(f) for f in files)
+            if args.dry_run:
+                cmd.append("--dry-run")
 
-    print(f"{'═' * 56}")
-    print(f"  🌐 AGY CLI Workshop — Translation Pipeline")
-    print(f"{'═' * 56}")
-    print(f"  Target:   {lang_name} ({args.lang})")
-    print(f"  Model:    {args.model}")
-    print(f"  Auth:     {auth_mode}")
-    print(f"  Files:    {len(files)}")
-    print(f"  Glossary: {len(glossary['never_translate'])} protected, "
-          f"{len(glossary['terms'])} translated terms")
-
-    if args.dry_run:
-        print(f"\n🔍 Dry run — no API calls will be made:\n")
-        for f in files:
-            translate_file(f, args.lang, glossary, args.model, dry_run=True)
-        return
-
-    total_start = time.time()
-    results = []
-    interrupted = False
-    remaining_files = []
-
-    print(f"  Parallel: {args.parallel} workers per file")
-
-    try:
-        for i, f in enumerate(files, 1):
-            if not f.exists():
-                print(f"\n  ⚠️  Skipping {f} (not found)")
-                continue
-            stats = translate_file(
-                f, args.lang, glossary, args.model,
-                file_num=i, file_total=len(files),
-                max_workers=args.parallel,
+            # Inherit all env vars including GOOGLE_CLOUD_PROJECT
+            proc = subprocess.Popen(
+                cmd,
+                env={**os.environ, "AGY_REPO_ROOT": str(REPO_ROOT)},
+                cwd=str(REPO_ROOT),
             )
-            results.append(stats)
-            update_manifest(args.lang, f)
-    except KeyboardInterrupt:
-        interrupted = True
-        remaining_files = [f.name for f in files[len(results):]]
-        print(f"\n\n{'─' * 56}")
-        print(f"  ⚠️  Interrupted by user (Ctrl+C)")
-        print(f"{'─' * 56}")
+            procs.append((lang, proc))
 
-    # Summary — always printed, even on interrupt
-    total_elapsed = time.time() - total_start
-    total_src = sum(r.get("src_lines", 0) for r in results)
-    total_out = sum(r.get("out_lines", 0) for r in results)
-    total_failures = sum(r.get("failures", 0) for r in results)
+        # Wait for all
+        failures = []
+        for lang, proc in procs:
+            proc.wait()
+            if proc.returncode != 0:
+                failures.append(lang)
 
-    status = "⚠️  Translation Interrupted" if interrupted else "✅ Translation Complete"
-    print(f"\n{'═' * 56}")
-    print(f"  {status}")
-    print(f"{'═' * 56}")
-    if results:
-        print(f"  {'File':<30} {'Source':>6} {'Output':>6} {'Time':>8}")
-        print(f"  {'─' * 52}")
-        for r in results:
-            print(f"  {r.get('file', '?'):<30} "
-                  f"{r.get('src_lines', '?'):>6} "
-                  f"{r.get('out_lines', '?'):>6} "
-                  f"{format_duration(r.get('elapsed', 0)):>8}")
-        print(f"  {'─' * 52}")
-        print(f"  {'Total':<30} {total_src:>6} {total_out:>6} {format_duration(total_elapsed):>8}")
-    else:
-        print(f"  No files were completed.")
+        total_elapsed = time.time() - total_start
+        print(f"\n{'═' * 56}")
+        if failures:
+            print(f"  ⚠️  Multi-language translation completed with errors")
+            print(f"  Failed: {', '.join(failures)}")
+        else:
+            print(f"  ✅ All {len(languages)} languages translated")
+        print(f"  Wall time: {format_duration(total_elapsed)}")
+        print(f"{'═' * 56}")
+        print(f"\n  Next: run 'make post-translate L=<lang>' for each language")
+        sys.exit(1 if failures else 0)
 
-    if total_failures > 0:
-        print(f"\n  ⚠️  {total_failures} section(s) failed — English preserved for those sections.")
-
-    if interrupted and remaining_files:
-        print(f"\n  📋 Not started: {', '.join(remaining_files)}")
-        print(f"  💡 Re-run to continue: make translate L={args.lang}")
-    elif not interrupted:
-        print(f"\n  Next: make translate-validate L={args.lang}")
+    # Single language path
+    translate_lang(
+        languages[0], files, args.model, args.dry_run,
+        max_section_workers=args.parallel,
+        max_file_workers=args.file_parallel,
+    )
 
 
 if __name__ == "__main__":

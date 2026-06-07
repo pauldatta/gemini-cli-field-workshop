@@ -1,16 +1,16 @@
 {
   "ko": {
     "docs/setup.md": {
-      "source_sha": "9ed4dae4cd0691ea2eff3a2a8796ffd4eea1d62a",
-      "translated_at": "2026-05-06T02:28:43.624677+00:00"
+      "source_sha": "fa7197515782d46281fc5a7f157a019b98766747",
+      "translated_at": "2026-06-07T03:22:41.680904+00:00"
     },
     "docs/sdlc-productivity.md": {
-      "source_sha": "8ffc7bf63da57e4b91f1ca136a3eae91a784dbae",
-      "translated_at": "2026-05-08T02:01:50.930382+00:00"
+      "source_sha": "30b9a6366e926ee6d2ff0b11e3ada11d38663430",
+      "translated_at": "2026-06-07T03:23:16.113803+00:00"
     },
     "docs/legacy-modernization.md": {
-      "source_sha": "59d6f3d0f26b1514cd642622c5e62cbca216fd32",
-      "translated_at": "2026-05-06T02:30:11.769065+00:00"
+      "source_sha": "10033447526fb89c64e85e4fab50412d2ca8f6c0",
+      "translated_at": "2026-06-07T03:23:56.594084+00:00"
     },
     "docs/devops-orchestration.md": {
       "source_sha": "2d5ed8778d9fa07ef224425a31d72b9db74264e2",
@@ -21,8 +21,8 @@
       "translated_at": "2026-05-06T09:14:43.006959+00:00"
     },
     "docs/cheatsheet.md": {
-      "source_sha": "626665d9e65555007237a259193f4d8b0c82f3f8",
-      "translated_at": "2026-05-08T02:02:48.803011+00:00"
+      "source_sha": "cb976e83661cd819818b7f003b55a0018aeafeac",
+      "translated_at": "2026-06-07T03:24:24.348901+00:00"
     },
     "docs/extensions-ecosystem.md": {
       "source_sha": "bfa06bf12e1d7fa7f6b7162b97a08921c21524ee",
@@ -35,20 +35,48 @@
     "docs/migration-guide.md": {
       "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
       "translated_at": "2026-05-25T02:25:12.759065+00:00"
+    },
+    "docs/plugin-ecosystem.md": {
+      "source_sha": "ba8cbf7501465634d43e65910708902a456d152e",
+      "translated_at": "2026-06-07T03:23:50.960756+00:00"
+    },
+    "docs/devops-automation.md": {
+      "source_sha": "4afc8f3e53e932de93cf19b1953d3a88f274edee",
+      "translated_at": "2026-06-07T03:23:05.015488+00:00"
+    },
+    "docs/multi-agent-advanced.md": {
+      "source_sha": "1645d64a636fabb1c4c4de6f7fc7fb709e057a38",
+      "translated_at": "2026-06-07T03:23:36.199011+00:00"
+    },
+    "docs/facilitator-guide.md": {
+      "source_sha": "7bc82605e1f35f1b7291e02b7b694515fac485c8",
+      "translated_at": "2026-06-07T03:24:31.866458+00:00"
+    },
+    "docs/agy-sdk.md": {
+      "source_sha": "291fa9e75f79ee72babe82ffb8f32ad6b68b4091",
+      "translated_at": "2026-06-07T03:24:22.236061+00:00"
+    },
+    "docs/index.md": {
+      "source_sha": "c905a560452348c1e214fac215c2acf141d88a8a",
+      "translated_at": "2026-06-07T03:22:36.766104+00:00"
+    },
+    "docs/agents-cli.md": {
+      "source_sha": "1027774f0564a5c4830ddbc71d49c0fc64877988",
+      "translated_at": "2026-06-07T03:13:58.203292+00:00"
     }
   },
   "id": {
     "docs/setup.md": {
-      "source_sha": "9ed4dae4cd0691ea2eff3a2a8796ffd4eea1d62a",
-      "translated_at": "2026-05-06T02:18:17.644066+00:00"
+      "source_sha": "fa7197515782d46281fc5a7f157a019b98766747",
+      "translated_at": "2026-06-07T03:22:39.163102+00:00"
     },
     "docs/sdlc-productivity.md": {
-      "source_sha": "8ffc7bf63da57e4b91f1ca136a3eae91a784dbae",
-      "translated_at": "2026-05-08T02:03:38.618745+00:00"
+      "source_sha": "30b9a6366e926ee6d2ff0b11e3ada11d38663430",
+      "translated_at": "2026-06-07T03:23:01.032576+00:00"
     },
     "docs/legacy-modernization.md": {
-      "source_sha": "59d6f3d0f26b1514cd642622c5e62cbca216fd32",
-      "translated_at": "2026-05-06T02:19:48.011617+00:00"
+      "source_sha": "10033447526fb89c64e85e4fab50412d2ca8f6c0",
+      "translated_at": "2026-06-07T03:23:49.276136+00:00"
     },
     "docs/devops-orchestration.md": {
       "source_sha": "2d5ed8778d9fa07ef224425a31d72b9db74264e2",
@@ -63,8 +91,8 @@
       "translated_at": "2026-05-06T02:21:24.710684+00:00"
     },
     "docs/cheatsheet.md": {
-      "source_sha": "626665d9e65555007237a259193f4d8b0c82f3f8",
-      "translated_at": "2026-05-08T02:03:53.493274+00:00"
+      "source_sha": "cb976e83661cd819818b7f003b55a0018aeafeac",
+      "translated_at": "2026-06-07T03:24:29.073548+00:00"
     },
     "docs/README.md": {
       "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
@@ -73,20 +101,48 @@
     "docs/migration-guide.md": {
       "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
       "translated_at": "2026-05-25T02:26:39.357862+00:00"
+    },
+    "docs/plugin-ecosystem.md": {
+      "source_sha": "ba8cbf7501465634d43e65910708902a456d152e",
+      "translated_at": "2026-06-07T03:23:50.266823+00:00"
+    },
+    "docs/devops-automation.md": {
+      "source_sha": "4afc8f3e53e932de93cf19b1953d3a88f274edee",
+      "translated_at": "2026-06-07T03:23:09.932286+00:00"
+    },
+    "docs/multi-agent-advanced.md": {
+      "source_sha": "1645d64a636fabb1c4c4de6f7fc7fb709e057a38",
+      "translated_at": "2026-06-07T03:23:25.456650+00:00"
+    },
+    "docs/facilitator-guide.md": {
+      "source_sha": "7bc82605e1f35f1b7291e02b7b694515fac485c8",
+      "translated_at": "2026-06-07T03:24:40.248366+00:00"
+    },
+    "docs/agy-sdk.md": {
+      "source_sha": "291fa9e75f79ee72babe82ffb8f32ad6b68b4091",
+      "translated_at": "2026-06-07T03:24:11.997375+00:00"
+    },
+    "docs/index.md": {
+      "source_sha": "c905a560452348c1e214fac215c2acf141d88a8a",
+      "translated_at": "2026-06-07T03:22:41.911851+00:00"
+    },
+    "docs/agents-cli.md": {
+      "source_sha": "1027774f0564a5c4830ddbc71d49c0fc64877988",
+      "translated_at": "2026-06-07T03:15:04.932240+00:00"
     }
   },
   "zh": {
     "docs/setup.md": {
-      "source_sha": "9ed4dae4cd0691ea2eff3a2a8796ffd4eea1d62a",
-      "translated_at": "2026-05-06T02:21:59.922050+00:00"
+      "source_sha": "fa7197515782d46281fc5a7f157a019b98766747",
+      "translated_at": "2026-06-07T03:22:38.499158+00:00"
     },
     "docs/sdlc-productivity.md": {
-      "source_sha": "8ffc7bf63da57e4b91f1ca136a3eae91a784dbae",
-      "translated_at": "2026-05-08T02:03:36.689045+00:00"
+      "source_sha": "30b9a6366e926ee6d2ff0b11e3ada11d38663430",
+      "translated_at": "2026-06-07T03:23:20.049296+00:00"
     },
     "docs/legacy-modernization.md": {
-      "source_sha": "59d6f3d0f26b1514cd642622c5e62cbca216fd32",
-      "translated_at": "2026-05-06T02:23:23.902032+00:00"
+      "source_sha": "10033447526fb89c64e85e4fab50412d2ca8f6c0",
+      "translated_at": "2026-06-07T03:23:59.853953+00:00"
     },
     "docs/devops-orchestration.md": {
       "source_sha": "2d5ed8778d9fa07ef224425a31d72b9db74264e2",
@@ -101,8 +157,8 @@
       "translated_at": "2026-05-06T02:24:55.493100+00:00"
     },
     "docs/cheatsheet.md": {
-      "source_sha": "626665d9e65555007237a259193f4d8b0c82f3f8",
-      "translated_at": "2026-05-08T02:04:14.679235+00:00"
+      "source_sha": "cb976e83661cd819818b7f003b55a0018aeafeac",
+      "translated_at": "2026-06-07T03:24:34.133644+00:00"
     },
     "docs/README.md": {
       "source_sha": "fc2e2ecd6ac37c1cadbe893b253bee2746444df9",
@@ -111,6 +167,34 @@
     "docs/migration-guide.md": {
       "source_sha": "ae4b9e3d58dc8fc32834ce728f075c20d80e6980",
       "translated_at": "2026-05-25T02:26:06.462466+00:00"
+    },
+    "docs/plugin-ecosystem.md": {
+      "source_sha": "ba8cbf7501465634d43e65910708902a456d152e",
+      "translated_at": "2026-06-07T03:24:10.413968+00:00"
+    },
+    "docs/devops-automation.md": {
+      "source_sha": "4afc8f3e53e932de93cf19b1953d3a88f274edee",
+      "translated_at": "2026-06-07T03:23:16.585542+00:00"
+    },
+    "docs/multi-agent-advanced.md": {
+      "source_sha": "1645d64a636fabb1c4c4de6f7fc7fb709e057a38",
+      "translated_at": "2026-06-07T03:23:44.728425+00:00"
+    },
+    "docs/facilitator-guide.md": {
+      "source_sha": "7bc82605e1f35f1b7291e02b7b694515fac485c8",
+      "translated_at": "2026-06-07T03:25:10.151627+00:00"
+    },
+    "docs/agy-sdk.md": {
+      "source_sha": "291fa9e75f79ee72babe82ffb8f32ad6b68b4091",
+      "translated_at": "2026-06-07T03:24:28.742300+00:00"
+    },
+    "docs/index.md": {
+      "source_sha": "c905a560452348c1e214fac215c2acf141d88a8a",
+      "translated_at": "2026-06-07T03:22:39.491021+00:00"
+    },
+    "docs/agents-cli.md": {
+      "source_sha": "1027774f0564a5c4830ddbc71d49c0fc64877988",
+      "translated_at": "2026-06-07T03:14:06.102175+00:00"
     }
   }
 }
