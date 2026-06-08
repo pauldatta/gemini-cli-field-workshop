@@ -1,0 +1,7 @@
+/* Gemini CLI Field Workshop — Custom Styles */
+/* Extends MkDocs Material theme */
+
+/* Slightly widen the content area for tables */
+.md-grid {
+  max-width: 1200px;
+}
