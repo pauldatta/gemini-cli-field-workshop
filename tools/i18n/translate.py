@@ -56,6 +56,19 @@ TRANSLATABLE_DOCS = [
     "docs/agy-sdk.md",
     "docs/cheatsheet.md",
     "docs/facilitator-guide.md",
+    "docs/exercises/ex01_first_session.md",
+    "docs/exercises/ex02_plugin_bridge.md",
+    "docs/exercises/ex02b_first_sidecar.md",
+    "docs/exercises/ex03_print_mode_pipeline.md",
+    "docs/exercises/ex04_subagents.md",
+    "docs/exercises/ex05_btw_scheduling.md",
+    "docs/exercises/ex06_sandbox_governance.md",
+    "docs/exercises/ex07_migration_walkthrough.md",
+    "docs/exercises/ex08_dotnet_modernization.md",
+    "docs/exercises/ex09_java_upgrade.md",
+    "docs/exercises/ex10_first_agent.md",
+    "docs/exercises/ex11_multi_agent_pipeline.md",
+    "docs/exercises/ex12_agents_cli_lifecycle.md",
 ]
 
 # Regex for fenced code blocks (``` with optional language tag)
